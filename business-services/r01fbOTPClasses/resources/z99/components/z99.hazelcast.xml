@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<componentDef>
+	<numberOfPropertiesEstimation>1000</numberOfPropertiesEstimation>
+	<resourcesLoader type='CLASSPATH'/>
+	<propertiesFileURI>/z99/z99.hazelcast.properties.xml</propertiesFileURI>	<!-- OJO!! si se utiliza ClassPathLoader utilizar rutas relativas! -->
+</componentDef>

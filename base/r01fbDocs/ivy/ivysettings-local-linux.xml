@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ivysettings>
+    <properties file="/home/develop/eclipse/projects_r01fb/r01fbDocs/ivy/pci.versions.properties" />
+    <property name="ivy.local.default.root" value="/home/develop/eclipse/ivy_libs/cache" 
+    		  override="true"/>
+    <property name="guava.version" value="17.0"/>
+    <property name="javassist.version" value="3.18.2-GA"/>
+    
+         
+    <settings defaultResolver="default" />
+
+    <credentials host="repository.ejiedes.net" realm="Sonatype Nexus Repository Manager" 
+    			 username="deployment" passwd="deployment"/>
+
+    <resolvers>
+        <filesystem name="internal">
+            <ivy pattern="${ivy.local.default.root}/[organisation]/[module]/[artifact]-[revision].[ext]" />
+            <artifact pattern="${ivy.local.default.root}/[organisation]/[module]/[type]/[artifact]-[revision].[ext]" />
+        </filesystem>
+        
+        <chain name="default">
+            <resolver ref="internal"/>
+
+			<ibiblio name="local" m2compatible="true" 
+					 root="http://repository.ejiedes.net:3690/content/groups/local"/>
+
+            <!-- Vaadin Add-on repository http://maven.vaadin.com/vaadin-addons Esta URL es incompatible con Nexus
+            <ibiblio name="vaadin-addons" m2compatible="true" root="http://vaadin.com/nexus/content/repositories/vaadin-addons/" />
+            -->
+
+            <!-- Librerias de terceros que se van a buscar a los repositorios de EJIE, los repositorios definidos como "local" son los siguientes:
+                 Librerias creadas por EJIE en el entorno de SOFTBASE DESARROLLO
+                        <property name="ejie_appsdesa" value="http://repository.ejiedes.net:3690/content/repositories/ejie_appsdesa"/>
+                 Librerias de terceros que no se pueden obtener a traves del repositorio "public"
+                        <property name="ejie_thirdparty" value="http://repository.ejiedes.net:3690/content/repositories/ejie_thirdparty"/>
+                 Librerias de terceros homologadas por EJIE
+                        <property name="ejie_homologadas" value="http://repository.ejiedes.net:3690/content/repositories/ejie_homologadas"/>
+                 Librerias de terceros que se van a buscar a repositorios externos (Internet), los repositorios definidos como "public" son los siguientes:
+                        <property name="public" value="http://repository.ejiedes.net:3690/content/groups/public"/>
+                        <property name="Addons_Releases" value="http://vaadin.com/nexus/content/repositories/vaadin-addons/"/>
+                        <property name="Apache_Releases" value="https://repository.apache.org/content/repositories/releases/"/>
+                        <property name="Codehaus_Releases" value="https://nexus.codehaus.org/content/repositories/releases/"/>
+                        <property name="Maven_Releases" value="http://repo1.maven.org/maven2/"/>
+
+            <ibiblio name="Apache_Releases" m2compatible="true" root="https://repository.apache.org/content/repositories/releases/"/>
+                    
+            <ibiblio name="Codehaus_Releases" m2compatible="true" root="https://nexus.codehaus.org/content/repositories/releases/"/>
+
+            <ibiblio name="Maven_Releases" m2compatible="true" root="http://repo1.maven.org/maven2/"/>
+
+            <ibiblio name="Vaadin" m2compatible="true" root="http://maven.vaadin.com/vaadin-addons/"/>
+            -->
+        </chain>
+    </resolvers>
+
+    <modules>
+    </modules>
+</ivysettings>

@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<eclipse-userlibraries version="2">
+    <library name="LIB_IWCSSDK" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/iw-cssdk-3.1sp1/cssdkiface.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/iw-cssdk-3.1sp1/cssdksoap.jar"/>
+    </library>
+    <library name="LIB_J2EE" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/j2ee/javax.servlet_1.0.0.0_2-5.jar"/>
+    </library>
+    <library name="LIB_LATINIA" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/latinia/w91d_client.jar"/>
+    </library>
+    <library name="LIB_MYSQL" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/db_client/mysql-connector-java-5.1.38/mysql-connector-java-5.1.38-bin.jar"/>
+    </library>
+    <library name="LIB_ODCSSDK" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/open-deploy-3.6/r01jtOpenDeployCS-3.6.jar"/>
+    </library>
+    <library name="LIB_ORACLE" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/db_client/oracle_client_11g_r2/ojdbc6.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/db_client/oracle_client_11g_r2/ojdbc6_g.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/db_client/oracle_client_11g_r2/orai18n.jar"/>
+    </library>
+    <library name="LIB_PIF" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/pif/y31b-1.3-ifaz.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/pif/y31b-1.3-impl.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/pif/y31c-1.3-impl.jar"/>
+    </library>
+    <library name="LIB_R01" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/r01-3.1/r01ftShLibClasses-3.1.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/r01-3.1/r01mtShLibClasses-3.1.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/r01-3.1/r01ptShLibClasses-3.1.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/r01-3.1/r01o-beans-1.20.jar"/>
+    </library>
+    <library name="LIB_SHF" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/shf/nshf_client-2014.10.jar"/>
+    </library>
+    <library name="LIB_WL11" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/weblogic11/weblogic.jar"/>
+        <archive path="/home/develop/eclipse/local_libs/weblogic11/webserviceclient.jar"/>
+    </library>
+    <library name="LIB_XLNETS" systemlibrary="false">
+        <archive path="/home/develop/eclipse/local_libs/xlnets/n38.jar"/>
+    </library>
+    <library name="OJDBC" systemlibrary="false">
+        <archive path="D:/java/ojdbc/ojdbc6.jar"/>
+    </library>
+</eclipse-userlibraries>

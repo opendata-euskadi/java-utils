@@ -1,0 +1,42 @@
+<ivy-module version="2.3"
+			xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+			xmlns:e="http://ant.apache.org/ivy/extra"
+			xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd">
+
+	<info organisation="com.ejie.r01.r01fb"
+			module="r01fbFileStoreGuiceClasses"
+			revision="${r01f.current.version}"
+			status="integration">
+	</info>
+
+	<configurations defaultconf="default" defaultconfmapping="default->default;compile->compile;runtime->runtime" >
+		<conf name="default" description="Compile and Runtime dependencies" />
+		<conf name="compile" description="Used ONLY at compile time" />
+		<conf name="runtime" description="Not required at compile time BUT required for execution and so deployed to a server" />
+	</configurations>
+
+	<publications>
+		<artifact name="r01fbFileStoreGuiceClasses" type="jar" ext="jar" />
+		<artifact name="r01fbFileStoreGuiceClasses" type="pom" ext="pom" />
+	</publications>
+
+	<dependencies>
+      	<!-- ============================================================================================================================== -->
+		<!-- R01FB                                                                                                            			    -->
+      	<!-- ============================================================================================================================== -->
+      	<!--
+	    <dependency org="com.ejie.r01.r01fb" name="r01fbPropertiesClasses" rev="${r01f.current.version}"
+	                conf="default->default;compile->compile;runtime->runtime">
+		</dependency>
+		-->
+		<!-- ============================================================================================================================== -->
+		<!-- GUICE                                                                                                                          -->
+		<!-- ============================================================================================================================== --> 
+	    <dependency org="com.ejie.r01.r01fb" name="r01fbGuiceClasses" rev="${r01f.current.version}"
+	                conf="default->default;compile->compile;runtime->runtime">
+			<exclude org="com.google.inject.extensions" name="guice-assistedinject"/>
+	    	<exclude org="com.google.inject.extensions" name="guice-multibindings"/>
+		</dependency>
+	</dependencies>
+
+</ivy-module>

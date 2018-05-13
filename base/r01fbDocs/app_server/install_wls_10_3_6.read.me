@@ -1,0 +1,57 @@
+1.- Download the ZIP distribution from: http://www.oracle.com/technetwork/middleware/weblogic/downloads/wls-main-097127.html
+
+2.- Download th jdk1.7 from: http://www.oracle.com/technetwork/java/javase/downloads/java-archive-downloads-javase7-521261.html
+
+3.- Extract WLS at d:\app_server\wls_10.3.6
+
+4.- Install jdk7 portable (see: d:\java\how-to-install-jdk-portable.txt)
+        
+5.- Run from CMD console:  
+    (call d:/java/env/pcienv_wl10.3.6.cmd)
+        > d:\app_server\wls_10.3.6\configure.cmd
+        
+6.- Configure the domain running from cmd:
+	(call d:/java/env/pcienv_wl10.3.6.cmd)
+        > call d:\app_server\wls_10.3.6\wlserver\common\bin\config.cmd
+    (the user / password usually is <<< weblogic / weblogic10 >>>)
+
+    Recover admin password:
+        > cd d:\app_server\wls_domains\pci_wls10_3_6\bin\setDomainEnv.sh
+        > cd D:\app_server\wls_domains\pci_wls10_3_6\security
+        > java weblogic.security.utils.AdminAccount weblogic weblogic10 .
+          (BEWARE the dot at the end!!)
+
+7.- Configure a domain with root at: d:\app_server\wls_domains\pci_wls10.3.6
+
+8.- Modify the domain start script:  D:\app_server\wls_domains\pci_wls10_3_6\startWeblogic.cmd
+			@ECHO OFF
+			
+			@REM WARNING: This file is created by the Configuration Wizard.
+			@REM Any changes to this script may be lost when adding extensions to this configuration.
+			
+			SETLOCAL
+			
+			set DOMAIN_HOME=D:\app_server\wls_domains\pci_wls10_3_6
+			
+			echo ... SETTING PCI CONFIG.....................................
+			call d:/java/env/pcienv_wl10.3.6.cmd
+			echo JAVA_HOME=%JAVA_HOME%
+			echo JRE_HOME=%JRE_HOME%
+			echo JAVA_VENDOR=%JAVA_VENDOR%
+			
+			echo
+			echo BEWARE!!!
+			echo ... SETTING THE XML PRE-CLASSPATH (see: https://blogs.oracle.com/vijaya/override-xerces-parser-on-weblogic-container)
+			set LIBS_ROOT_PATH=D:/eclipse/ivy_libs/cache
+			set PRE_CLASSPATH=%LIBS_ROOT_PATH%/xerces/xercesImpl/jars/xercesImpl-2.11.0.jar;%LIBS_ROOT_PATH%/xml-apis/xml-apis/jars/xml-apis-1.4.01.jar
+			echo ...when META-INF/weblogic-application.xml DOES NOT define a <wls:xml/wls:parser-factory> section as explained at https://docs.oracle.com/middleware/1213/wls/XMLPG/appscope.htm#XMLPG222 
+			echo ...set JAVA_OPTIONS=-Djavax.xml.parsers.SAXParserFactory=org.apache.xerces.jaxp.SAXParserFactoryImpl -Djavax.xml.parsers.DocumentBuilderFactory=org.apache.xerces.jaxp.DocumentBuilderFactoryImpl -Djavax.xml.parsers.SAXParser=org.apache.xerces.jaxp.SAXParserImpl
+			
+			echo ... STARTING WEBLOGIC.......................................
+			call "%DOMAIN_HOME%\bin\startWebLogic.cmd" %*
+			
+			ENDLOCAL
+        
+        
+10.- Start server 
+        > D:\app_server\wls_domains\pci_wls10_3_6\startWeblogic.cmd

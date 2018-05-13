@@ -1,0 +1,66 @@
+package r01f.model.otp.operations;
+
+import lombok.Getter;
+import lombok.Setter;
+import lombok.experimental.Accessors;
+import r01f.debug.Debuggable;
+import r01f.objectstreamer.annotations.MarshallField;
+import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
+
+@Accessors(prefix="_")
+public abstract class OTPOperationExecResult<T> 
+    	   implements OTPOperationResult,
+    	   			  Debuggable {
+/////////////////////////////////////////////////////////////////////////////////////////
+//  FIELDS
+/////////////////////////////////////////////////////////////////////////////////////////
+	@MarshallField(as="requestedOperationName",
+				   whenXml=@MarshallFieldAsXml(attr=true))
+	@Getter @Setter protected String _requestedOperationName;
+	
+/////////////////////////////////////////////////////////////////////////////////////////
+//  CONSTRUCTOR & BUILDER
+/////////////////////////////////////////////////////////////////////////////////////////
+	public OTPOperationExecResult() {
+		/* nothing */
+	} 
+/////////////////////////////////////////////////////////////////////////////////////////
+//  
+/////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Gets the operation execution returned object
+	 * @return the persistence operation returned object or throw a {@link OTPException} if the 
+	 *  	   operation execution was not successful
+	 * @throws OTPException
+	 */
+	public T getOrThrow() throws OTPException {
+		if (this.hasFailed()) this.asOperationExecError()		
+								  .throwAsPersistenceException();
+		return this.asOperationExecOK()
+				   .getOrThrow();
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public boolean hasFailed() {
+		return this instanceof OTPOperationError;
+	}
+
+	@Override
+	public boolean hasSucceeded() {
+		return this instanceof OTPOperationOK;
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  
+/////////////////////////////////////////////////////////////////////////////////////////
+	public abstract OTPExecError<T> asOperationExecError();
+	public abstract OTPOperationExecOK<T> asOperationExecOK();
+/////////////////////////////////////////////////////////////////////////////////////////
+//  CAST
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override @SuppressWarnings("unchecked")
+	public <R extends OTPOperationResult> R as(final Class<R> type) {
+		return (R)this;
+	}
+}

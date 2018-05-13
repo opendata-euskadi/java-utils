@@ -1,0 +1,26 @@
+		
+Lucene Config
+-------------------------------------------------------------
+The path where index is going to be stored is set at the app properties file
+	# ::: Lucene
+	# __________________________________________
+	lucene.directory.filesystem.path = d:/temp_dev/r01e/lucene
+	
+Lucene Versions (http://archive.apache.org/dist/lucene/java/)
+-------------------------------------------------------------
+Last version supported by java 6: v4.6
+Last version supported by java 7: v5.5.4
+
+Luke: Lucene index debug: https://github.com/DmitryKey/luke
+-------------------------------------------------------------
+1.- Download the luke version from: https://github.com/DmitryKey/luke/releases
+	(use v5.5 for lucene v < 4) 
+2.- Extract at d:/tools/luke-X-X
+3.- Edit d:/tools/luke-X/luke.bat and add 
+			call d:\java\env\pcienv_jdk8.cmd
+			start javaw -jar .\target\luke-with-deps.jar 
+4.- Start luke.bat
+
+
+
+	

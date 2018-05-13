@@ -1,0 +1,21 @@
+Apache Weblogic plugin install
+==============================
+1.- Download the oracle webserver plugin pack: http://www.oracle.com/technetwork/middleware/webtier/downloads/index-jsp-156711.html
+2.- Extract the WLS plugin at [apache_install_dir]/modules/weblogic
+3.- See [apache_install_dir]/modules/weblogic/readme.txt for install instructions
+		
+		LoadModule weblogic_module "D:/http_server/apache24/modules/weblogic/lib/mod_wl_24.so"
+		
+		<IfModule mod_weblogic.c>
+     		WebLogicHost wls-host
+     		WebLogicPort wls-port
+   		</IfModule>
+
+   		<Location /mywebapp>
+     		SetHandler weblogic-handler
+   		</Location>
+   		
+BEWARE: Windows!!!
+===================
+Install the [Visual Studio 2012 Redistributable Package]: https://www.microsoft.com/en-us/download/confirmation.aspx?id=30679
+(see: https://support.microsoft.com/es-es/help/3119142) 

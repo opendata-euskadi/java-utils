@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<ivy-module version="2.3"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="http://ant.apache.org/ivy/schemas/ivy.xsd"
+		xmlns:e="http://ant.apache.org/ivy/extra"
+		xmlns:m="http://ant.apache.org/ivy/maven" >
+
+	<info organisation="com.ejie.r01.r01fb"
+		  module="r01fbHDFSFileStoreClasses"
+          revision="${r01f.current.version}"
+          status="integration">
+	</info>
+
+	<configurations>
+		<conf name="default" visibility="public" extends="runtime"
+			  description="runtime dependencies and master artifact can be used with this conf"/>
+		<conf name="compile" visibility="public" description="this is the default scope, used if none is specified. Compile dependencies are available in all classpaths."/>
+		<conf name="runtime" visibility="public" description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath." extends="compile"/>
+	</configurations>
+
+	<publications>
+		<artifact name="r01fbHDFSFileStoreClasses" type="jar" ext="jar" />
+		<artifact name="r01fbHDFSFileStoreClasses" type="pom" ext="pom" />
+	</publications>
+
+	<dependencies>
+		<!-- ============================================================================================================================== -->
+		<!-- R01                                                                                                                            -->
+		<!-- ============================================================================================================================== -->
+		<dependency org="com.ejie.r01.r01fb" name="r01fbFileStoreClasses" rev="${r01f.current.version}"
+					conf="default->default;compile->compile;runtime->runtime"/>
+
+		<!-- ============================================================================================================================== -->
+		<!-- Hadoop                                                                                                               -->
+		<!-- ============================================================================================================================== -->
+		<dependency org="org.apache.hadoop" name="hadoop-client" rev="2.7.1" conf="default->*">
+			<exclude module="log4j" />
+			<exclude module="slf4j-log4j12" />
+			<exclude module="slf4j-api" />
+			<exclude module="^hadoop-mapreduce-.*$" matcher="regexp" />
+			<exclude module="^hadoop-yarn-.*$" matcher="regexp" />
+		</dependency>
+		<dependency org="org.apache.hadoop" name="hadoop-hdfs" rev="2.7.1" conf="default->*">
+			<exclude module="log4j" />
+			<exclude module="slf4j-log4j12" />
+			<exclude module="slf4j-api" />
+			<exclude module="^ant.*$" matcher="regexp" />
+			<exclude module="^hadoop-mapreduce-.*$" matcher="regexp" />
+			<exclude module="^hadoop-yarn-.*$" matcher="regexp" />
+		</dependency>
+
+	</dependencies>
+
+</ivy-module>

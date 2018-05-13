@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="resources"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=r01fbObjectStreamerInterfaceClasses&amp;ivyXmlPath=ivy.xml&amp;confs=default"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=r01fbObjectStreamerInterfaceClasses&amp;ivyXmlPath=ivy.xml&amp;confs=compile"/>
+	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?project=r01fbObjectStreamerInterfaceClasses&amp;ivyXmlPath=ivy.xml&amp;confs=runtime"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/R01FB_JRE"/>
+	<classpathentry kind="output" path="build/classes"/>
+</classpath>
