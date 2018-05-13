@@ -32,52 +32,52 @@ d) Edit the `/{dev_home}/eclipse/instances/[instance_name]/eclipse.ini` file and
 
 * replace [instance_name] with it's real value
 
-```console
-			-clean
-			-startup
-			plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
-			--launcher.library
-			plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_1.1.400.v20160518-1444
-			-product
-			org.eclipse.epp.package.java.product
-			--launcher.defaultAction
-			openFile
-			--launcher.XXMaxPermSize
-			256M
-			-showsplash
-			org.eclipse.platform
-			--launcher.defaultAction
-			openFile
-			--launcher.appendVmargs
+```
+	-clean
+	-startup
+	plugins/org.eclipse.equinox.launcher_1.3.200.v20160318-1642.jar
+	--launcher.library
+	plugins/org.eclipse.equinox.launcher.win32.win32.x86_64_1.1.400.v20160518-1444
+	-product
+	org.eclipse.epp.package.java.product
+	--launcher.defaultAction
+	openFile
+	--launcher.XXMaxPermSize
+	256M
+	-showsplash
+	org.eclipse.platform
+	--launcher.defaultAction
+	openFile
+	--launcher.appendVmargs
 
-			# JDK 1.8 <<<<<<<< USE JDK8 if runninig OEPE (Oracle Enterprise Pack)
-			-vm
-			d:/java/jdk8/jre/bin/server/jvm.dll
-			-vmargs
+	# JDK 1.8 <<<<<<<< USE JDK8 if runninig OEPE (Oracle Enterprise Pack)
+	-vm
+	d:/java/jdk8/jre/bin/server/jvm.dll
+	-vmargs
 
-			# JDK9: see  https://wiki.eclipse.org/Configure_Eclipse_for_Java_9
-			--launcher.appendVmargs
-			-vm
-			d:/java/jdk9/bin/server/jvm.dll
-			-vmargs
-			--add-modules=ALL-SYSTEM
+	# JDK9: see  https://wiki.eclipse.org/Configure_Eclipse_for_Java_9
+	--launcher.appendVmargs
+	-vm
+	d:/java/jdk9/bin/server/jvm.dll
+	-vmargs
+	--add-modules=ALL-SYSTEM
 
 
-			# see [Runtime Options] http://help.eclipse.org/mars/topic/org.eclipse.platform.doc.isv/reference/misc/index.html
-			# see http://stackoverflow.com/questions/316265/how-can-you-speed-up-eclipse/316535#316535
-			-Dosgi.requiredJavaVersion=1.8
-			-XX:+UseG1GC
-			-XX:+UseStringDeduplication
-			-Dosgi.requiredJavaVersion=1.8
-			-Dosgi.clean=true
-			-Duser.language=en
-			-Duser.country=US
-			-Dhelp.lucene.tokenizer=standard
-			-javaagent:lombok.jar
-			-Xbootclasspath/a:lombok.jar
-			-Xms256m
-			-Xmx1024m
-			-Xverify:none
+	# see [Runtime Options] http://help.eclipse.org/mars/topic/org.eclipse.platform.doc.isv/reference/misc/index.html
+	# see http://stackoverflow.com/questions/316265/how-can-you-speed-up-eclipse/316535#316535
+	-Dosgi.requiredJavaVersion=1.8
+	-XX:+UseG1GC
+	-XX:+UseStringDeduplication
+	-Dosgi.requiredJavaVersion=1.8
+	-Dosgi.clean=true
+	-Duser.language=en
+	-Duser.country=US
+	-Dhelp.lucene.tokenizer=standard
+	-javaagent:lombok.jar
+	-Xbootclasspath/a:lombok.jar
+	-Xms256m
+	-Xmx1024m
+	-Xverify:none
 	```
 ## [3]: Launch Eclipse
 
