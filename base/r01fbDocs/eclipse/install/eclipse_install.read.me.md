@@ -78,7 +78,8 @@ d) Edit the `/{dev_home}/eclipse/instances/[instance_name]/eclipse.ini` file and
 	-Xms256m
 	-Xmx1024m
 	-Xverify:none
-	```
+```
+
 ## [3]: Launch Eclipse
 
 Launch eclipse.
