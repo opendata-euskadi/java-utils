@@ -148,4 +148,18 @@ f) **[AnyEdit Tools]** either using the [eclipse marketplace] or from the update
 
 ## [9]: Configure plugins
 
-		AnyEdit Tools > Change preference at [General] > [Editor] > [AnyEditTools] > Remove Trailing spaces (DISABLE)
+a) **[IvyDE]**
+
+Change preferences at `[Ivy]`
+> `[Classpath container] > Resolve dependencies in workspace` : true
+> `[settings] > Ivy user dir`: d:/eclipse/ivy_libs in windows or /develop/eclipse/ivy_libs in linux
+> `[settings] > Property files`: Add the file at `${workspace_loc:r01fbDocs/ivy/r01.version.properties}`
+
+b) **[Java]**
+> `[Installed JREs]`: Add a NEW JRE named R01FB_JRE
+
+c) **[AnyEdit Tools]**
+
+Change preferences at `[General] > [Editor] > [AnyEditTools]`
+
+> Remove Trailing spaces (DISABLE)
