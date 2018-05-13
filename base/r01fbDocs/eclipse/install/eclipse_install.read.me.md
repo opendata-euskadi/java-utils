@@ -138,7 +138,7 @@ Select AT LEAST [svnkit]
 	1.- Goto https://polarion.plm.automation.siemens.com/products/svn/subversive/download
 
 	2.- Select a polarion svn connector repository
-							ie: http://community.polarion.com/projects/subversive/download/eclipse/6.0/update-site/?__hstc=2015854.4bd76f2b8b2bce1c569b50fed7cf3b42.1506603368284.1506603368284.1506603368284.1&__hssc=2015854.1.1506603368285&__hsfp=3974841547
+			ie: http://community.polarion.com/projects/subversive/download/eclipse/6.0/update-site/?__hstc=2015854.4bd76f2b8b2bce1c569b50fed7cf3b42.1506603368284.1506603368284.1506603368284.1&__hssc=2015854.1.1506603368285&__hsfp=3974841547
 	3.- Goto [Help] > [Install New Software]
 
 	4.- Add a new repository and install
@@ -148,8 +148,8 @@ Select AT LEAST [svnkit]
 
  If this DOES NOT EVEN WORKS try:
 
-					1.- DELETE all org.polarion zip files from d:\eclipse\instances\master_photonM2\plugins
-					2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\master_photonM2\artifacts.xml
+		1.- DELETE all org.polarion zip files from d:\eclipse\instances\master_photonM2\plugins
+		2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\master_photonM2\artifacts.xml
 
 f) **[AnyEdit Tools]** either using the [eclipse marketplace] or from the update site at: http://andrei.gmxhome.de/eclipse/
 
