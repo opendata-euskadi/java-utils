@@ -4,7 +4,7 @@
 
 ## [1]: Create the file system structure
 ```
-		/ /{dev_home} = d:\ in windows or /develop in linux
+		/{dev_home} = d:\ in windows or /develop in linux
 			+ eclipse
 				+ instances
 					+ [instance_name]
@@ -149,7 +149,7 @@ Select AT LEAST [svnkit]
  If this DOES NOT EVEN WORKS try:
 
 		1.- DELETE all org.polarion zip files from d:\eclipse\instances\master_photonM2\plugins
-		2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\master_photonM2\artifacts.xml
+		2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\master_[instance_name]\artifacts.xml
 
 f) **[AnyEdit Tools]** either using the [eclipse marketplace] or from the update site at: http://andrei.gmxhome.de/eclipse/
 
@@ -161,13 +161,13 @@ a) **General**
 b) **[Ivy]**
 
 > `[Classpath container] > Resolve dependencies in workspace` : true
-> `[settings] > Ivy user dir`: d:/eclipse/ivy_libs in windows or /develop/eclipse/ivy_libs in linux
-> `[settings] > Property files`: Add the file at `/develop/eclipse/projects_r01/base/r01fbDocs/ivy/r01.version.properties}`
+> `[settings] > Ivy user dir`: /{dev_home}/ivy_libs
+> `[settings] > Property files`: Add the file at `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/ivy/r01.version.properties}`
 
 c) **[Java]**
 > `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE
 
-> Import `[compiler preferences]`: `[File] > [Import] > [Preferences]` browse filesystem and select `/develop/eclipse/projects_r01/base/r01fbDocs/eclipse/preferences/pci_compiler_preferences.epf`
+> Import `[compiler preferences]`: `[File] > [Import] > [Preferences]` browse filesystem and select `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/eclipse/preferences/pci_compiler_preferences.epf`
 
 > `[Java] > [Editor] > [Templates]` add a NEW **Java** template named **_sep** with
 > /////////////////////////////////////////////////////////////////////////////////////////  
