@@ -1,8 +1,10 @@
-Eclipse install
-===============
+# Eclipse install
+=======================================
+
+
 ## [1]: Create the file system structure
 ```
-		/ (d:\ in windows or /develop in linux)
+		/ /{dev_home} = d:\ in windows or /develop in linux
 			+ eclipse
 				+ instances
 					+ [instance_name]
@@ -12,21 +14,23 @@ Eclipse install
 					+ master_[instance_name]
 ```
 
-## [2]: download the [eclipse IDE for Java Developers] from http://www.eclipse.org/downloads/eclipse-packages/
+## [2]: Install Eclipse
+
+a) Download the [eclipse IDE for Java Developers] from http://www.eclipse.org/downloads/eclipse-packages/
 
 > BEWARE!! do NOT download the [eclipse IDE for Java EE Developers]
 
-## [3]: Extract the contents of the [eclipse] folder inside the previously downloaded eclipse ZIP to the `/eclipse/instances/[instance_name]`
+b) Extract the contents of the [eclipse] folder inside the previously downloaded eclipse ZIP to the `/{dev_home}/eclipse/instances/[instance_name]`
 
-## [4]: Copy the `/eclipse/instances/[instance_name]/eclipse.ini` to eclipse.ini.original
+c) Copy the `/{dev_home}/eclipse/instances/[instance_name]/eclipse.ini` to eclipse.ini.original
 
-## [5]: Edit the `/eclipse/instances/[instance_name]/eclipse.ini` file and set this content:
+d) Edit the `/{dev_home}/eclipse/instances/[instance_name]/eclipse.ini` file and set this content:
 
 > BEWARE!!!
 
-a) check that the org.eclipse.equinox.launcher versions still the SAME as those in the eclipse.ini.original file
+* check that the org.eclipse.equinox.launcher versions still the SAME as those in the eclipse.ini.original file
 
-b) replace [instance_name] with it's real value
+* replace [instance_name] with it's real value
 
 ```console
 			-clean
@@ -75,12 +79,14 @@ b) replace [instance_name] with it's real value
 			-Xmx1024m
 			-Xverify:none
 	```
+## [3]: Launch Eclipse
 
-## [6]: Create a shortcut to the /eclipse/instances/[instance_name]/eclipse.exe file
+Launch eclipse.
+When asked for the `[workspace]` location select: `/{dev_home}/eclipse/workspaces/master_[instance_name]` (do **NOT** set use this workspace as default: don't ask again)
+> **BEWARE** this workspace location will later act as a _template_ pre-configured workspace that will be copied when creating a **new** workspace
 
-## [7]: Change the workspace to /eclipse/workspaces/master_[instance_name]
 
-## [8]: Install plugins:
+## [4]: Install plugins
 
 a) **AJDT: AspectJ Development Tools** > 	http://download.eclipse.org/tools/ajdt/47/dev/update
 
@@ -146,20 +152,36 @@ Select AT LEAST [svnkit]
 
 f) **[AnyEdit Tools]** either using the [eclipse marketplace] or from the update site at: http://andrei.gmxhome.de/eclipse/
 
-## [9]: Configure plugins
+## [5]: Configure plugins
 
-a) **[IvyDE]**
+a) **General**
+> `[General] > [Startup & Shutdown] > Workspaces`: [x] Prompt for workspace on startup
 
-Change preferences at `[Ivy]`
+b) **[Ivy]**
+
 > `[Classpath container] > Resolve dependencies in workspace` : true
 > `[settings] > Ivy user dir`: d:/eclipse/ivy_libs in windows or /develop/eclipse/ivy_libs in linux
-> `[settings] > Property files`: Add the file at `${workspace_loc:r01fbDocs/ivy/r01.version.properties}`
+> `[settings] > Property files`: Add the file at `/develop/eclipse/projects_r01/base/r01fbDocs/ivy/r01.version.properties}`
 
-b) **[Java]**
-> `[Installed JREs]`: Add a NEW JRE named R01FB_JRE
+c) **[Java]**
+> `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE
 
-c) **[AnyEdit Tools]**
+> Import `[compiler preferences]`: `[File] > [Import] > [Preferences]` browse filesystem and select `/develop/eclipse/projects_r01/base/r01fbDocs/eclipse/preferences/pci_compiler_preferences.epf`
 
-Change preferences at `[General] > [Editor] > [AnyEditTools]`
+> `[Java] > [Editor] > [Templates]` add a NEW **Java** template named **_sep** with
+> /////////////////////////////////////////////////////////////////////////////////////////  
+> //	${cursor}  
+> /////////////////////////////////////////////////////////////////////////////////////////   
 
-> Remove Trailing spaces (DISABLE)
+> `[Java] > [Editor] > [Typing]`
+>       - Automacially insert at correct position [X] semicolons [X] braces
+>       - When pasting:  [-] Adjust indentation
+
+d) **[AnyEdit Tools]**
+> `[General] > [Editor] > [AnyEditTools]` Remove Trailing spaces (DISABLE)
+
+
+## [6]: Create a workspace for a project
+
+Just copy the _template_ workspace folde: `/{dev_home}/eclipse/workspaces/master_[instance_name]` with a new name id: `/{dev_home}/eclipse/workspaces/my_project`  
+... now simply launch eclipse from  `/{dev_home}/eclipse/instances/[instance_name]` as usual and when asked, select the workspace folder
