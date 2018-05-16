@@ -4,14 +4,14 @@
 
 ## [1]: Create the file system structure
 ```
-		/{dev_home} = d:\ in windows or /develop in linux
-			+ eclipse
-				+ instances
-					+ [instance_name]
-				+ ivy_libs
-				+ local_libs
-				+ workspaces
-					+ master_[instance_name]
+/{dev_home} = d:\ in windows or /develop in linux
+	+ eclipse
+		+ instances
+			+ [instance_name]
+		+ ivy_libs
+		+ local_libs
+		+ workspaces
+			+ master_[instance_name]
 ```
 
 ## [2]: Install Eclipse

@@ -40,7 +40,8 @@
 	                conf="default->default;compile->compile;runtime->runtime"
 	                transitive="true" >
 		</dependency>
-		<dependency org="com.ejie.r01.r01fb" name="r01fbEJIEClasses" rev="${r01f.current.version}"
+		
+		<dependency org="com.ejie.r01.r01fb" name="r01fbLatiniaClasses" rev="${r01f.current.version}"
 	                conf="default->default;compile->compile;runtime->runtime"
 	                transitive="true" >
 		</dependency>
