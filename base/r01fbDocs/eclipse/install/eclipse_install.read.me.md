@@ -164,6 +164,11 @@ b) **[Ivy]**
 > `[settings] > Ivy user dir`: /{dev_home}/ivy_libs
 > `[settings] > Property files`: Add the file at `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/ivy/r01.version.properties}`
 
+*BEWARE*: Some artifacts are NOT published at MAVEN CENTRAL; this is the case of javax.ejb / javax.servlet-api or javax.jms. The only workarround is to put all those artifacts in {dev_home}/ivy_libs/local
+
+    extract the local_libs.7z file at {dev_home}/ivy_libs/local
+
+
 c) **[Java]**
 > `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE
 
