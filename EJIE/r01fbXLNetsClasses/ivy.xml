@@ -47,13 +47,27 @@
 		<!-- ============================================================================================================================== -->
 		<!-- R01                                                                                                                            -->
 		<!-- ============================================================================================================================== -->
+		<dependency org="com.ejie.r01.r01fb" name="r01fbEJIEClasses" rev="${r01f.current.version}"
+					conf="default->default;compile->compile;runtime->runtime"/>
+					
+		<dependency org="com.ejie.r01.r01fb" name="r01fbPropertiesGuiceClasses" rev="${r01f.current.version}"
+					conf="default->default;compile->compile;runtime->runtime"/>
+		
 		<dependency org="com.ejie.r01.r01fb" name="r01fbIOClasses" rev="${r01f.current.version}"
 					conf="default->default;compile->compile;runtime->runtime"/>
 					
-		<dependency org="com.ejie.r01.r01fb" name="r01fbEJIEClasses" rev="${r01f.current.version}"
+		<dependency org="com.ejie.r01.r01fb" name="r01fbOIDDispenserClasses" rev="${r01f.current.version}"
 					conf="default->default;compile->compile;runtime->runtime"/>
 					
 		<dependency org="com.ejie.r01.r01fb" name="r01fbXMLClasses" rev="${r01f.current.version}"
 					conf="default->default;compile->compile;runtime->runtime"/>
+					
+		<dependency org="com.ejie.r01.r01fb" name="r01fbWebProfileClasses" rev="${r01f.current.version}"
+					conf="default->default;compile->compile;runtime->runtime">
+			<exclude org="com.google.inject.extensions" name="guice-servlet"/>
+			<exclude org="commons-fileupload" name="commons-fileupload"/>
+			<exclude org="javax.ws.rs"/>
+			<exclude org="com.sun.jersey"/>
+		</dependency>
 	</dependencies>
 </ivy-module>
