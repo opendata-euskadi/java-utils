@@ -91,6 +91,9 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 								   			   filter,
 								   			   null);
 	}
+	protected String _dbEntityTypeNameFor(final F filter) {
+		return _dbEntityType.getSimpleName();
+	}
 	protected String _composeJPQL(final String colSpec,
 							      final F filter,
 							      final Collection<SearchResultsOrdering> ordering) {
@@ -98,7 +101,7 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 		StringBuilder jpql = new StringBuilder(Strings.customized("SELECT {} " +
 										  		  					"FROM {} entity ",
 										  		  			      colSpec,		// "COUNT(entity)" : "entity",
-										  		  			      _dbEntityType.getSimpleName()));
+										  		  			      _dbEntityTypeNameFor(filter)));
 		// [1] - WHERE
 		String jpqlWhere = _composeWhereJpqlPredicates(filter);
 		if (Strings.isNOTNullOrEmpty(jpqlWhere)) {
@@ -225,16 +228,17 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 		public String wherePredicateFrom(final ContainsTextQueryClause containsTextQry) {
 			if (Strings.isNullOrEmpty(containsTextQry.getText())) return null;
 			
+			
 			String template = null;
 			if (containsTextQry.isBegining()) {
-				template = "upper(entity._{}) LIKE '%:{}'";
+				template = "upper(entity._{}) LIKE '%{}'";
 			} else if (containsTextQry.isEnding()) {
-				template = "upper(entity._{}) LIKE ':{}%'";			
+				template = "upper(entity._{}) LIKE '{}%'";			
 			} else if (containsTextQry.isContaining()) {
-				template = "upper(entity._{}) LIKE '%:{}%'";
+				template = "upper(entity._{}) LIKE '%{}%'";
 			} else if (containsTextQry.isFullText()) {
 				boolean fullTextSearchEnabled = _dbModuleConfig.isFullTextSearchSupported(_entityManager); 
-				log.debug("FullText search enabled: {}",
+				log.info("FullText search enabled: {}",
 						   fullTextSearchEnabled);
 				if (fullTextSearchEnabled) {
 					// Full text search is ENABLED: the filter expression is db platform-dependent
@@ -257,7 +261,7 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 						// Generate:  SQL(   'MATCH(colXX) 
 						//				     AGAINST(? IN BOOLEAN MODE)',':text')
 						template = "SQL(  'MATCH({}) " + 
-						  			    "AGAINST(? IN BOOLEAN MODE)',':{}')";
+						  			    "AGAINST(? IN BOOLEAN MODE)','{}')";
 					} 
 					else if (_dbModuleConfig.getDbSpec().getVendor()
 														.is(DBVendor.ORACLE)) {
@@ -265,12 +269,12 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 						// 		Oracle Text MUST be enabled
 						
 						// Generate: SQL(  'CONTAINS(?,?,1) > 0,colXX,:text)
-						template = "SQL(  'CONTAINS(?,?,1) > 0',{},':{}')";
+						template = "SQL(  'CONTAINS(?,?,1) > 0',{},'{}')";
 					}
 				}
 				else {
 					// simulate full text
-					template = "upper(entity._{}) LIKE '%:{}%'";
+					template = "upper(entity._{}) LIKE '%{}%'";
 				}
 			}
 			String dbFieldId = _indexableFieldIdToDBEntityFieldTranslator.dbEntityFieldNameFor(containsTextQry.getFieldId(),
@@ -300,8 +304,9 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 									  .replaceAll("UPDATE","")
 									  .replaceAll("SELECT",""))
 								  .toString();
-			return Strings.customized(template,
-				          			  dbFieldId,filteringText);		// the field and the value!!!
+			String outPredStr = Strings.customized(template,
+				          			  			   dbFieldId,filteringText);		// the field and the value!!!
+			return outPredStr;
 		}
 		public String wherePredicateFrom(final RangeQueryClause<?> rangeQry) {
 			String dbFieldId = rangeQry.getFieldId().asString();
@@ -342,52 +347,59 @@ public class DBSearchQueryToJPQLTranslator<F extends SearchFilter,
 		_setJPAQueryParameters(qry,
 							   filter.getBooleanQuery());
 	}
-	private void _setJPAQueryParameters(final Query qry,
-			 						  	final BooleanQueryClause qryClause) {
+	protected void _setJPAQueryParameters(final Query qry,
+			 						  	  final BooleanQueryClause qryClause) {
 		Set<QualifiedQueryClause<? extends QueryClause>> clauses = qryClause.getClauses();
 		
 		for (Iterator<QualifiedQueryClause<? extends QueryClause>> clauseIt = clauses.iterator(); clauseIt.hasNext(); ) {
 			QueryClause clause = clauseIt.next().getClause();
-			
+
 			// some indexable fields are NOT supported when the search engine 
 			// is DB based
 			boolean isDBEntitySupportedField = _isSupportedDBEntityField(clause);
 			if (!isDBEntitySupportedField)  continue;
 			
-			String dbFieldId = clause.getFieldId().asString();
-			
-			if (clause instanceof BooleanQueryClause) {
-				BooleanQueryClause boolQry = (BooleanQueryClause)clause;
-				_setJPAQueryParameters(qry,
-						  		   	   boolQry);		// recurse!!!!
-			} 
-			else if (clause instanceof EqualsQueryClause<?>) {
-				EqualsQueryClause<?> eqQry = (EqualsQueryClause<?>)clause;
-				qry.setParameter(dbFieldId,
-								 eqQry.getValue().toString());
-			} 
-			else if (clause instanceof ContainsTextQueryClause) {
-				ContainsTextQueryClause containsTxtClause = (ContainsTextQueryClause)clause;
-				qry.setParameter(dbFieldId,
-								 containsTxtClause.getText());
-			} 
-			else if (clause instanceof RangeQueryClause<?>) {
-				RangeQueryClause<?> rangeQry = (RangeQueryClause<?>)clause;
-				if (rangeQry.getRange().hasLowerBound() && rangeQry.getRange().hasUpperBound()) {
-					qry.setParameter(dbFieldId + "Start",rangeQry.getRange().lowerEndpoint());
-					qry.setParameter(dbFieldId + "End",rangeQry.getRange().lowerEndpoint());
-				} else if (rangeQry.getRange().hasLowerBound()) {
-					qry.setParameter(dbFieldId,rangeQry.getRange().lowerEndpoint());
-				} else if (rangeQry.getRange().hasUpperBound()) {
-					qry.setParameter(dbFieldId,rangeQry.getRange().upperEndpoint());
-				}
-			} 
-			else if (clause instanceof ContainedInQueryClause<?>) {
-				ContainedInQueryClause<?> containedInQry = (ContainedInQueryClause<?>)clause;
-				Collection<?> spectrum = Lists.newArrayList(containedInQry.getSpectrum());
-				qry.setParameter(dbFieldId,spectrum);
-			}
+			_setJPAQueryParameter(qry,
+								  clause);
 		}
+	}
+	protected void _setJPAQueryParameter(final Query qry,
+										 final QueryClause clause) {
+		String dbFieldId = clause.getFieldId().asString();
+		
+		if (clause instanceof BooleanQueryClause) {
+			BooleanQueryClause boolQry = (BooleanQueryClause)clause;
+			_setJPAQueryParameters(qry,
+					  		   	   boolQry);		// recurse!!!!
+		} 
+		else if (clause instanceof EqualsQueryClause<?>) {
+			EqualsQueryClause<?> eqQry = (EqualsQueryClause<?>)clause;
+			qry.setParameter(dbFieldId,
+							 eqQry.getValue().toString());
+		} 
+		else if (clause instanceof ContainsTextQueryClause) {
+			// The contains text query clause DOES NOT USE jpa params: the param value is directly set
+			// when creating the jpql where clause (see wherePredicateFrom(ContainsTextQueryClause)
+//			ContainsTextQueryClause containsTxtClause = (ContainsTextQueryClause)clause;
+//			qry.setParameter(dbFieldId,
+//							 containsTxtClause.getText());
+		} 
+		else if (clause instanceof RangeQueryClause<?>) {
+			RangeQueryClause<?> rangeQry = (RangeQueryClause<?>)clause;
+			if (rangeQry.getRange().hasLowerBound() && rangeQry.getRange().hasUpperBound()) {
+				qry.setParameter(dbFieldId + "Start",rangeQry.getRange().lowerEndpoint());
+				qry.setParameter(dbFieldId + "End",rangeQry.getRange().upperEndpoint());
+			} else if (rangeQry.getRange().hasLowerBound()) {
+				qry.setParameter(dbFieldId,rangeQry.getRange().lowerEndpoint());
+			} else if (rangeQry.getRange().hasUpperBound()) {
+				qry.setParameter(dbFieldId,rangeQry.getRange().upperEndpoint());
+			}
+		} 
+		else if (clause instanceof ContainedInQueryClause<?>) {
+			ContainedInQueryClause<?> containedInQry = (ContainedInQueryClause<?>)clause;
+			Collection<?> spectrum = Lists.newArrayList(containedInQry.getSpectrum());
+			qry.setParameter(dbFieldId,spectrum);
+		}		
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  ORDER

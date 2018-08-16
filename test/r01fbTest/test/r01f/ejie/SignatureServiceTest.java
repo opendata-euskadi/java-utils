@@ -9,14 +9,19 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import lombok.extern.slf4j.Slf4j;
+import r01f.ejie.xlnets.login.XLNetsGuiceModule;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.guids.CommonOIDs.AppComponent;
 import r01f.io.util.StringPersistenceUtils;
+import r01f.services.pif.PifServiceAPIData;
+import r01f.services.pif.PifServiceGuiceModule;
 import r01f.services.shf.SignatureService;
+import r01f.services.shf.SignatureServiceAPIData;
 import r01f.services.shf.SignatureServiceGuiceModule;
 import r01f.types.Path;
 import r01f.xml.XMLUtils;
-import r01f.xmlproperties.XMLPropertiesGuiceModule;
+import r01f.xmlproperties.XMLPropertiesBuilder;
+import r01f.xmlproperties.XMLPropertiesForAppComponent;
 
 @Slf4j
 public class SignatureServiceTest {
@@ -28,14 +33,21 @@ public class SignatureServiceTest {
 	@SuppressWarnings("static-method")
 	public void testSignatureService() {
 		try {
-			AppCode requestorAppCode = AppCode.forId("aa88b");
-			
-			Injector injector = Guice.createInjector(new XMLPropertiesGuiceModule(),
-					 								 new SignatureServiceGuiceModule(AppCode.forId("r01fb"),
-					 										 						 AppComponent.forId("test"),
-															 				   		 "test"));
+			XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+																	 .notUsingCache()
+																	 .forComponent(AppComponent.forId("test"));
+			PifServiceAPIData pifApiData = new PifServiceAPIData(props,
+																 "test");
+			SignatureServiceAPIData signServiceApiData = new SignatureServiceAPIData(props,
+																					 "test");
+			Injector injector = Guice.createInjector(new XLNetsGuiceModule(props,
+																		   "test"),
+													 new PifServiceGuiceModule(pifApiData),						// signature service uses pif
+					 								 new SignatureServiceGuiceModule(signServiceApiData));
 			
 			SignatureService service = injector.getInstance(SignatureService.class);
+
+			AppCode requestorAppCode = AppCode.forId("aa88b");
 			
 			// Sign text
 			String textToSign = "Hola mundo!";

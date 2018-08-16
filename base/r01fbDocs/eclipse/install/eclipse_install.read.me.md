@@ -168,6 +168,12 @@ b) **[Ivy]**
 
     extract the local_libs.7z file at {dev_home}/ivy_libs/local
 
+*BEWARE*: to create a welblogic fullclient jar to be used as external dependency:
+```
+	> cd \app-server\wls_10.3.6\wlserver\server\lib
+	> java -jar d:\app-server\wls_10.3.6\modules\com.bea.core.jarbuilder_1.7.0.0.jar
+``` 
+
 
 c) **[Java]**
 > `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE

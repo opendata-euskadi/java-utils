@@ -328,12 +328,14 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 		PersistencePerformedOperation performedOp = null;
 		if (dbEntityToPersist != null && pk != null) {
 			// Update
-			log.debug("> updating a {} entity with pk={} and entityVersion={}",_DBEntityType,pk.asString(),modelObj.getEntityVersion());
+			log.debug("> updating a {} entity with pk={} and entityVersion={}",_DBEntityType,
+					  pk.asString(),modelObj.getEntityVersion());
 			performedOp = PersistencePerformedOperation.UPDATED;
 		}
 		else {
 			// Create
-			log.debug("> creating a {} entity with pk={}",_DBEntityType,(pk != null ? pk.asString() : "<should be generated at db>"));
+			log.debug("> creating a {} entity with pk={}",_DBEntityType,
+					  (pk != null ? pk.asString() : "<should be generated at db>"));
 
 			performedOp = PersistencePerformedOperation.CREATED;
 			dbEntityToPersist = this.createDBEntityInstanceFor(modelObj);
@@ -343,6 +345,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 		_setDBEntityFieldsFromModelObject(securityContext,
 							   			  modelObj,dbEntityToPersist,
 							   			  performedOp);
+		
 		// [3]: call the persistence event listeners
 		if (CollectionUtils.hasData(_dbEntityPersistenceEventsListeners)) {
 			for (ListensToDBEntityPersistenceEvents<M,DB> listener : _dbEntityPersistenceEventsListeners) {
@@ -356,7 +359,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 															 							  performedOp,
 															 							  modelObj,dbEntityToPersist);
 		}
-
+		
 		// [4]: Persist
 		try {
 			return this.persistDBEntity(securityContext,
@@ -374,9 +377,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 																		   modelObj,
 																		   requestedOp,
 																		   persistEx);
-
 		}
-
 	}
 	protected CRUDResult<M> persistDBEntity(final SecurityContext securityContext,
 										    final DB dbEntityToPersist,

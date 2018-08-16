@@ -48,7 +48,9 @@ public class UrlParserNoRegExp
 		return new UrlComponents(protocol != null ? protocol : null,
 								 Host.strict(host),
 								 Strings.isNOTNullOrEmpty(port) ? Integer.parseInt(port) : -1,
-								 Strings.isNOTNullOrEmpty(urlPath) ? UrlPath.from(urlPath) : null,
+								 Strings.isNOTNullOrEmpty(urlPath) ? UrlPath.preservingTrailingSlash()		// BEWARE!
+										 									.from(urlPath) 
+										 						   : null,
 								 Strings.isNOTNullOrEmpty(qryString) ? UrlQueryString.fromParamsString(qryString) : null,
 								 anchor);
 	}	

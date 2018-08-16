@@ -23,35 +23,21 @@ import r01f.types.Path;
 import r01f.util.types.Strings;
 
 /**
- * see: http://hadoop.apache.org/docs/current/
+ * TeamSite {@link FileStoreAPI} api
+ * Usage:
+ * <pre class='brush:java'>
+ * 		// 1) Create the auth data
+ *		TeamSiteAuthData authData = new TeamSiteAuthData()
+ *											.login(UserCode.forId("r01d"),
+ *												   Password.forId("r01d"),
+ *												   UserRole.forId("Editor"))
+ *											.forContentServicesUrl("http://iwdes01.ejgvdns:80");
+ *		// 2) Create a TS CSSDK client wrapper
+ *		TeamSiteCSSDKClientWrapper cssdkClientWrapper = TeamSiteCSSDKClientWrapper.createCachingClient(authData);
  *
- * Hadoop HDFS basic commands.
- * Is important knows URI and Path usage:
- * 		Hadoop's URI file location in HDFS > hdfs://host:port/location to access file through FileSystem.
- * Code below shows how to create URI:
- * <pre class='brush: java'>
- * 		hdfs://localhost:9000/user/joe/TestFile.txt
- *  	URI uri=URI.create ("hdfs://host: port/path");
- *  </pre>
- * Path consist URI and resolve the OS dependency in URI e.g. Windows uses \\path whereas linux uses //. It also uses to resolve parent child dependency.
- * It could be created as below:
- * <pre class='brush: java'>
- * 		Path path=new Path (path); //It constitute URI
+ *		// 3) Create the api
+ *		FileStoreAPI api = new TeamSiteFileStoreAPI(cssdkClientWrapper);
  * </pre>
- * Example:
- * <pre class='brush: java'>
- * new Path("/test/file.txt");
- * new Path("hdfs://localhost:9000/test/file.txt");
- * </pre>
- *
- * The Hadoop structure directories are similar to interwoven structure:
- * INTERWOVEN: /iwmnt/{serverOid}/{dataStore}/main/{area}/WORKAREA/{workArea}/{tipology}/{contentName}/{documentName}/..........
- * HADOOP:     /r01/content/{serverOid}/{dataStore}/main/{area}/WORKAREA{workArea}/{tipology}/{contentName}/{documentName}/..........
- *
- * /r01/content/ejld003/euskadiplus/r01_euskadi_cont/wr0ecg1/noticia/20160414_noticia/es_def/index.shtml (contents area)
- * /r01/staging/ejld003/euskadiplus/r01_euskadi_cont/wr0ecg1/noticia/20160414_noticia/es_def/index.shtml (consolidate area)
- *
- *
  */
 @Slf4j
 public class TeamSiteFileStoreAPI

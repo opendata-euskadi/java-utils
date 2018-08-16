@@ -71,6 +71,9 @@ public class MonthOfYear
 	public static MonthOfYear valueOf(final String monthOfYear) {
 		return new MonthOfYear(monthOfYear);
 	}
+	public static MonthOfYear from(final String monthOfYear) {
+		return new MonthOfYear(monthOfYear);
+	}
 	public static MonthOfYear fromString(final String monthOfYear) {
 		return new MonthOfYear(monthOfYear);
 	}

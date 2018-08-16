@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.inject.Inject;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
 import javax.xml.rpc.handler.HandlerRegistry;
+
+import org.w3c.dom.Document;
 
 import com.ejie.w91d.client.W91DSendSms;
 import com.ejie.w91d.client.W91DSendSmsWebServiceImplService_Impl;
@@ -19,57 +22,39 @@ import r01f.model.latinia.LatiniaRequest;
 import r01f.model.latinia.LatiniaRequestMessage;
 import r01f.model.latinia.LatiniaResponse;
 import r01f.objectstreamer.Marshaller;
+import r01f.objectstreamer.MarshallerBuilder;
 import r01f.patterns.Factory;
-import r01f.service.ServiceCanBeDisabled;
+import r01f.patterns.Memoized;
 import r01f.services.EJIESoapMessageHandler;
-import r01f.services.latinia.LatiniaServiceApiDataProvider.LatiniaServiceAPIData;
 import r01f.util.types.Strings;
 import r01f.xml.XMLUtils;
-import r01f.xmlproperties.XMLPropertiesForAppComponent;
 
 /**
  * Encapsulates latinia message sending
- * To build a {@link LatiniaService} instance one of {@link XMLPropertiesForAppComponent} / {@link Marshaller} or {@link LatiniaServiceAPIData} are needed
- * ... those can be built by hand but the normal usage is to have them binded using guice:
+ * Usage_
  * <pre class='brush:java'>
- *	    public static void main(String[] args) {
- *	    	Injector injector = Guice.createInjector(new LatiniaServiceGuiceModule(AppCode.forId("xxx"),
- *																				   AppComponent.forId("notifier"),
- *																				   "notifier"),
- *													 new XMLPropertiesGuiceModule());
- *
- *	    	LatiniaService latiniaService = injector.getInstance(LatiniaService.class);
- *	    	latiniaService.sendNotification(_createMockMessage());
- *	    }
+ *		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+ *																			.notUsingCache()
+ *																			.forComponent(AppComponent.forId("test"));
+ *		LatiniaServiceAPIData latiniaApiData = LatiniaServiceAPIData.createFrom(props,
+ *																				"test");
+ *		
+ *		LatiniaService latiniaService = new LatiniaService(latiniaApiData);
  * </pre>
- * ... or without using the LatiniaServiceGuiceModule
+ * 
+ * Using guice:
  * <pre class='brush:java'>
- * 		// create a provider method for the XMLProperties file that contains the latinia properties
- *		@Provides @XMLPropertiesComponent("notifier")
- *		XMLPropertiesForAppComponent provideXMLPropertiesForServices(final XMLProperties props) {
- *			XMLPropertiesForAppComponent outPropsForComponent = new XMLPropertiesForAppComponent(props.forApp(_appCode),
- *																								 AppComponent.forId("notifier"));
- *			return outPropsForComponent;
- *		}
- *		// create a provider method for the LatiniaService
- *		@Provides @Singleton	// provides a single instance of the latinia service
- *		LatiniaService _provideLatiniaService(@XMLPropertiesComponent("notifier") final XMLPropertiesForAppComponent props) {
- *			// Provide a new latinia service api data using the provider
- *			LatiniaServiceApiDataProvider latiniaApiServiceProvider = new LatiniaServiceApiDataProvider(_appCode,
- *																										props,"notifier");
- *			// Using the latinia service api data create the LatiniaService object
- *			LatiniaService outLatiniaService = new LatiniaService(latiniaApiServiceProvider.get());
- *			return outLatiniaService;
- *		}
- * </pre>
+ *		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+ *																			.notUsingCache()
+ *																			.forComponent(AppComponent.forId("test"));
+ *		LatiniaServiceAPIData latiniaApiData = LatiniaServiceAPIData.createFrom(props,
+ *																				"test");
+ *		
+ *		Injector injector = Guice.createInjector(new LatiniaServiceGuiceModule(latiniaApiData));
  *
- * Sample usage in a not injected app:
- * <pre class='brush:java'>
- *		LatiniaServiceApiDataProvider latiniaServiceApiProvider = new LatiniaServiceApiDataProvider(props);		// props must be loaded by hand
- *		LatiniaService latiniaService = new LatiniaService(latiniaServiceApiProvider.get());
- *	    latiniaService.sendNotification(_createMockMessage());
+ *		LatiniaService latiniaService = injector.getInstance(LatiniaService.class);
  * </pre>
- *
+ * 
  * To build a message:
  * <pre class='brush:java'>
  *	    private static LatiniaRequestMessage _createMockMessage() {
@@ -143,13 +128,20 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
  */
 @Singleton
 @Slf4j
-public class LatiniaService
-  implements ServiceCanBeDisabled {
+public class LatiniaService {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
-	private boolean _disabled;
 	private final LatiniaServiceAPIData _apiData;
+	private final LatiniaAuthTokenProvider _authTokenProvider;
+	private final Memoized<Document> _authToken = new Memoized<Document>() {
+														@Override
+														protected Document supply() {
+															return _authTokenProvider.createAuthTokenDocument();
+														}
+												  };
+	
+	private final Marshaller _latiniaObjsMarshaller;
 
 	private final Factory<W91DSendSms> _wsClientFactory = new Factory<W91DSendSms>() {
 																	@Override @SuppressWarnings("deprecation")
@@ -159,7 +151,7 @@ public class LatiniaService
 																		try {
 																			// [1] - Create the auth token
 																			Map<String,String> authTokenMap = new HashMap<String,String>();
-																			authTokenMap.put("sessionToken",XMLUtils.asStringLinearized(_apiData.getLatiniaAuthToken())); //Linarize xml, strip whitespaces and newlines from latinia auth token
+																			authTokenMap.put("sessionToken",XMLUtils.asStringLinearized(_authToken.get())); //Linarize xml, strip whitespaces and newlines from latinia auth token
 
 																			// [2] - Create the client
 
@@ -187,27 +179,17 @@ public class LatiniaService
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-	public LatiniaService(final LatiniaServiceAPIData apiData) {
+	@Inject
+	public LatiniaService(final LatiniaServiceAPIData apiData,
+						  final Marshaller marshaller) {
 		_apiData = apiData;
+		_authTokenProvider = new LatiniaAuthTokenProvider(apiData);
+		_latiniaObjsMarshaller = marshaller != null ? marshaller : MarshallerBuilder.build();
 	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  ServiceCanBeDisabled
-/////////////////////////////////////////////////////////////////////////////////////////
-	@Override
-	public boolean isEnabled() {
-		return !_disabled;
-	}
-	@Override
-	public boolean isDisabled() {
-		return _disabled;
-	}
-	@Override
-	public void setEnabled() {
-		_disabled = false;
-	}
-	@Override
-	public void setDisabled() {
-		_disabled = true;
+	@Inject
+	public LatiniaService(final LatiniaServiceAPIData apiData) {
+		this(apiData,
+			 MarshallerBuilder.build());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	API
@@ -219,8 +201,7 @@ public class LatiniaService
 //		StringBuilder requestXml = new StringBuilder("<![CDATA[");
 //		requestXml.append(_apiData.getLatiniaObjsMarshaller().xmlFromBean(request));
 //		requestXml.append("]]>");
-		StringBuilder requestXml = new StringBuilder(_apiData.getLatiniaObjsMarshaller()
-															 .forWriting().toXml(request));
+		StringBuilder requestXml = new StringBuilder(_latiniaObjsMarshaller.forWriting().toXml(request));
 		return requestXml.toString();
 	}
 	public LatiniaResponse sendNotification(final LatiniaRequestMessage msg) {
@@ -241,9 +222,8 @@ public class LatiniaService
 			if (!Strings.isNullOrEmpty(responseXml)) {
 				String theResponseXml = responseXml.replaceAll("PETICION","RESPUESTA");
 				log.info("[Latinia] > response XML: {}",responseXml);
-				response = _apiData.getLatiniaObjsMarshaller()
-										.forReading().fromXml(theResponseXml,
-															  LatiniaResponse.class);
+				response = _latiniaObjsMarshaller.forReading().fromXml(theResponseXml,
+															  		   LatiniaResponse.class);
 			} else {
 				throw new IllegalStateException("Latinia WS returned a null response!");
 			}

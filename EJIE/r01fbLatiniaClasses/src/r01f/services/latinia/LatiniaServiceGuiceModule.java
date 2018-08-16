@@ -4,12 +4,8 @@ import javax.inject.Singleton;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
-import com.google.inject.Provides;
-import com.google.inject.name.Names;
 
 import lombok.RequiredArgsConstructor;
-import r01f.objectstreamer.Marshaller;
-import r01f.objectstreamer.MarshallerBuilder;
 
 @RequiredArgsConstructor
 public class LatiniaServiceGuiceModule 
@@ -24,34 +20,19 @@ public class LatiniaServiceGuiceModule
 // 	BUT the latinia service provider (see below) expect a XMLProperties component
 // 	named 'latinia' so this component MUST be created here
 /////////////////////////////////////////////////////////////////////////////////////////
-	private final LatiniaConfig _cfg;
+	private final LatiniaServiceAPIData _cfg;
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public void configure(final Binder binder) {
-		// Bind a latinia objects marshaller instance 
-		binder.bind(Marshaller.class)
-			  .annotatedWith(Names.named("latiniaObjsMarshaller"))
-			  .toInstance(MarshallerBuilder.build());
-		// Bind the latinia service provider
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  
-/////////////////////////////////////////////////////////////////////////////////////////	
-	/**
-	 * Provides a {@link LatiniaService} implementation
-	 * @param props
-	 * @return
-	 */
-	@Provides @Singleton	// beware the service is a singleton
-	LatiniaService _provideLatiniaService() {
-		// Provide a new latinia service api data using the provider
-		LatiniaServiceApiDataProvider latiniaApiServiceProvider = new LatiniaServiceApiDataProvider(_cfg);
-		
-		// Using the latinia service api data create the LatiniaService object
-		LatiniaService outLatiniaService = new LatiniaService(latiniaApiServiceProvider.get());
-		return outLatiniaService;
+		// bind the config
+		binder.bind(LatiniaServiceAPIData.class)
+			  .toInstance(_cfg);
+	
+		// bind the service
+		binder.bind(LatiniaService.class)
+		 	  .in(Singleton.class);
 	}
 }

@@ -44,7 +44,8 @@ public class OTPMimeMessage implements Serializable {
 	@Setter @Getter String _subType;
 
 	@Setter @Getter OTPMimeBodyPart _mainBodyPart;
-
+	@Setter @Getter String _alternativeBodyPart = null;
+	
 	@Setter @Getter List<OTPMimeBodyPart> _mimeBodyPartList = new ArrayList<OTPMimeBodyPart>();
 
 	//////////////////////////////////////////////////////////////////////////
@@ -105,37 +106,50 @@ public class OTPMimeMessage implements Serializable {
 			return transform.apply(this);
 		}
 	}
-
+	
 	/**
 	 * Converts to a standard mime message
 	 * @return
 	 */
-	public MimeMessage toMimmeMessage(){
+	public MimeMessage toMimmeMessage(final String otpValue){
+		if(Strings.isNOTNullOrEmpty(otpValue)){
+			if(_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)){
+				_mainBodyPart._content = _mainBodyPart._content.replace(OTP_CODE_KEY, otpValue);
+			}
+			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+				_alternativeBodyPart = _alternativeBodyPart.replace(OTP_CODE_KEY, otpValue);
+			}
+		}
 		Function<OTPMimeMessage, MimeMessage> transform = new Function<OTPMimeMessage, MimeMessage>(){
 			@Override
 			public MimeMessage apply(final OTPMimeMessage input) {
 				try{
 					Properties props = new Properties();
 					Session session = Session.getInstance(props);
-
+					
 					MimeMessage mimeMessage = new MimeMessage(session);
-
+					
 					MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
-
+					
+					if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+						messageHelper.setText(_alternativeBodyPart, true);
+					}
+					
 					messageHelper.getMimeMultipart().setSubType(input.getSubType());
-
+					
 					//SEND DATA
 					messageHelper.setFrom(input.getFrom());
-	                messageHelper.setTo(input.getTo());
-	                messageHelper.setSubject(input.getSubject());
-
-	                //BODY PARTS
-	                messageHelper.getMimeMultipart().addBodyPart(input.getMainBodyPart().toMimeBodyPart());
-
-	                for(OTPMimeBodyPart otpMimeBodyPart : input.getMimeBodyPartList()){
-	                	messageHelper.getMimeMultipart().addBodyPart(otpMimeBodyPart.toMimeBodyPart());
-	                }
-	                return messageHelper.getMimeMessage();
+					messageHelper.setTo(input.getTo());
+					messageHelper.setSubject(input.getSubject());
+					
+					//BODY PARTS
+					messageHelper.getMimeMultipart().addBodyPart(input.getMainBodyPart().toMimeBodyPart());
+					
+					for(OTPMimeBodyPart otpMimeBodyPart : input.getMimeBodyPartList()){
+						messageHelper.getMimeMultipart().addBodyPart(otpMimeBodyPart.toMimeBodyPart());
+					}
+					
+					return messageHelper.getMimeMessage();
 				} catch (MessagingException e) {
 					e.printStackTrace();
 				}
@@ -144,16 +158,20 @@ public class OTPMimeMessage implements Serializable {
 		};
 		return transform.apply(this);
 	}
-
-	/**
-	 * Replace OTP Key with Value
-	 * @return
-	 */
-	public void replaceOtpValue(final String otpValue){
-		if(Strings.isNOTNullOrEmpty(otpValue)){
-			if(_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)){
-				_mainBodyPart._content = _mainBodyPart._content.replace(OTP_CODE_KEY, otpValue);
-			}
-		}
-	}
+	
+//	/**
+//	 * Replace OTP Key with Value
+//	 * @return
+//	 */
+//	public void replaceOtpValue(final String otpValue){
+//		if(Strings.isNOTNullOrEmpty(otpValue)){
+//			if(_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)){
+//				_mainBodyPart._content = _mainBodyPart._content.replace(OTP_CODE_KEY, otpValue);
+//			}
+//			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+//				_mainBodyPart.
+//				_alternativeBodyPart = _alternativeBodyPart.replace(OTP_CODE_KEY, otpValue);
+//			}
+//		}
+//	}
 }

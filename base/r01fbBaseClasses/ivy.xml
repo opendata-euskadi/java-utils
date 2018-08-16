@@ -25,7 +25,7 @@
 
     <info organisation="com.ejie.r01.r01fb"
           module="r01fbBaseClasses"
-           revision="${r01f.current.version}"
+          revision="${r01f.current.version}"
           status="integration">
 	</info>
 	<!--

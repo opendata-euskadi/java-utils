@@ -90,19 +90,28 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		_accessorWrapper = new SearchFilterForModelObjectAccessorWrapper<SELF_TYPE>((SELF_TYPE)this);
 		_modifierWrapper = new SearchFilterForModelObjectModifierWrapper<SELF_TYPE>((SELF_TYPE)this);
 	}
-	public SearchFilterForModelObjectBase(final Class<? extends ModelObject> modelObjectType) {
+	public <M extends ModelObject> SearchFilterForModelObjectBase(final Class<? extends M> modelObjectType) {
 		this();
 		Collection<Class<? extends ModelObject>> modelObjectTypes = new HashSet<Class<? extends ModelObject>>(1);
 		modelObjectTypes.add(modelObjectType);
 		this.setModelObjectTypesToBeFiltered(modelObjectTypes);
 	}
-	public SearchFilterForModelObjectBase(final Class<? extends ModelObject>... modelObjectTypes) {
+	public <M extends ModelObject> SearchFilterForModelObjectBase(final Class<? extends M>... modelObjectTypes) {
 		this();
-		this.setModelObjectTypesToBeFiltered(Arrays.asList(modelObjectTypes));
+		Collection<Class<? extends ModelObject>> col = Arrays.<Class<? extends ModelObject>>asList(modelObjectTypes);
+		this.setModelObjectTypesToBeFiltered(col);
 	}
-	public SearchFilterForModelObjectBase(final Collection<Class<? extends ModelObject>> modelObjectTypes) {
+	public <M extends ModelObject> SearchFilterForModelObjectBase(final Collection<Class<? extends M>> modelObjectTypes) {
 		this();
-		this.setModelObjectTypesToBeFiltered(modelObjectTypes);
+		Collection<Class<? extends ModelObject>> col = FluentIterable.from(modelObjectTypes)
+															  .transform(new Function<Class<? extends M>,Class<? extends ModelObject>>() {
+																				@Override @SuppressWarnings("cast")
+																				public Class<? extends ModelObject> apply(final Class<? extends M> type) {
+																					return (Class<? extends ModelObject>)type;
+																				}
+															  			 })
+															  .toList();
+		this.setModelObjectTypesToBeFiltered(col);
 	}
 	protected <F extends SearchFilterForModelObjectBase<F>> void _copy(final F other) {
 		_UILanguage = other.getUILanguage();
@@ -324,7 +333,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
-			EqualsQueryClause<UserCode> eqClause = clause.as(new TypeRef<EqualsQueryClause<UserCode>>() { /* nothing */ });
+			EqualsQueryClause<UserCode> eqClause = (EqualsQueryClause<UserCode>)clause; 	// clause.as(new TypeRef<EqualsQueryClause<UserCode>>() { /* nothing */ });
 			eqClause.setEqValue(creator);
 		} else {
 			EqualsQueryClause<UserCode> eqClause = EqualsQueryClause.forField(fieldId)	
@@ -344,7 +353,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
-			EqualsQueryClause<UserCode> eqClause = clause.as(new TypeRef<EqualsQueryClause<UserCode>>() { /* nothing */ });
+			EqualsQueryClause<UserCode> eqClause = (EqualsQueryClause<UserCode>)clause; 	// clause.as(new TypeRef<EqualsQueryClause<UserCode>>() { /* nothing */ });
 			eqClause.setEqValue(lastEditor);
 		} else {
 			EqualsQueryClause<UserCode> eqClause = EqualsQueryClause.forField(fieldId)	
@@ -367,7 +376,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
-			RangeQueryClause<Date> rangeClause = clause.as(new TypeRef<RangeQueryClause<Date>>() { /* nothing */ });
+			RangeQueryClause<Date> rangeClause = (RangeQueryClause<Date>)clause;	// clause.as(new TypeRef<RangeQueryClause<Date>>() { /* nothing */ });
 			rangeClause.setRange(range);
 		} else {
 			RangeQueryClause<Date> rangeClause = RangeQueryClause.forField(fieldId)
@@ -387,7 +396,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
-			RangeQueryClause<Date> rangeClause = clause.as(new TypeRef<RangeQueryClause<Date>>() { /* nothing */ });
+			RangeQueryClause<Date> rangeClause = (RangeQueryClause<Date>)clause;	// clause.as(new TypeRef<RangeQueryClause<Date>>() { /* nothing */ });
 			rangeClause.setRange(range);
 		} else {
 			RangeQueryClause<Date> rangeClause = RangeQueryClause.forField(fieldId)

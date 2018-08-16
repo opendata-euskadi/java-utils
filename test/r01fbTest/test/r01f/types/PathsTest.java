@@ -1,6 +1,7 @@
 package r01f.types;
 
 import java.util.Arrays;
+import java.util.List;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
@@ -19,6 +20,18 @@ import r01f.objectstreamer.annotations.MarshallType;
 import r01f.util.types.Paths;
 
 public class PathsTest {
+	@Test
+	public void pathElementsExceptLastTest() {
+		// a file path
+		Path path1 = Path.from("/foo/bar/baz.shtml");
+		List<String> pathElementsExceptLast1 = path1.getPathElementsExceptLast();
+		Assert.assertEquals(2,pathElementsExceptLast1.size());
+		
+		// a folder path
+		Path path2 = Path.from("/foo/bar/");
+		List<String> pathElementsExceptLast2 = path2.getPathElementsExceptLast();
+		Assert.assertEquals(1,pathElementsExceptLast2.size());
+	}
 	@Test
 	public void asStringConversionMethodsTest() {
 		Path test1 = new Path(Arrays.asList("foo","bar","baz"));

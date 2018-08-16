@@ -44,17 +44,39 @@ public class UrlProtocol
 		if (other == this) return true;
 		if (other instanceof UrlProtocol) {
 			UrlProtocol otherProto = (UrlProtocol)other;
-			return Strings.isNOTNullOrEmpty(this.asString()) && Strings.isNOTNullOrEmpty(otherProto.asString())
-						? this.asString().equals(otherProto.asString())
-						: Strings.isNullOrEmpty(this.asString()) && Strings.isNullOrEmpty(otherProto.asString())
-								? true		// both contains null strings
-								: false;	// one contains a not null string while the other does not
+			return this.is(otherProto);
 		}
 		else if (other instanceof StandardUrlProtocol) {
 			StandardUrlProtocol otherStdProto = (StandardUrlProtocol)other;
-			return this.equals(otherStdProto.toUrlProtocol());
+			return this.is(otherStdProto);
 		}
 		return false;
+	}
+	/**
+	 * Checks if it's the same protocol
+	 * @param otherProto
+	 * @return
+	 */
+	public boolean is(final UrlProtocol otherProto) {
+		return Strings.isNOTNullOrEmpty(this.asString()) && Strings.isNOTNullOrEmpty(otherProto.asString())
+					? this.asString().equals(otherProto.asString())
+					: Strings.isNullOrEmpty(this.asString()) && Strings.isNullOrEmpty(otherProto.asString())
+							? true		// both contains null strings
+							: false;	// one contains a not null string while the other does not
+	}
+	public boolean isNOT(final UrlProtocol otherProto) {
+		return !this.is(otherProto);
+	}
+	/**
+	 * Checks if the given standard protocol is this protocol
+	 * @param proto
+	 * @return
+	 */
+	public boolean is(final StandardUrlProtocol proto) {
+		return proto.toUrlProtocol().equals(this);
+	}
+	public boolean isNOT(final StandardUrlProtocol proto) {
+		return !this.is(proto);
 	}
 	@Override
 	public int hashCode() {
@@ -89,14 +111,6 @@ public class UrlProtocol
 	public StandardUrlProtocol asStandardProtocolOrDefault(final StandardUrlProtocol def) {
 		StandardUrlProtocol outProto = this.asStandardProtocolOrNull();
 		return outProto != null ? outProto : def;
-	}
-	/**
-	 * Checks if the given standard protocol is this protocol
-	 * @param proto
-	 * @return
-	 */
-	public boolean is(final StandardUrlProtocol proto) {
-		return proto.toUrlProtocol().equals(this);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -192,6 +206,7 @@ public class UrlProtocol
 /////////////////////////////////////////////////////////////////////////////////////////
 //  STANDARD PROTOCOLS
 /////////////////////////////////////////////////////////////////////////////////////////
+	@SuppressWarnings("hiding")
 	public enum StandardUrlProtocol
 	 implements EnumWithCode<String,StandardUrlProtocol>,
 	  		    CanBeRepresentedAsString {

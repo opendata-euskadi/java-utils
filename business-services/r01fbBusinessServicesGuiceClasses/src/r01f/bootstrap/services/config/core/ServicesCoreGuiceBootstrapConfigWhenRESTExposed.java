@@ -8,7 +8,7 @@ import r01f.bootstrap.services.config.core.ServicesClientProxyForCoreRESTExposed
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenRESTExposed;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleExpositionForRESTImpl;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootstrapConfig;
 import r01f.bootstrap.services.core.RESTImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
 import r01f.services.ids.ServiceIDs.CoreModule;
@@ -32,7 +32,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenRESTExposed
 												      	   final ServicesCoreModuleExpositionForRESTImpl restExpCfg,
 												      	   final ServicesClientProxyForCoreRESTExposed clientProxyCfg,
 												      	   final ServicesCoreModuleEventsConfig eventHandling,
-												      	   final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												      	   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												      	   final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule,
 												      	   final boolean isolate) {
 		super(coreAppCode,coreModule,
@@ -46,7 +46,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenRESTExposed
 														   final ServicesCoreModuleExpositionForRESTImpl restExpCfg,
 														   final ServicesClientProxyForCoreRESTExposed clientProxyCfg,
 														   final ServicesCoreModuleEventsConfig eventHandling,
-														   final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+														   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 														   final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule) {
 		this(coreAppCode,coreModule, 
 			 restExpCfg,clientProxyCfg,
@@ -59,7 +59,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenRESTExposed
 												      	   final Host restEndPointHost,final UrlPath restEndPointBasePath,
 												      	   final Class<? extends ServiceProxyImpl> serviceProxyImplsBaseType,
 												      	   final ServicesCoreModuleEventsConfig eventHandling,
-												      	   final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												      	   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												      	   final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule,
 												      	   final boolean isolate) {
 		super(coreAppCode,coreModule,
@@ -74,7 +74,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenRESTExposed
 												      	   final Host restEndPointHost,final UrlPath restEndPointBasePath,
 												      	   final Class<? extends ServiceProxyImpl> serviceProxyImplsBaseType,
 												      	   final ServicesCoreModuleEventsConfig eventHandling,
-												      	   final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												      	   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												      	   final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule) {
 		this(coreAppCode,coreModule,
 			 new ServicesCoreModuleExpositionForRESTImpl(restEndPointHost,restEndPointBasePath),

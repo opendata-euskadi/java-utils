@@ -81,7 +81,9 @@ public class UrlParserRegExpBased
 				String pathStr = m.group(1);
 
 				outComponents = new UrlComponents(StandardUrlProtocol.FILE.toUrlProtocol(),null,0,
-												  UrlPath.from(pathStr),null,null);
+												  UrlPath.preservingTrailingSlash()		// BEWARE!!
+												  		 .from(pathStr),
+												  null,null);
 			}
 		}
 		else {
@@ -107,7 +109,8 @@ public class UrlParserRegExpBased
 				int port = Strings.isNOTNullOrEmpty(portStr) ? Integer.parseInt(portStr)
 														     : stdProto != null ? stdProto.getDefaultPort()
 																   			    : 0;
-				UrlPath urlPath = Strings.isNOTNullOrEmpty(pathStr) ? UrlPath.from(pathStr)
+				UrlPath urlPath = Strings.isNOTNullOrEmpty(pathStr) ? UrlPath.preservingTrailingSlash()		// BEWARE!!!
+																			 .from(pathStr)
 																    : null;
 				UrlQueryString qryString = Strings.isNOTNullOrEmpty(queryStr) ? UrlQueryString.fromParamsString(queryStr)
 																		  	  : null;
@@ -133,7 +136,9 @@ public class UrlParserRegExpBased
 			String pathStr = m.group(1);
 			String queryStr = m.group(2);
 			String anchorStr = m.group(3);
-			UrlPath urlPath = !Strings.isNullOrEmpty(pathStr) ? UrlPath.from(pathStr) : null;
+			UrlPath urlPath = !Strings.isNullOrEmpty(pathStr) ? UrlPath.preservingTrailingSlash()	// BEWARE!
+																	   .from(pathStr) 
+															  : null;
 			UrlProtocol protocol = null;
 			Host host = null;
 			int port = 0;
@@ -142,7 +147,8 @@ public class UrlParserRegExpBased
 				protocol = StandardUrlProtocol.HTTP.toUrlProtocol();
 				host = Host.localhost();
 				port =  StandardUrlProtocol.HTTP.getDefaultPort();
-				urlPath = urlPath.getPathElements().size() > 1 ? UrlPath.from(urlPath.getPathElementsFrom(1))	// skip first element
+				urlPath = urlPath.getPathElements().size() > 1 ? UrlPath.preservingTrailingSlash()
+																		.from(urlPath.getPathElementsFrom(1))	// skip first element
 															   : null;
 			}
 			UrlQueryString qryString = !Strings.isNullOrEmpty(queryStr) ? UrlQueryString.fromParamsString(queryStr) : null;

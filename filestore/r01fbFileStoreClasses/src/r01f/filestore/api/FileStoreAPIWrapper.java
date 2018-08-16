@@ -118,7 +118,7 @@ public class FileStoreAPIWrapper {
     		return outIS;
     	}
     	public void consumedBy(final ChunkedOutputStreamChunksConsumer consumer) {
-    		
+    		// nothing
     	}
     }
 /////////////////////////////////////////////////////////////////////////////////////////

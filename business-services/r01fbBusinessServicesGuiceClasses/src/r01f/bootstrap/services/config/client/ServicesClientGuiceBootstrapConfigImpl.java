@@ -1,5 +1,7 @@
 package r01f.bootstrap.services.config.client;
 
+import java.util.Collection;
+
 import r01f.bootstrap.services.client.ServiceInterfaceTypesToImplOrProxyMappings;
 import r01f.bootstrap.services.client.ServicesClientAPIBootstrapGuiceModuleBase;
 import r01f.services.client.ClientAPI;
@@ -9,7 +11,6 @@ import r01f.services.interfaces.ServiceInterface;
 
   class ServicesClientGuiceBootstrapConfigImpl 
 extends ServicesClientGuiceBootstrapConfigBase {
-
 	public ServicesClientGuiceBootstrapConfigImpl(final ClientApiAppCode clientApiAppCode,
 											 	  final Class<? extends ClientAPI> clientApiType,
 											 	  final Class<? extends ServiceInterface> serviceInterfaceBaseType,
@@ -22,5 +23,20 @@ extends ServicesClientGuiceBootstrapConfigBase {
 			  servicesProxiesAggregatorType,
 			  serviceInterfaceTypesToImplOrProxyMappingsType,
 			  clientBootstrapGuiceModuleType);
+	}
+	public ServicesClientGuiceBootstrapConfigImpl(final ClientApiAppCode clientApiAppCode,
+											 	  final Class<? extends ClientAPI> clientApiType,
+											 	  final Class<? extends ServiceInterface> serviceInterfaceBaseType,
+											 	  final Class<? extends ServiceProxiesAggregator> servicesProxiesAggregatorType,
+											 	  final Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> serviceInterfaceTypesToImplOrProxyMappingsType,
+											 	  final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+											 	  final Collection<ServicesClientSubModuleBootstrapConfig<?>> subModulesCfgs) {
+		super(clientApiAppCode,
+			  clientApiType, 
+			  serviceInterfaceBaseType, 
+			  servicesProxiesAggregatorType,
+			  serviceInterfaceTypesToImplOrProxyMappingsType,
+			  clientBootstrapGuiceModuleType,
+			  subModulesCfgs);
 	}
 }

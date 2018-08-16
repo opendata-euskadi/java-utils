@@ -10,7 +10,7 @@ import org.w3c.dom.Document;
 import lombok.extern.slf4j.Slf4j;
 import r01f.ejie.xlnets.XLNetsFuncion;
 import r01f.ejie.xlnets.XLNetsSession;
-import r01f.ejie.xlnets.login.XLNetsAuthenticatedApiServiceDataProvider;
+import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
 import r01f.ejie.xlnets.servlet.XLNetsAppCfg;
 import r01f.ejie.xlnets.servlet.XLNetsAuthCtx;
 import r01f.ejie.xlnets.servlet.XLNetsResourceAuthorization;
@@ -47,7 +47,7 @@ public class XLNetsTest {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForAppComponent(AppCode.forId("r01fb"),
 																			     		AppComponent.forId("xlnets.loginAppHttpProvided"))
 														  		 .notUsingCache();
-		XLNetsAuthenticatedApiServiceDataProvider provider = new XLNetsAuthenticatedApiServiceDataProvider(props);
+		XLNetsAuthTokenProvider provider = new XLNetsAuthTokenProvider(props);
 		Document xlnetsSessionTokenDoc = provider.getXLNetsSessionTokenDoc();
 		Assert.assertNotNull(xlnetsSessionTokenDoc);
 		
@@ -60,7 +60,7 @@ public class XLNetsTest {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForAppComponent(AppCode.forId("r01fb"),
 																			     		AppComponent.forId("xlnets.fileUserToken"))
 														  		 .notUsingCache();
-		XLNetsAuthenticatedApiServiceDataProvider provider = new XLNetsAuthenticatedApiServiceDataProvider(props);
+		XLNetsAuthTokenProvider provider = new XLNetsAuthTokenProvider(props);
 		Document xlnetsSessionTokenDoc = provider.getXLNetsSessionTokenDoc();
 		Assert.assertNotNull(xlnetsSessionTokenDoc);
 		

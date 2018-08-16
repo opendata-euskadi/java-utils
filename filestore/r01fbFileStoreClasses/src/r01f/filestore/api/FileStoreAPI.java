@@ -7,6 +7,82 @@ import java.io.OutputStream;
 import r01f.file.FileID;
 import r01f.file.FileProperties;
 
+/**
+ * Samples
+ * [1] - Load a file
+ * <pre class='brush:java'>
+ * 		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Read the test file contents
+ *		String readedText = Files.wrap(api)
+ *								 .forLoading(TEST_FILE_PATH)
+ *								 .asString();
+ * </pre>
+ * [2] - Load chunked
+ * <pre class='brush:java'>
+ * 		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Read the test file contents
+ *		InputStream is = Files.wrap(api)
+ *							  .forLoading(TEST_FILE_PATH)
+ *							  .asChunkedInputStream(5);	// chunks of 5 bytes
+ *		String readedText = Streams.inputStreamAsString(is);
+ * </pre>
+ * [3] - Append
+ * <pre class='brush:java'>
+ *		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Append to the file
+ *		Files.wrap(api)
+ *			 .forAppendingTo(TEST_FILE_PATH)
+ *			 .append(TEST_TEXT);
+ * </pre>
+ * [4] - Append chunked
+ * <pre class='brush:java'>
+ *		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Append to the file
+ *		Files.wrap(api)
+ *			 .forAppendingTo(TEST_FILE_PATH)
+ *			 .append(new ChunkedInputStreamChunksProducer() {
+ *								@Override
+ *								public byte[] get(final long offset) throws IOException {
+ *									long available = TEST_TEXT.length() - offset;
+ *									if (available <= 0) return null;
+ *									String outStr = available >= 5 ? TEST_TEXT.substring((int)offset,(int)(offset + 5))
+ *														  		   : TEST_TEXT.substring((int)offset);
+ *									return outStr.getBytes();
+ *								}
+ *			 		 });
+ * </pre>
+ * [5] - Write
+ * <pre class='brush:java'>
+ *		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Overwrite the file
+ *		Files.wrap(api)
+ *			 .forOverwriting(TEST_FILE_PATH)
+ *			 .write(TEST_TEXT);
+ * </pre>
+ * [6] - Write chunked
+ * <pre class='brush:java'>
+ *		FileStoreAPI api = new LocalFileStoreAPI();
+ *		
+ *		// Append to the file
+ *		Files.wrap(api)
+ *			 .forOverwriting(TEST_FILE_PATH)
+ *			 .write(new ChunkedInputStreamChunksProducer() {
+ *								@Override
+ *								public byte[] get(final long offset) throws IOException {
+ *									long available = TEST_TEXT.length() - offset;
+ *									if (available <= 0) return null;
+ *									String outStr = available >= 5 ? TEST_TEXT.substring((int)offset,(int)(offset + 5))
+ *														  		   : TEST_TEXT.substring((int)offset);
+ *									return outStr.getBytes();
+ *								}
+ *			 		 });
+ * </pre>
+ */
 public interface FileStoreAPI {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  EXISTENCE

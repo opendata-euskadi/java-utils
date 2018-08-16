@@ -9,7 +9,7 @@ import r01f.bootstrap.services.config.core.ServicesClientProxyToCoreServices;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigBase;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleExposition;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootstrapConfig;
 import r01f.bootstrap.services.core.ServicesCoreBootstrapGuiceModule;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
 import r01f.services.ids.ServiceIDs.CoreModule;
@@ -41,7 +41,7 @@ abstract class ServicesCoreGuiceBootstrapConfigBase<E extends ServicesCoreModule
 	public ServicesCoreGuiceBootstrapConfigBase(final CoreAppCode coreAppCode,final CoreModule coreModule,
 												final E exposition,final P clientProxyConfig,
 											    final ServicesCoreModuleEventsConfig eventHandling,
-											    final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesConfig,
+											    final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesConfig,
 											    final Class<? extends ServicesCoreBootstrapGuiceModule> coreBootstrapGuiceModuleType,
 											    final boolean isolate) {
 		super(coreAppCode,coreModule,

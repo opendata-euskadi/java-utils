@@ -1,6 +1,7 @@
 package r01f.model;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.base.Objects;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -157,6 +158,28 @@ public abstract class PersistableModelObjectBase<O extends OID,
     public TrackableBuilder<SELF_TYPE,SELF_TYPE> builderForTrackable() {
     	return new TrackableBuilder<SELF_TYPE,SELF_TYPE>((SELF_TYPE)this,
     													 (SELF_TYPE)this);
+    }
+/////////////////////////////////////////////////////////////////////////////////////////
+//	EQUALS
+/////////////////////////////////////////////////////////////////////////////////////////
+    @Override
+    public boolean equals(final Object obj) {
+    	if (this == obj) return true;
+    	if (obj == null) return false;
+    	if (!(obj instanceof PersistableModelObjectBase)) return false;
+    	
+    	PersistableModelObjectBase<?,?> other = (PersistableModelObjectBase<?,?>)obj;
+    	if (this.getEntityVersion() != other.getEntityVersion()) return false;
+    	if (this.getNumericId() != other.getNumericId()) return false;
+    	if (this.getOid().isNOT(other.getOid())) return false;
+    	if (!Objects.equal(this.getTrackingInfo(),other.getTrackingInfo())) return false;
+    	return true;
+    }
+    @Override
+    public int hashCode() {
+    	return Objects.hashCode(this.getEntityVersion(),
+    							this.getNumericId(),
+    							this.getOid());
     }
 /////////////////////////////////////////////////////////////////////////////////////////
 //  STATIC METHODS

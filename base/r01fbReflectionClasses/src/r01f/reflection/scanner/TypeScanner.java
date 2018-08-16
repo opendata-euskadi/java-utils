@@ -135,7 +135,7 @@ public class TypeScanner<T> {
         return _matches;
     }
     /**
-     * Returns the classloader that will be used for scanning for classes. If no explicit
+     * Returns the class loader that will be used for scanning for classes. If no explicit
      * ClassLoader has been set by the calling, the context class loader will be used.
      *
      * @return the ClassLoader that will be used to scan for classes
@@ -146,7 +146,7 @@ public class TypeScanner<T> {
     }
     /**
      * Sets an explicit ClassLoader that should be used when scanning for classes. If none
-     * is set then the context classloader will be used.
+     * is set then the context class loader will be used.
      *
      * @param classloader a ClassLoader to use when scanning for classes
      */

@@ -38,7 +38,6 @@ import r01f.types.AppVersion;
 import r01f.types.Color;
 import r01f.types.Path;
 import r01f.types.Range;
-import r01f.types.TagList;
 import r01f.types.TimeLapse;
 import r01f.types.contact.ContactInfo;
 import r01f.types.contact.ContactInfoBuilder;
@@ -64,6 +63,8 @@ import r01f.types.datetime.Year;
 import r01f.types.summary.Summary;
 import r01f.types.summary.SummaryLanguageTextsBacked;
 import r01f.types.summary.SummaryStringBacked;
+import r01f.types.tag.StringTagList;
+import r01f.types.tag.TagList;
 import r01f.types.url.Url;
 import r01f.types.url.UrlQueryStringParam;
 
@@ -78,17 +79,17 @@ public class TestBaseTypes
 	@NoArgsConstructor @AllArgsConstructor
 	public static class TestTagListContainerBean {
 		@MarshallField(as="theTagList")
-		@Getter @Setter private TagList _tagList;
+		@Getter @Setter private StringTagList _tagList;
 	}
 	@Test
 	public void testTagList() throws IOException  {
-		TagList tagList1 = new TagList("tag1","tag2");
-		TagList tagList2 = new TagList("tagA","tagB");	
+		StringTagList tagList1 = new StringTagList("tag1","tag2");
+		StringTagList tagList2 = new StringTagList("tagA","tagB");	
 		
 		// alone
 		_doTest(tagList1,
-			    TagList.class, 
-				_buildObjEqualsChecker(TagList.class));
+			    StringTagList.class, 
+				_buildObjEqualsChecker(StringTagList.class));
 		
 		// contained
 		TestTagListContainerBean tagListContainer = new TestTagListContainerBean(tagList1);

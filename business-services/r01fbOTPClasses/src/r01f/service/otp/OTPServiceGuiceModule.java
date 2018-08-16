@@ -16,7 +16,7 @@ import r01f.service.otp.delegate.OTPServiceForDistpachImpl;
 import r01f.service.otp.delegate.OTPServiceForGenerationImpl;
 import r01f.service.otp.delegate.OTPServiceForValidationImpl;
 import r01f.service.otp.delegate.OTPServiceImpl;
-import r01f.services.latinia.LatiniaConfig;
+import r01f.services.latinia.LatiniaServiceAPIData;
 import r01f.services.latinia.LatiniaServiceGuiceModule;
 
 @EqualsAndHashCode				// This is important for guice modules
@@ -26,7 +26,7 @@ implements Module {
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final JavaMailSenderConfig _mailSenderConfig;
-	private final LatiniaConfig _latiniaCfg;
+	private final LatiniaServiceAPIData _latiniaCfg;
 	private final DistributedCacheConfig _distributedCacheCfg;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -34,7 +34,7 @@ implements Module {
 /////////////////////////////////////////////////////////////////////////////////////////
 	public OTPServiceGuiceModule(final DistributedCacheConfig distributedCacheCfg,
 								 final JavaMailSenderConfig mailSenderConfig,
-								 final LatiniaConfig latiniaConfig) {
+								 final LatiniaServiceAPIData latiniaConfig) {
 		_distributedCacheCfg = distributedCacheCfg;
 		_mailSenderConfig = mailSenderConfig;
 		_latiniaCfg = latiniaConfig;

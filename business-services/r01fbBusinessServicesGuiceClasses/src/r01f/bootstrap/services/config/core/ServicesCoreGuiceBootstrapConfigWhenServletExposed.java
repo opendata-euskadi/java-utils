@@ -8,7 +8,7 @@ import r01f.bootstrap.services.config.core.ServicesClientProxyForCoreServletExpo
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenServletExposed;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleExpositionForServletImpl;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootstrapConfig;
 import r01f.bootstrap.services.core.ServletImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
 import r01f.services.ids.ServiceIDs.CoreModule;
@@ -32,7 +32,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenServletExposed
 												         	  final ServicesCoreModuleExpositionForServletImpl servletExpCfg,
 												         	  final ServicesClientProxyForCoreServletExposed servletClientProxyCfg,
 												         	  final ServicesCoreModuleEventsConfig eventHandling,
-												         	  final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												         	  final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												         	  final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule,
 												         	  final boolean isolate) {
 		super(coreAppCode,coreModule,
@@ -46,7 +46,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenServletExposed
 												      	 	  final ServicesCoreModuleExpositionForServletImpl servletExpCfg,	
 												      	 	  final ServicesClientProxyForCoreServletExposed servletClientProxyCfg,
 												      	 	  final ServicesCoreModuleEventsConfig eventHandling,
-												      	 	  final Collection<ServicesCoreSubModuleBootrapConfig<?>>  subModulesCfgs,
+												      	 	  final Collection<ServicesCoreSubModuleBootstrapConfig<?>>  subModulesCfgs,
 												      	 	  final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule) {
 		this(coreAppCode,coreModule, 
 			 servletExpCfg,servletClientProxyCfg,
@@ -59,7 +59,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenServletExposed
 												      	 	  final Host servletEndPointHost,final UrlPath servletPath,
 												      	 	  final Class<? extends ServiceProxyImpl> serviceProxyImplsBaseType, 
 												      	 	  final ServicesCoreModuleEventsConfig eventHandling,
-												      	 	  final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												      	 	  final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												      	 	  final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule,
 												      	 	  final boolean isolate) {
 		super(coreAppCode,coreModule,
@@ -73,7 +73,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenServletExposed
 	public ServicesCoreGuiceBootstrapConfigWhenServletExposed(final CoreAppCode coreAppCode,final CoreModule coreModule,												         final Host servletEndPointHost,final UrlPath servletPath,
 												         	  final Class<? extends ServiceProxyImpl> serviceProxyImplsBaseType,
 												         	  final ServicesCoreModuleEventsConfig eventHandling,
-												         	  final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												         	  final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												         	  final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule) {
 		super(coreAppCode,coreModule,
 			  new ServicesCoreModuleExpositionForServletImpl(servletEndPointHost,servletPath),

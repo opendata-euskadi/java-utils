@@ -290,7 +290,7 @@ public class Url
 		return Url.from(UrlProtocol.HTTP,host,port,
 					    urlPath,queryString,anchor);
 	}
-	public static Url from(final UrlPath path) {		
+	public static Url from(final UrlPath path) {
 		return Url.from(path.asAbsoluteString());
 	}
 	public static Url from(final UrlPath path,
@@ -300,7 +300,7 @@ public class Url
 	public static Url from(final UrlPath path,
 						   final String anchor) {
 		return new Url(path,anchor);
-	}
+	}	
 	public static Url from(final UrlPath path,
 						   final UrlQueryString queryString,final String anchor) {
 		return new Url(path,queryString,anchor);
@@ -323,6 +323,12 @@ public class Url
 					    otherComps.getUrlPath(),
 					    otherComps.getQueryString(),
 					    otherComps.getAnchor());
+	}
+	public static Url from(final UrlProtocol urlProtocol,
+						   final String otherUrlStr) {
+		Url otherUrl = Url.from(otherUrlStr);
+		return urlProtocol.is(otherUrl.getProtocol()) ? otherUrl
+													  : Url.from(urlProtocol,otherUrl);		// change protocol
 	}
 	public static Url from(final Url other,
 						   final UrlPath path) {

@@ -112,6 +112,13 @@ public class HttpClientRequestBuilderMethodStep
 		return this;
 	}
 	/**
+	 * Sets all the headers to send to the server
+	 * @param headers all the headers (name/value pairs in a Map)
+	 */
+	public HttpClientRequestBuilderMethodStep withAcceptHeader(final String accept) {
+		return this.withHeader("accept",accept);
+	}
+	/**
 	 * Sets a request header
 	 * @param name name of the header
 	 * @param value value of the header

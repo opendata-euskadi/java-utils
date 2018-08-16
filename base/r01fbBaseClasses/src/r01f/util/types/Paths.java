@@ -134,6 +134,6 @@ public abstract class Paths {
 		return PathBase.createPaths2(Path.PATH_FACTORY);
 	}
 	public static Paths2<UrlPath> forUrlPaths() {
-		return PathBase.createPaths2(UrlPath.PATH_FACTORY);
+		return PathBase.createPaths2(UrlPath.URL_PATH_FACTORY);
 	}
 }

@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
+import r01f.facets.HasLanguage;
 import r01f.guids.CommonOIDs.UserCode;
+import r01f.locale.Language;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 import r01f.objectstreamer.annotations.MarshallType;
@@ -26,7 +28,8 @@ import r01f.types.url.Url;
 @Accessors(prefix="_")
 @NoArgsConstructor
 public class ContactSocialNetwork 
-     extends ContactInfoMediaBase<ContactSocialNetwork> {
+     extends ContactInfoMediaBase<ContactSocialNetwork>
+  implements HasLanguage {
 	
 	private static final long serialVersionUID = 4611690233960483088L;
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +41,12 @@ public class ContactSocialNetwork
 	@MarshallField(as="type",
 				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter @Setter private ContactSocialNetworkType _type;
+	/**
+	 * The language
+	 */
+	@MarshallField(as="lang",
+				   whenXml=@MarshallFieldAsXml(attr=true))
+	@Getter @Setter private Language _language;
 	/**
 	 * Phone number
 	 */

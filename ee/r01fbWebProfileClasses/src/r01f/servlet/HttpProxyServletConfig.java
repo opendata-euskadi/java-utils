@@ -33,6 +33,10 @@ public class HttpProxyServletConfig
 //	FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * The servlet context path (ie: xxxWar)
+	 */
+	@Getter private final UrlPath _servletContextUrlPath;
+	/**
 	 * The target server protocol
 	 */
 	@Getter private final UrlProtocol _targetProtocol;
@@ -67,14 +71,22 @@ public class HttpProxyServletConfig
 /////////////////////////////////////////////////////////////////////////////////////////
 //	CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-    public HttpProxyServletConfig() {
-    	this(Host.localhost(),StandardUrlProtocol.HTTP.getDefaultPort());
+    public HttpProxyServletConfig(final UrlPath servletContextPath) {
+    	this(servletContextPath,
+    		 Host.localhost(),StandardUrlProtocol.HTTP.getDefaultPort());
     }
-    public HttpProxyServletConfig(final Host targetHost) {
-    	this(Host.strict(targetHost),
+    public HttpProxyServletConfig(final UrlPath servletContextPath,
+    							  // proxy params
+    							  final Host targetHost) {
+    	this(servletContextPath,
+    		 Host.strict(targetHost),
     		 targetHost.asUrl().getPort());
     }
-    public HttpProxyServletConfig(final Host targetHost,final int targetPort) {
+    public HttpProxyServletConfig(final UrlPath servletContextPath,
+    							  // proxy params
+    							  final Host targetHost,final int targetPort) {
+    	_servletContextUrlPath = servletContextPath;
+    	// proxy params
     	_targetProtocol = targetHost.asUrl().getProtocol();
     	_targetHost = Host.strict(targetHost);
     	_targetPort = targetPort;
@@ -83,8 +95,12 @@ public class HttpProxyServletConfig
     	_maxFileUploadSize = 5 * 1024 * 1024;
     	_followRedirects = true;
     }
-    public HttpProxyServletConfig(final Host targetHost,final int targetPort,
+    public HttpProxyServletConfig(final UrlPath servletContextPath,
+    							  // proxy params
+    							  final Host targetHost,final int targetPort,
     					   		  final UrlPath pathTrim,final UrlPath pathPrepend) {
+    	_servletContextUrlPath = servletContextPath;
+    	// proxy params
     	_targetProtocol = targetHost.asUrl().getProtocol();
     	_targetHost = Host.strict(targetHost);
     	_targetPort = targetPort;
@@ -93,10 +109,14 @@ public class HttpProxyServletConfig
     	_maxFileUploadSize = 5 * 1024 * 1024;
     	_followRedirects = true;
     }
-    public HttpProxyServletConfig(final Host targetHost,final int targetPort,
+    public HttpProxyServletConfig(final UrlPath servletContextPath,
+    							  // proxy params
+    							  final Host targetHost,final int targetPort,
     					   		  final UrlPath pathTrim,final UrlPath pathPrepend,
     					   		  final int maxFileUploadSize,
     					   		  final boolean followRedirects) {
+    	_servletContextUrlPath = servletContextPath;
+    	// proxy params
     	_targetProtocol = targetHost.asUrl().getProtocol();
     	_targetHost = Host.strict(targetHost);;
     	_targetPort = targetPort;
@@ -106,6 +126,12 @@ public class HttpProxyServletConfig
     	_followRedirects = followRedirects;
     }
     public HttpProxyServletConfig(final ServletConfig servletConfig) {
+    	// get the servlet context
+    	String servletContext = servletConfig.getServletContext()
+    										 .getContextPath();
+    	_servletContextUrlPath = UrlPath.from(Strings.isNOTNullOrEmpty(servletContext) ? UrlPath.from(servletContext)
+    																				   : UrlPath.from("/"));	// default path
+    	
         // Get the proxy host
         String proxyHostFromWebXML = servletConfig.getInitParameter(INIT_PARAM_NAME_FOR_TARGET_APP_SERVER_HOST_NAME);
         if (Strings.isNullOrEmpty(proxyHostFromWebXML)) throw new IllegalArgumentException("Proxy host not set, please set '" + INIT_PARAM_NAME_FOR_TARGET_APP_SERVER_HOST_NAME + "' init-param in web.xml");

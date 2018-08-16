@@ -64,6 +64,14 @@ public class DBSearchQuery<F extends SearchFilter,
 /////////////////////////////////////////////////////////////////////////////////////////
 	public DBSearchQuery(final Class<DB> dbEntityType,
 						 final DBModuleConfig dbModuleConfig,
+						 final EntityManager entityManager) {
+		this(dbEntityType,
+			 dbModuleConfig,
+			 entityManager,
+			 (Language)null);
+	}
+	public DBSearchQuery(final Class<DB> dbEntityType,
+						 final DBModuleConfig dbModuleConfig,
 						 final EntityManager entityManager,
 						 final Language uiLanguage) {
 		this(dbEntityType,
@@ -77,13 +85,23 @@ public class DBSearchQuery<F extends SearchFilter,
 	public DBSearchQuery(final Class<DB> dbEntityType,
 						 final DBModuleConfig dbModuleConfig,
 						 final EntityManager entityManager,						 
+						 final DBSearchQueryToJPQLTranslator<F,DB> searchQueryToJpql) {
+		this(dbEntityType,
+			 dbModuleConfig,
+			 entityManager,
+			 (Language)null,
+			 searchQueryToJpql);
+	}
+	public DBSearchQuery(final Class<DB> dbEntityType,
+						 final DBModuleConfig dbModuleConfig,
+						 final EntityManager entityManager,						 
 						 final Language uiLanguage,
-						 final DBSearchQueryToJPQLTranslator<F,DB> searchQueryToJpq) {
+						 final DBSearchQueryToJPQLTranslator<F,DB> searchQueryToJpql) {
 		super(uiLanguage);
 		_dbEntityType = dbEntityType;
 		_dbModuleConfig = dbModuleConfig;
 		_entityManager = entityManager;
-		_searchQueryToJpq = searchQueryToJpq;
+		_searchQueryToJpq = searchQueryToJpql;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  PUBLIC METHODS

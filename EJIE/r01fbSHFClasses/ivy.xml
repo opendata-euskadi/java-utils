@@ -64,7 +64,9 @@
 		<!-- ============================================================================================================================== -->
 		<!-- GUAVA Retrying                                                                                                                 -->
 		<!-- ============================================================================================================================== -->		
-		<dependency org="com.github.rholder" name="guava-retrying" rev="2.0.0"/>
+		<dependency org="com.github.rholder" name="guava-retrying" rev="2.0.0">
+			<exclude org="com.google.guava" />
+		</dependency>
 
 	</dependencies>
 </ivy-module>

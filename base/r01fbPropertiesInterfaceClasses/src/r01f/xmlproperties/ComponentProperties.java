@@ -55,15 +55,25 @@ public interface ComponentProperties {
     public boolean existProperty(final Path propXPath);
 /////////////////////////////////////////////////////////////////////////////////////////
 //	 
-/////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Transform the child nodes into a collection of objects
-     * @param propXPath tje XPath expression that provides access to the xml node that contains the property
+     * @param propXPath the XPath expression that provides access to the xml node that contains the property
 	 * @param transformFunction
 	 * @return
 	 */
 	public <T> Collection<T> getObjectList(final Path propXPath,
 										   final Function<Node,T> transformFunction);
+	/**
+	 * Transform the child nodes into a collection of objects
+     * @param propXPath the XPath expression that provides access to the xml node that contains the property
+	 * @param transformFunction
+	 * @param defaultVal
+	 * @return
+	 */
+	public <T> Collection<T> getObjectList(final Path propXPath,
+										   final Function<Node,T> transformFunction,
+										   final Collection<T> defaultVal);
     /**
      * Returns a typed property
      * @param propXPath the XPath expression that provides access to the xml node that contains the property

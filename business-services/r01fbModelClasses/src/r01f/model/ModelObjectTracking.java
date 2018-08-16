@@ -3,6 +3,8 @@ package r01f.model;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.google.common.base.Objects;
+
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -144,5 +146,26 @@ public class ModelObjectTracking
 				}
 			}
 		}
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//	EQUALS & HASHCODE
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public boolean equals(final Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (!(obj instanceof ModelObjectTracking)) return false;
+		
+		ModelObjectTracking other = (ModelObjectTracking)obj;
+		return Objects.equal(this.getCreateDate(),other.getCreateDate())
+			&& Objects.equal(this.getCreatorUserCode(),other.getCreatorUserCode())
+			&& Objects.equal(this.getLastUpdateDate(),other.getCreatorUserCode())
+			&& Objects.equal(this.getLastUpdatorUserCode(),other.getLastUpdatorUserCode());
+		
+	}
+	@Override
+	public int hashCode() {
+		return Objects.hashCode(_createDate,_creatorUserCode,
+								_lastUpdateDate,_lastUpdatorUserCode);
 	}
 }

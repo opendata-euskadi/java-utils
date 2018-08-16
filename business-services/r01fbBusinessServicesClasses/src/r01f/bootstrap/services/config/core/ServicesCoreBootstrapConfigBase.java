@@ -47,7 +47,7 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 	/**
 	 * Sub-modules config
 	 */
-	@Getter protected final Collection<ServicesCoreSubModuleBootrapConfig<?>> _subModulesConfig;
+	@Getter protected final Collection<ServicesCoreSubModuleBootstrapConfig<?>> _subModulesCfgs;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CAST
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -70,15 +70,15 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 		throw new IllegalStateException("Illegal exposition type: " + _exposition.getClass());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  SUB-MODULE CONFIGS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
 	public <CFG extends ContainsConfigData> CFG getSubModuleConfigFor(final AppComponent component) {
-		if (CollectionUtils.isNullOrEmpty(_subModulesConfig)) throw new IllegalStateException("NO sub-modules config was set!");
-		ServicesCoreSubModuleBootrapConfig<CFG> subCfg = (ServicesCoreSubModuleBootrapConfig<CFG>)FluentIterable.from(_subModulesConfig)
-																	 .filter(new Predicate<ServicesCoreSubModuleBootrapConfig<?>>() {
+		if (CollectionUtils.isNullOrEmpty(_subModulesCfgs)) throw new IllegalStateException("NO sub-modules config was set!");
+		ServicesCoreSubModuleBootstrapConfig<CFG> subCfg = (ServicesCoreSubModuleBootstrapConfig<CFG>)FluentIterable.from(_subModulesCfgs)
+																	 .filter(new Predicate<ServicesCoreSubModuleBootstrapConfig<?>>() {
 																					@Override
-																					public boolean apply(final ServicesCoreSubModuleBootrapConfig<?> cfg) {
+																					public boolean apply(final ServicesCoreSubModuleBootstrapConfig<?> cfg) {
 																						return cfg.getComponent().is(component);
 																					}
 																	 		 })

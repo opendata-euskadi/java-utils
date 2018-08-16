@@ -148,10 +148,10 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 		// [0] - check the entity
 		if (modelObj == null) {
 			return CRUDResultBuilder.using(securityContext)
-								       .on(_modelObjectType)
-								       .badClientRequestData(PersistenceRequestedOperation.CREATE,
-								    		 			     "The {} entity cannot be null in order to be {}ed",_modelObjectType,requestedOperation.name().toLowerCase())
-								    		 .build();
+							        .on(_modelObjectType)
+							        .badClientRequestData(PersistenceRequestedOperation.CREATE,
+							    		 			      "The {} entity cannot be null in order to be {}ed",_modelObjectType,requestedOperation.name().toLowerCase())
+							        .build();
 		}
 		// [1] check that it's NOT in read only status
 		CRUDResult<M> outOpResult = this.errorIfReadOnlyOrNull(securityContext,
@@ -172,15 +172,13 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 		} else if (requestedOperation == PersistenceRequestedOperation.UPDATE
 				&& modelObj.getOid() == null) {
 			return (CRUDResult<M>)CRUDResultBuilder.using(securityContext)
-												   .on(modelObj.getClass())
-
-												   // _modelObjectType
-												   .badClientRequestData(PersistenceRequestedOperation.DELETE,
+												   .on(modelObj.getClass())		// _modelObjectType
+												   .badClientRequestData(PersistenceRequestedOperation.UPDATE,
 												    		 			 "The {} entity to be updated does NOT have an OID, is it maybe a create operation",_modelObjectType)
-												    	.build();
+												   .build();
 		}
 
-		// [3] model object validation and create the object at the persistent store
+		// [3] complete the object
 		M theModelObjToPersist = modelObj;
 		if (this instanceof CompletesModelObjectBeforeCreateOrUpdate) {
 			CompletesModelObjectBeforeCreateOrUpdate<M> completes = (CompletesModelObjectBeforeCreateOrUpdate<M>)this;
@@ -188,29 +186,30 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 																	  			  requestedOperation,
 																	  			  modelObj);
 		}
+		// [4] validate
 		outOpResult = this.errorIfNOTValidOrNull(securityContext,
 											 	 requestedOperation,
 											 	 theModelObjToPersist);
 		if (outOpResult != null) return outOpResult;
 
-		// [4] Execute
-		// 4.1) create
+		// [5] Execute
+		// 5.1) create
 		if (requestedOperation == PersistenceRequestedOperation.CREATE) {
 			outOpResult = this.getServiceImplAs(CRUDServicesForModelObject.class)
 									.create(securityContext,
 									   		theModelObjToPersist);
 		}
-		// 4.2) update
+		// 5.2) update
 		else if (requestedOperation == PersistenceRequestedOperation.UPDATE) {
 			outOpResult = this.getServiceImplAs(CRUDServicesForModelObject.class)
 									.update(securityContext,
 									   		theModelObjToPersist);
 		}
-		// [5] throw CRUD event
+		// [6] throw CRUD event
 		_fireEvent(securityContext,
 				   outOpResult,
 				   callbackSpec);
-		// [6] return
+		// [7] return
 		return outOpResult;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -319,7 +318,7 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 
 		// model object self validation
 		if (ReflectionUtils.isImplementing(_modelObjectType,Validates.class)) {
-			valid = ((Validates<M>)modelObj).validate();
+			valid = ((Validates<M>)modelObj).validate(modelObj);
 		}
 		// service logic validation
 		if (valid != null && valid.isValid() || valid == null) {

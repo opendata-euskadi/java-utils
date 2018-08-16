@@ -1,6 +1,5 @@
 package r01f.servlet;
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -49,6 +48,7 @@ import lombok.Cleanup;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
+import r01f.io.util.StringPersistenceUtils;
 import r01f.types.url.Host;
 import r01f.types.url.Url;
 import r01f.types.url.UrlPath;
@@ -173,14 +173,13 @@ public class HttpProxy {
         if (ServletFileUpload.isMultipartContent(originalRequest)) {
             _transferMultipartPost(originalRequest,
             					   postRequestToBeProxied);
+        } else if ((contentType == null) 
+                || (originalRequest.getContentType() != null && originalRequest.getContentType().contains("application/x-www-form-urlencoded"))) {
+            _transferFormUrlEncodedPost(originalRequest,
+            							postRequestToBeProxied);
         } else {
-            if (contentType == null || originalRequest.getContentType().contains("application/x-www-form-urlencoded")) {
-                _transferFormUrlEncodedPost(originalRequest,
-                							postRequestToBeProxied);
-            } else {
-                _transferContentPost(originalRequest,
-                					 postRequestToBeProxied);
-            }
+            _transferContentPost(originalRequest,
+            					 postRequestToBeProxied);
         }
         
         // [4] Execute the proxy request
@@ -225,20 +224,15 @@ public class HttpProxy {
     private void _transferContentPost(final HttpServletRequest originalRequest,
     								  final HttpPost postRequestToBeProxied) throws IOException {
     	// [1] Read the original POST content
-        StringBuilder content = new StringBuilder();
-		@SuppressWarnings("resource")
-		@Cleanup BufferedReader reader = originalRequest.getReader();
-        for (; ;) {
-            String line = reader.readLine();
-            if (line == null) break;
-            content.append(line);
-            content.append("\n");
-        }
-        String postContent = content.toString();
+    	log.debug("... reading {} POST",
+    			  originalRequest.getContentLength());
+        String postContent = StringPersistenceUtils.load(originalRequest.getInputStream());
 
         // [2] Replace all the references to the original server with the proxied one
         ContentType contentType = ContentType.create(originalRequest.getContentType());
-        if (contentType.getMimeType().startsWith("text/x-gwt-rpc")) {
+        if (contentType != null 
+         && contentType.getMimeType() != null
+         && contentType.getMimeType().startsWith("text/x-gwt-rpc")) {
             String clientHost = originalRequest.getLocalName();
             if (clientHost.equals("127.0.0.1")) {
                 clientHost = "localhost";
@@ -368,7 +362,7 @@ public class HttpProxy {
         
         // [2] - Execute the request
         HttpResponse endPointResponse = httpClient.execute(requestToBeProxied);
-
+        
         // [3]  Handle redirects (301) or client cache usage advices (304)
         if (_config.isFollowRedirects()
          && endPointResponse.getStatusLine().getStatusCode() >= HttpServletResponse.SC_MULTIPLE_CHOICES /* 300 */ 
@@ -379,49 +373,53 @@ public class HttpProxy {
     								   				   endPointResponse);
         	if (!hasToContinue) return;	// there is a redirection... do not continue
 
-        } else if (endPointResponse.getStatusLine().getStatusCode() == HttpServletResponse.SC_NOT_MODIFIED) {
+        } 
+        else if (!_config.isFollowRedirects()
+        	  && endPointResponse.getStatusLine().getStatusCode() == HttpServletResponse.SC_MOVED_TEMPORARILY) {
+        	
+            String loc = requestToBeProxied.getFirstHeader(LOCATION_HEADER).getValue();
+            responseToClient.setStatus(HttpServletResponse.SC_OK);
+            //endPointResponse.setStatusCode(HttpServletResponse.SC_OK);
+            responseToClient.setHeader(LOCATION_HEADER,loc);
+            
+            return;
+        }
+        else if (endPointResponse.getStatusLine().getStatusCode() == HttpServletResponse.SC_NOT_MODIFIED) {
             // 304 needs special handling.  See: http://www.ics.uci.edu/pub/ietf/http/rfc1945.html#Code304
             // We get a 304 whenever passed an 'If-Modified-Since' header and the data on disk has not changed; 
         	// server responds with a 304 saying I'm not going to send the body because the file has not changed.
             responseToClient.setIntHeader(CONTENT_LENGTH_HEADER_NAME, 0);
-            responseToClient.setStatus(HttpServletResponse.SC_NOT_MODIFIED);
+            responseToClient.setStatus(HttpServletResponse.SC_NOT_MODIFIED); 
+
             return;
         }
-
-        // [4] Copy the headers of the proxied server to the client response
+        
+        // [4] - Pass the response code back to the client
+        // [4.1] transfer the status code sent by the proxied server to the response to client
+        responseToClient.setStatus(endPointResponse.getStatusLine().getStatusCode());
+        
+        
+        // [4.2] Copy the headers of the proxied server to the client response
         _transferResponseHeaders(endPointResponse,
         						 responseToClient);
 
-        // [5] - Pass the response code back to the client
-        // [5.1] transfer the status code sent by the proxied server to the response to client
-        responseToClient.setStatus(endPointResponse.getStatusLine().getStatusCode());
-
-        // [5.2] transfer the content sent by the proxied server to the response to client
-        //		 (the response from the proxied server could be ziped... unzip befor transfer it to the response to client)
+        // [4.3] transfer the content sent by the proxied endpoint to the client
+        //		 (the response from the proxied endpoint could be ziped... unzip befor transfer it to the response to client)
         InputStream  endPointResponseIS = endPointResponse.getEntity()
         												  .getContent();
-        if (_isBodyParameterGzipped(endPointResponse)) {
+        
+        boolean endpointResponseIsGzipped = _isBodyParameterGzipped(endPointResponse);
+        if (endpointResponseIsGzipped) {
             log.debug("GZipped: true");
             int length = 0;
-
-            if (!_config.isFollowRedirects() 
-             && endPointResponse.getStatusLine().getStatusCode() == HttpServletResponse.SC_MOVED_TEMPORARILY) {
             	
-                String gz = requestToBeProxied.getFirstHeader(LOCATION_HEADER).getValue();
-                responseToClient.setStatus(HttpServletResponse.SC_OK);
-                endPointResponse.setStatusCode(HttpServletResponse.SC_OK);
-                responseToClient.setHeader(LOCATION_HEADER,gz);
-                
-            } else {
-            	
-                final byte[] bytes = _ungzip(endPointResponseIS);
-                length = bytes.length;
-                endPointResponseIS = new ByteArrayInputStream(bytes);
-            }
+            final byte[] bytes = _ungzip(endPointResponseIS);
+            length = bytes.length;
+            endPointResponseIS = new ByteArrayInputStream(bytes);
+            
             responseToClient.setContentLength(length);
-        } else {
-        	// The response from the proxied server is NOT zipped
-        }
+        } 
+        
         _copy(endPointResponseIS,
         	  responseToClient.getOutputStream());
         
@@ -544,10 +542,12 @@ public class HttpProxy {
         if (redirLocationUrl.getHost() != null && _config.getTargetHost().is(redirLocationUrl.getHost())							// same host
          && redirLocationUrl.getPort() == _config.getTargetPort()																	// same port
          && !redirLocationUrl.getUrlPath().startsWith(UrlPath.from(originalReq.getContextPath()))  		    						// does NOT start with the proxy context path
-         && UrlPath.from(UrlPath.from(originalReq.getRequestURI()).getPathElementsFrom(1)).isNOT(redirLocationUrl.getUrlPath())) {	// same path
+         && UrlPath.from(UrlPath.from(originalReq.getRequestURI()).getPathElementsFrom(1))
+         		   .isNOT(redirLocationUrl.getUrlPath())) {																			// same path
 	        // Modify the redirect url to go to this proxy servlet rather that the proxied host        
 	        Url proxyUrl = Url.from(Host.of(originalReq.getServerName()),originalReq.getServerPort(),
-	        						UrlPath.from(originalReq.getContextPath()));
+	        						UrlPath.preservingTrailingSlash()
+	        							   .from(originalReq.getContextPath()));
 	        
 	        String strToReplace = _config.getTargetServerHostAndPort().startsWith(StandardUrlProtocol.HTTP.getCode())
 	        							? _config.getTargetServerHostAndPort()
@@ -556,10 +556,10 @@ public class HttpProxy {
 	        		 redirLocationStr,strToReplace,proxyUrl.asString());
 	        
 	        redirLocationStr = redirLocationStr.replace(strToReplace,
-	            								  proxyUrl.asString());
+	            								  		proxyUrl.asString());
         } else {
         	log.warn("...redir to same url: original req={} requested redir={} > too many redirects",
-        			 UrlPath.from(UrlPath.from(originalReq.getRequestURI()).getPathElementsFrom(1)));
+        			 UrlPath.from(originalReq.getRequestURI()).getPathElementsFrom(1));
         	return true;
         }
       
@@ -652,9 +652,13 @@ public class HttpProxy {
         																// and will start with a "/" character. 
         																// This method returns null if there was no extra path information.
         UrlPath requestedUrlPath = Strings.isNOTNullOrEmpty(requestedServletPathInfo) 
-        										? UrlPath.from(requestedServletPath)
-        												 .joinedWith(requestedServletPathInfo)
-        										: UrlPath.from(requestedServletPath);
+        										? UrlPath.preservingTrailingSlash()
+        												 .from(_config.getServletContextUrlPath())
+        												 .joinedWith(requestedServletPath,
+        														 	 requestedServletPathInfo)
+        										: UrlPath.preservingTrailingSlash()
+        												 .from(_config.getServletContextUrlPath())
+        												 .joinedWith(requestedServletPath);
         if (_config.getPathTrim() == null) {
         	// nothing to remove
             targetUrlPath = requestedUrlPath;
@@ -674,14 +678,6 @@ public class HttpProxy {
         Url outTargetUrl = Url.from(protocol,_config.getTargetHost(),_config.getTargetPort(),
         							targetUrlPath,
         							queryString);
-        boolean addTrailingSlash = Strings.isNOTNullOrEmpty(requestedServletPathInfo) 
-        										? requestedServletPathInfo.endsWith("/")
-        										: requestedServletPath.endsWith("/");
-        String endPointURL = Strings.customized("{}://{}/{}{}?{}",
-        										protocol,_config.getTargetHost(),_config.getTargetPort(), 
-        										(targetUrlPath != null ? targetUrlPath.asRelativeString() : ""),
-        										(addTrailingSlash ? "/" : ""),
-        										(queryString != null ? queryString.asStringNotEncodingParamValues() : ""));
         return outTargetUrl;
     }
 /////////////////////////////////////////////////////////////////////////////////////////

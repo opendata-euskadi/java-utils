@@ -18,10 +18,12 @@ public class ThridPartyHTTPMailSender {
 	 * @return
 	 */
 	public static JavaMailSender create(final Url thirdPartyProviderUri,
-										final HttpClientProxySettings proxySettings) {
+										final HttpClientProxySettings proxySettings,
+										final boolean supportsMimeMessage) {
 		if (thirdPartyProviderUri == null || Strings.isNullOrEmpty(thirdPartyProviderUri.asString())) throw new IllegalArgumentException("Invalid URL for Third Party Mail Sender");
 		JavaMailSender outJavaMailSender =  new JavaMailSenderThridPartyHTTPImpl(thirdPartyProviderUri,
-																				 proxySettings);
+																				 proxySettings,
+																				 supportsMimeMessage);
 		return outJavaMailSender;
 	}
 }

@@ -17,7 +17,7 @@ public class StringCustomizeUtils {
      * @param inStr 
      * @param replacedStr the string to be replaced
      * @param replacingStr the replacing string
-     * @return 
+     * @return the string with all replaces
      */
     public static String replaceString(final String inStr,
     								   final String replacedStr,final String replacingStr) {

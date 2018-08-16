@@ -12,10 +12,8 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.ServicesBootstrap;
-import r01f.bootstrap.services.ServicesBootstrapUtil;
 import r01f.bootstrap.services.ServicesClientProxyLazyLoaderGuiceMethodInterceptor;
 import r01f.bootstrap.services.config.client.ServicesClientGuiceBootstrapConfig;
-import r01f.guids.CommonOIDs.AppComponent;
 import r01f.inject.HasMoreBindings;
 import r01f.model.metadata.HasTypesMetaData;
 import r01f.model.metadata.TypeMetaDataInspector;
@@ -63,7 +61,7 @@ public abstract class ServicesClientAPIBootstrapGuiceModuleBase
 	/**
 	 * Client API config
 	 */
-	@Getter private final ServicesClientGuiceBootstrapConfig _clientBootstrapCfg;
+	@Getter protected final ServicesClientGuiceBootstrapConfig _clientBootstrapCfg;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////

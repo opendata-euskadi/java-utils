@@ -8,7 +8,7 @@ import r01f.bootstrap.services.config.core.ServicesClientProxyForCoreBeanExposed
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.bootstrap.services.config.core.ServicesCoreModuleExpositionForBeanImpl;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootstrapConfig;
 import r01f.bootstrap.services.core.BeanImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.services.core.CoreService;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
@@ -29,7 +29,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenBeanExposed
 	public ServicesCoreGuiceBootstrapConfigWhenBeanExposed(final CoreAppCode coreAppCode,final CoreModule coreModule,
 												   	       final Class<? extends CoreService> coreServicesBaseType,
 												   	       final ServicesCoreModuleEventsConfig eventHandling,
-												   	       final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												   	       final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												   	       final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule,
 												   	       final boolean isolate) {
 		super(coreAppCode,coreModule,
@@ -43,7 +43,7 @@ public class ServicesCoreGuiceBootstrapConfigWhenBeanExposed
 	public ServicesCoreGuiceBootstrapConfigWhenBeanExposed(final CoreAppCode coreAppCode,final CoreModule coreModule,
 												      	   final ServicesCoreModuleExpositionForBeanImpl exposition,
 												      	   final ServicesCoreModuleEventsConfig eventHandling,
-												      	   final Collection<ServicesCoreSubModuleBootrapConfig<?>> subModulesCfgs,
+												      	   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
 												      	   final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModule) {
 		super(coreAppCode,coreModule,
 			  exposition,

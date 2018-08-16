@@ -1,6 +1,5 @@
 package r01f.model;
 
-import r01f.facets.Facetable;
 import r01f.facets.HasOID;
 import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.guids.OID;
@@ -15,8 +14,7 @@ import r01f.model.facets.HasNumericID;
  * interface for model objects that can be persisted in some kind of storage
  */
 public interface PersistableModelObject<O extends OID>
-		 extends ModelObject,
-         		 Facetable,					// can have facets
+		 extends PersistableObject,			// can have facets (it's persistable)
  		 	     HasNumericID,				// all persistable model objects MUST have a numeric oid
  		 	     HasOID<O>,					// all persistable model objects MUST have an OID
  		 	     HasEntityVersion,			// all persistable model objects are persisted assuming persistence conflicts are unlike to happen (optimistic locking)

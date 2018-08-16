@@ -74,6 +74,9 @@ public class Year
 	public static Year valueOf(final String year) {
 		return new Year(year);
 	}
+	public static Year from(final String year) {
+		return new Year(year);
+	}
 	public static Year fromString(final String year) {
 		return new Year(year);
 	}

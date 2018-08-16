@@ -106,7 +106,9 @@ public class UrlQueryString
 	 */
 	public static UrlQueryString fromParamsString(final String paramsStr,
 												  final ParametersParser paramsParser) {
-		String theParamStr = paramsStr != null && paramsStr.trim().startsWith("?") ? paramsStr.trim().substring(1) : paramsStr;
+		String theParamStr = paramsStr != null 
+						  && paramsStr.trim().startsWith("?") ? paramsStr.trim().substring(1) 
+								  							  : paramsStr;
 		return ParametersWrapperBase._loadFromString(FACTORY,paramsParser,
 											  		 theParamStr,
 											  		 false);	// do not decode param values

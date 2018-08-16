@@ -11,12 +11,12 @@ import r01f.validation.ObjectValidationResult;
  * 					 Validates<MySelfValidatedType> {
  * 			...
  *			@Override
- *			public ModelObjectValidationResult<MySelfValidatedType> validate() {
- *				if (this.getOid() == null) {
- *					return ModelObjectValidationResultBuilder.on(this)
+ *			public ModelObjectValidationResult<MySelfValidatedType> validate(final MySelfValidatedType obj) {
+ *				if (obj.getOid() == null) {
+ *					return ModelObjectValidationResultBuilder.on(obj)
  *															 .isNotValidBecause("The oid MUST NOT be null");
  *				}
- *				return ModelObjectValidationResultBuilder.on(this)
+ *				return ModelObjectValidationResultBuilder.on(obj)
  *														 .isValid();
  *			}
  * 		}
@@ -25,5 +25,5 @@ import r01f.validation.ObjectValidationResult;
  */
 public interface Validates<T extends ModelObject> {
 
-	public ObjectValidationResult<T> validate();
+	public ObjectValidationResult<T> validate(final T obj);
 }

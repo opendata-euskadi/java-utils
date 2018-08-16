@@ -26,23 +26,14 @@
         <archive path="D:/eclipse/local_libs/pif/y31b-1.3-impl.jar"/>
         <archive path="D:/eclipse/local_libs/pif/y31c-1.3-impl.jar"/>
     </library>
-    <library name="LIB_R01" systemlibrary="false">
-        <archive path="D:/eclipse/local_libs/r01-3.1/r01ftShLibClasses-3.1.jar"/>
-        <archive path="D:/eclipse/local_libs/r01-3.1/r01mtShLibClasses-3.1.jar"/>
-        <archive path="D:/eclipse/local_libs/r01-3.1/r01ptShLibClasses-3.1.jar"/>
-        <archive path="D:/eclipse/local_libs/r01-3.1/r01o-beans-1.20.jar"/>
-    </library>
     <library name="LIB_SHF" systemlibrary="false">
         <archive path="D:/eclipse/local_libs/shf/nshf_client-2014.10.jar"/>
     </library>
-    <library name="LIB_WL11" systemlibrary="false">
-        <archive path="D:/eclipse/local_libs/weblogic11/weblogic.jar"/>
-        <archive path="D:/eclipse/local_libs/weblogic11/webserviceclient.jar"/>
+    <library name="LIB_WL" systemlibrary="false">
+        <archive path="D:/eclipse/local_libs/weblogic12.2.1/webserviceclient.jar"/>
+        <archive path="D:/eclipse/local_libs/weblogic12.2.1/wlfullclient.jar"/>
     </library>
     <library name="LIB_XLNETS" systemlibrary="false">
         <archive path="D:/eclipse/local_libs/xlnets/n38.jar"/>
-    </library>
-    <library name="OJDBC" systemlibrary="false">
-        <archive path="D:/java/ojdbc/ojdbc6.jar"/>
     </library>
 </eclipse-userlibraries>

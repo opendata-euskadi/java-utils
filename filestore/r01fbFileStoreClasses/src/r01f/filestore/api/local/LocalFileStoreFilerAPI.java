@@ -1,10 +1,15 @@
 package r01f.filestore.api.local;
 
 import java.io.File;
+import java.io.FilenameFilter;
 import java.io.IOException;
+import java.util.List;
 
 import org.apache.commons.io.FileUtils;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.io.Files;
 
 import lombok.extern.slf4j.Slf4j;
@@ -54,14 +59,19 @@ public class LocalFileStoreFilerAPI
 		// copy folder
 		File src = new File(srcPath.asAbsoluteString());
 		File dst = new File(dstPath.asAbsoluteString());
-		FileUtils.copyDirectory(src,dst,
-								new java.io.FileFilter() {
-										@Override
-										public boolean accept(final File file) {
-											return fileFilter.accept(Path.from(file));
-										}
-								},
-								false);		// preserve file dates
+		if(fileFilter != null) {
+			FileUtils.copyDirectory(src,dst,
+									new java.io.FileFilter() {
+											@Override
+											public boolean accept(final File file) {
+												return fileFilter.accept(Path.from(file));
+											}
+									},
+									false);		// preserve file dates
+		} else {
+			FileUtils.copyDirectory(src,dst,false);
+		}
+		
 		return true;
     }
 	@Override
@@ -126,26 +136,69 @@ public class LocalFileStoreFilerAPI
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
     public FileProperties[] listFolderContents(final Path folderPath,
-    										   final FileFilter fileFilter) throws IOException {
-
-		if (fileFilter != null) throw new IllegalArgumentException("Not supported filter");
-
+    										   final FileFilter fileFilter,
+    										   final boolean recursive) throws IOException {		
 		// check
 		_check.checkBeforeListFolderContents(folderPath);
-
+		
+		// filter
+		FilenameFilter newFilter = null;
+		if (fileFilter != null) {
+			newFilter = new FilenameFilter() {
+								@Override
+								public boolean accept(File dir, String name) {				
+									return fileFilter.accept(Path.from(dir.getAbsolutePath()));				
+								}
+			};
+		}
+		
 		// list
 		File folder = new File(folderPath.asAbsoluteString());
-		String[] contents = folder.list();
-
+		
+		Path[] allFilesPaths;
+		if (recursive) {
+			LocalFileListing listing = new LocalFileListing();
+			List<File> allFiles = listing.getFileListing(folder,newFilter);
+			allFilesPaths = FluentIterable.from(allFiles)
+									 .transform(new Function<File,Path>() {
+														@Override
+														public Path apply(final File file) {
+															return Path.from(file);
+														}
+									 			})
+									 .toArray(Path.class);
+		} else {
+			allFilesPaths = FluentIterable.from(folder.listFiles())
+										  .transform(new Function<File,Path>() {
+															@Override
+															public Path apply(final File file) {
+																return Path.from(file);
+															}
+										  			 })
+										  .toArray(Path.class);
+		}
+		
+		// transform to file properties
 		FileProperties[] out = null;
-		if (CollectionUtils.hasData(contents)) {
-			out = new FileProperties[contents.length];
-			int i=0;
-			for (String fn : contents) {
-				File f = new File(fn);
-				out[i] = LocalFileProperties.from(f);
-				i++;
-			}
+		if (CollectionUtils.hasData(allFilesPaths)) {
+			out = FluentIterable.from(allFilesPaths)
+								.transform(new Function<Path,FileProperties>() {
+													@Override
+													public FileProperties apply(final Path filePath) {
+														File f = new File(filePath.asAbsoluteString());
+														FileProperties outProps = null;
+														try {
+															outProps = LocalFileProperties.from(f);
+														} catch(IOException ioEx) {
+															log.error("Error creating a {} object from {}: {}",
+																	  LocalFileProperties.class,filePath,ioEx.getMessage(),
+																	  ioEx);
+														}
+														return outProps;
+													}
+										   })
+								.filter(Predicates.notNull())
+								.toArray(FileProperties.class);
 		} else {
 			out = new FileProperties[] {};
 		}

@@ -1,5 +1,6 @@
 package r01f.bootstrap.services.config.client;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -98,14 +99,20 @@ public abstract class ServicesClientBootstrapConfigBuilder
 		private final Class<? extends ServiceProxiesAggregator> _servicesProxiesAggregatorType;
 		private final Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> _serviceInterfaceTypesToImplOrProxyMappingsType;
 		private final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> _clientBootstrapGuiceModuleType;
+		private Collection<ServicesClientSubModuleBootstrapConfig<?>> _subModulesCfgs;
 		
+		public ServicesClientBootstrapConfigBuilderBuildStep withSubModulesConfigs(final ServicesClientSubModuleBootstrapConfig<?>... subModulesCfgs) {
+			_subModulesCfgs = CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null;
+			return this;
+		}
 		public ServicesClientGuiceBootstrapConfig build() {
 			return new ServicesClientGuiceBootstrapConfigImpl(_clientApiAppCode,
 															  _clientApiType,
 															  _serviceInterfacesBaseType,
 															  _servicesProxiesAggregatorType,
 															  _serviceInterfaceTypesToImplOrProxyMappingsType,
-															  _clientBootstrapGuiceModuleType);
+															  _clientBootstrapGuiceModuleType,
+															  _subModulesCfgs);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

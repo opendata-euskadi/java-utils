@@ -1,5 +1,7 @@
 package r01f.bootstrap.services.config.client;
 
+import java.util.Collection;
+
 import com.google.inject.multibindings.MapBinder;
 
 import lombok.Getter;
@@ -49,9 +51,25 @@ abstract class ServicesClientGuiceBootstrapConfigBase
 												  final Class<? extends ServiceProxiesAggregator> servicesProxiesAggregatorType,
 												  final Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> serviceInterfaceTypesToImplOrProxyMappingsType,
 												  final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType) {
+		this(clientApiAppCode,
+			 clientApiType,
+			 serviceInterfaceBaseType,
+			 servicesProxiesAggregatorType,
+			 serviceInterfaceTypesToImplOrProxyMappingsType,
+			 clientBootstrapGuiceModuleType,
+			 null);
+	}
+	public ServicesClientGuiceBootstrapConfigBase(final ClientApiAppCode clientApiAppCode,
+												  final Class<? extends ClientAPI> clientApiType,
+												  final Class<? extends ServiceInterface> serviceInterfaceBaseType,
+												  final Class<? extends ServiceProxiesAggregator> servicesProxiesAggregatorType,
+												  final Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> serviceInterfaceTypesToImplOrProxyMappingsType,
+												  final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+												  final Collection<ServicesClientSubModuleBootstrapConfig<?>> subModulesCfgs) {
 		super(clientApiAppCode, 
 			  clientApiType, 
-			  serviceInterfaceBaseType,servicesProxiesAggregatorType);
+			  serviceInterfaceBaseType,servicesProxiesAggregatorType,
+			  subModulesCfgs);
 		_serviceInterfaceTypesToImplOrProxyMappingsType = serviceInterfaceTypesToImplOrProxyMappingsType;
 		_clientBootstrapGuiceModuleType = clientBootstrapGuiceModuleType;
 	}

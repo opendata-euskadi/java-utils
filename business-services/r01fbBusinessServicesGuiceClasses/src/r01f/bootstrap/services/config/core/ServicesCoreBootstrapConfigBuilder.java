@@ -6,12 +6,6 @@ import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenRESTExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenServletExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootrapConfig;
 import r01f.bootstrap.services.core.BeanImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.bootstrap.services.core.RESTImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.bootstrap.services.core.ServletImplementedServicesCoreBootstrapGuiceModuleBase;
@@ -31,7 +25,6 @@ import r01f.util.types.collections.CollectionUtils;
  * <pre class='brush:java'>
  * </pre>
  */
-@Slf4j
 @RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 public abstract class ServicesCoreBootstrapConfigBuilder 
 	       implements IsBuilder {
@@ -110,19 +103,19 @@ public abstract class ServicesCoreBootstrapConfigBuilder
 		protected final Class<? extends CoreService> _coreServicesBaseType;
 		protected final ServicesCoreModuleEventsConfig _eventHandling;
 		
-		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep withSubModulesConfigs(final ServicesCoreSubModuleBootrapConfig<?>... subModulesCfgs) {
+		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep withSubModulesConfigs(final ServicesCoreSubModuleBootstrapConfig<?>... subModulesCfgs) {
 			return new ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(_coreAppCode,_coreModule,
-															   			   _coreBootstrapGuiceModuleType,
-															   			   _coreServicesBaseType,
-															   			   _eventHandling,
-															   			   CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null);
+															   			    _coreBootstrapGuiceModuleType,
+															   			    _coreServicesBaseType,
+															   			    _eventHandling,
+															   			    CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null);
 		}
 		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep withoutSubModules() {
 			return new ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(_coreAppCode,_coreModule,
-															   			   _coreBootstrapGuiceModuleType,
-															   			   _coreServicesBaseType,
-															   			   _eventHandling,
-															   			   null);
+															   			    _coreBootstrapGuiceModuleType,
+															   			    _coreServicesBaseType,
+															   			    _eventHandling,
+															   			    null);
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
@@ -132,7 +125,7 @@ public abstract class ServicesCoreBootstrapConfigBuilder
 		protected final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
 		protected final Class<? extends CoreService> _coreServicesBaseType;
 		protected final ServicesCoreModuleEventsConfig _eventHandling;
-		protected final Collection<ServicesCoreSubModuleBootrapConfig<?>> _subModulesCfgs;
+		protected final Collection<ServicesCoreSubModuleBootstrapConfig<?>> _subModulesCfgs;
 		
 		public ServicesCoreBootstrapConfigWhenBeanExposed build() {
 			return new ServicesCoreGuiceBootstrapConfigWhenBeanExposed(_coreAppCode,_coreModule,

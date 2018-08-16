@@ -28,25 +28,27 @@ import r01f.util.types.Strings;
  * see: http://hadoop.apache.org/docs/current/
  *
  * Hadoop HDFS basic commands.
- * Is important knows URI and Path usage:
+ * It's important to know URI and Path usage:
  * 		Hadoop's URI file location in HDFS > hdfs://host:port/location to access file through FileSystem.
+ * 
  * Code below shows how to create URI:
  * <pre class='brush: java'>
  * 		hdfs://localhost:9000/user/joe/TestFile.txt
- *  	URI uri=URI.create ("hdfs://host: port/path");
- *  </pre>
- * Path consist URI and resolve the OS dependency in URI e.g. Windows uses \\path whereas linux uses //. It also uses to resolve parent child dependency.
- * It could be created as below:
- * <pre class='brush: java'>
- * 		Path path=new Path (path); //It constitute URI
+ *  	URI uri = URI.create ("hdfs://host: port/path");
  * </pre>
- * Example:
+ * 
+ * Path object resolves the OS dependency in URI e.g. Windows uses \\path whereas linux uses //. 
+ * It's also used to resolve parent child dependency.
+ * 
+ * Code below shows how to create a Path:
  * <pre class='brush: java'>
- * new Path("/test/file.txt");
- * new Path("hdfs://localhost:9000/test/file.txt");
+ * 		Path path = new Path (path); 
+ * 	
+ * 		new Path("/test/file.txt");
+ *		new Path("hdfs://localhost:9000/test/file.txt");
  * </pre>
  *
- * The Hadoop structure directories are similar to interwoven structure:
+ * HDFS's directory structure is similar to TeamSite's one:
  * INTERWOVEN: /iwmnt/{serverOid}/{dataStore}/main/{area}/WORKAREA/{workArea}/{tipology}/{contentName}/{documentName}/..........
  * HADOOP:     /r01/content/{serverOid}/{dataStore}/main/{area}/WORKAREA{workArea}/{tipology}/{contentName}/{documentName}/..........
  *
@@ -180,6 +182,7 @@ public class HDFSFileStoreAPI
 			IOUtils.copyBytes(in,out,
 							  _conf);
     	} finally {
+    		//FIXME IOUtils.copyBytes close input and output streams
     		in.close();
     		out.flush();
     		out.close();

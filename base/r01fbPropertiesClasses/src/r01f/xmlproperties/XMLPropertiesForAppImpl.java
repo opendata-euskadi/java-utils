@@ -132,6 +132,14 @@ public final class XMLPropertiesForAppImpl
     	@Override
 		public <T> Collection<T> getObjectList(final Path propXPath,
 											   final Function<Node,T> transformFunction) {
+    		return this.<T>getObjectList(propXPath,
+    									 transformFunction,
+    									 null);
+    	}
+    	@Override
+		public <T> Collection<T> getObjectList(final Path propXPath,
+											   final Function<Node,T> transformFunction,
+											   final Collection<T> defaultVal) {
 			Collection<T> outObjs = null;
 			NodeList nodes = this.nodeList(propXPath);
 			if (nodes != null && nodes.getLength() > 0) {
@@ -139,6 +147,8 @@ public final class XMLPropertiesForAppImpl
 				for (int i=0; i < nodes.getLength(); i++) {
 					outObjs.add(transformFunction.apply(nodes.item(i)));	// transform the node
 				}
+			} else {
+				outObjs = defaultVal;
 			}
 			return outObjs;
 		}

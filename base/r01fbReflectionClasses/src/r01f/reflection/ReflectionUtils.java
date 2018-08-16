@@ -93,41 +93,41 @@ public class ReflectionUtils {
 //  METODOS
 /////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Comprueba si un tipo es una definici�n de clase (Class)
-     * @param type el tipo
-     * @return true si el tipo es una definici�n de clase
+     * Checks if a type is a type definition (Class)
+     * @param type the type
+     * @return true if the type is a type definition
      */
     public static boolean isTypeDef(final Class<?> type) {
     	return type.isAssignableFrom(Class.class);
     }
     /**
-     * Comprueba si un tipo es final iImmutable: String, byte, short, integer, long, float, double, character o boolean
-     * @param type La definici�n de la clase
-     * @return true si el tipo es final iImmutable
+     * Checks if a type is final or immutable: String, byte, short, integer, long, float, double, character o boolean
+     * @param type
+     * @return true if it's final, false otherwise 
      */
     public static boolean isFinalImmutable(final Class<?> type) {
         return type.isPrimitive() || FINAL_IMMUTABLE_CLASSES.containsValue(type);
     }
     /**
-     * Comprueba si un tipo es abstracto
-     * @param type el tipo
-     * @return true si el tipo es abstracto
+     * Checks if a type is abstract
+     * @param type the type
+     * @return true if the type is abstract
      */
     public static boolean isAbstract(final Class<?> type) {
     	return Modifier.isAbstract(type.getModifiers());
     }
     /**
-     * Comprueba si un tipo es una interfaz
-     * @param type el tipo
-     * @return true si el tipo es una interfaz
+     * Checks if a type is an interface
+     * @param type the type
+     * @return true if the type is an interface
      */
     public static boolean isInterface(final Class<?> type) {
     	return Modifier.isInterface(type.getModifiers());
     }
     /**
-     * Comprueba si un tipo es instanciable (no es primitivo, abstracto o un interfaz)
-     * @param type el tipo
-     * @return true si el tipo es instanciable
+     * Checks if a type is instanciable (not a primitive type, an abstract type or an interface)
+     * @param type the type
+     * @return true if it's instanciable
      */
     public static boolean isInstanciable(final Class<?> type) {
     	return !type.isAnnotation() && !ReflectionUtils.isAbstract(type) && !ReflectionUtils.isInterface(type);

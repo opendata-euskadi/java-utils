@@ -85,6 +85,23 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 			  entityManager,
 			  marshaller);
 	}
+	public DBFindForModelObjectBase(final Class<M> modelObjectType,final Class<DB> dbEntityType,
+								    final Function<DB,M> dbEntityIntoModelObjectTransformer,
+									final DBModuleConfig dbCfg,
+									final EntityManager entityManager,
+									final Marshaller marshaller) {
+		super(modelObjectType,dbEntityType,
+			  new TransformsDBEntityIntoModelObject<DB,M>() {
+						@Override
+						public M dbEntityToModelObject(final SecurityContext securityContext,
+													   final DB dbEntity) {
+							return dbEntityIntoModelObjectTransformer.apply(dbEntity);
+						}
+			  },
+			  dbCfg,
+			  entityManager,
+			  marshaller);
+	}
 	@Deprecated
 	public DBFindForModelObjectBase(final DBModuleConfig dbCfg,
 									final Class<M> modelObjectType,final Class<DB> dbEntityType,

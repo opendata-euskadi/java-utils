@@ -66,7 +66,7 @@ public class SignRetryer {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	private SignatureRequestOutputData _sign(final Callable<SignatureRequestOutputData> signCmd) throws Exception{
+	private SignatureRequestOutputData _sign(final Callable<SignatureRequestOutputData> signCmd) throws Exception {
 		SignatureRequestOutputData result = null;
 		Retryer<SignatureRequestOutputData> retryer = 
 				RetryerBuilder.<SignatureRequestOutputData>newBuilder()

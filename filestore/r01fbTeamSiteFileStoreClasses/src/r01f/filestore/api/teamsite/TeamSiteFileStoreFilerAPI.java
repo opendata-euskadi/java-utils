@@ -22,6 +22,24 @@ import r01f.filestore.api.teamsite.TeamSiteStorageObjectsPaths.TeamSiteWorkAreaR
 import r01f.types.Path;
 import r01f.util.types.collections.CollectionUtils;
 
+/**
+ * TeamSite {@link FileStoreFilerAPI} 
+ * Usage:
+ * <pre class='brush:java'>
+ * 		// 1) Create the auth data
+ *		TeamSiteAuthData authData = new TeamSiteAuthData()
+ *											.login(UserCode.forId("r01d"),
+ *												   Password.forId("r01d"),
+ *												   UserRole.forId("Editor"))
+ *											.forContentServicesUrl("http://iwdes01.ejgvdns:80");
+ *		// 2) Create a TS CSSDK client wrapper
+ *		TeamSiteCSSDKClientWrapper cssdkClientWrapper = TeamSiteCSSDKClientWrapper.createCachingClient(authData);
+ *
+ *		// 3) Create the api
+ *		FileStoreFilerAPI api = new TeamSiteFileStoreFilerAPI(cssdkClientWrapper);
+ * </pre>
+ *
+ */
 @Slf4j
 public class TeamSiteFileStoreFilerAPI
 	 extends TeamSiteFileStoreAPIBase
@@ -165,7 +183,8 @@ public class TeamSiteFileStoreFilerAPI
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
     public FileProperties[] listFolderContents(final Path folderPath,
-    										   final FileFilter fileFilter) throws IOException {
+    										   final FileFilter fileFilter,
+    										   final boolean recursive) throws IOException {
 
 		if (fileFilter != null) throw new IllegalArgumentException("Not supported filter");
 

@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.xml.namespace.QName;
 import javax.xml.rpc.handler.HandlerInfo;
@@ -29,15 +30,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import r01f.ejie.model.shf.SignatureRequestOutputData;
 import r01f.ejie.model.shf.SignatureVerifyOutputData;
+import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
 import r01f.exceptions.Throwables;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.model.pif.PifFileInfo;
 import r01f.patterns.Factory;
+import r01f.patterns.Memoized;
 import r01f.services.EJIESoapMessageHandler;
 import r01f.services.pif.PifService;
-import r01f.services.pif.PifServiceApiDataProvider.PifServiceAPIData;
-import r01f.services.shf.SignatureServiceApiDataProvider.SignatureServiceAPIData;
-import r01f.services.shf.SignatureServiceImpl.SignatureServiceForAppImpl;
+import r01f.services.pif.PifServiceAPIData;
 import r01f.types.Path;
 import r01f.util.types.Strings;
 import r01f.xml.XMLUtils;
@@ -56,52 +57,47 @@ import x43f.ejie.com.X43FNSHF.VerifyAdESSignature;
 import x43f.ejie.com.X43FNSHF.VerifyAdESSignatureResponse;
 
 /**
- * Encapsulates signature services
+ * To build a {@link SignatureService} a {@link SignatureServiceAPIData}, a {@link PifServiceAPIData} and a {@link XLNetsAuthTokenProvider} are needed 
+ * All {@link SignatureServiceAPIData} {@link PifServiceAPIData} and {@link XLNetsAuthTokenProvider} can be built from an {@link XMLPropertiesForAppComponent} 
+ * <pre class='brush:java'>
+ *		// Provide a new pif service api data using the provider
+ *		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+ *																 .notUsingCache()
+ *																 .forComponent(AppComponent.forId("test"));
+ *		XLNetsAuthTokenProvider xlnetsAuthTokenProvider = new XLNetsAuthTokenProvider(props,
+ *																			 		  "test");
+ *
+ *		PifServiceAPIData pifApiData = new PifServiceAPIData(props,
+ * 															 "test");
+ * 		SignatureServiceAPIData signApiData = new SignatureServiceAPIData("props",
+ * 																		  "test");
+ *		// Create the pif service
+ *		PifService pifService = new PifService(pifApiData,
+ *											   xlnetsAuthTokenProvider);
+ *
+ *		// create a sign service
+ *		SignatureService signService = new SignatureServiceImpl(signApiData,
+ *											   					xlnetsAuthTokenProvider,
+ *																pifService);
+ * </pre>
  * 
- * To build a {@link SignatureServiceImpl} instance the {@link XMLPropertiesForAppComponent} for SHF and optionally PIF -if a file signature is to be done- are needed
- * ... those can be built by hand but the normal usage is to have them binded using guice:
+ * Using guice:
  * <pre class='brush:java'>
  *	    public static void main(String[] args) {
- *	    	Injector injector = Guice.createInjector(new SignatureServiceGuiceModule(AppCode.forId("xxx"),
- *																					 AppComponent.forId("myComp"),
- *																					 "testSignature",
- *													 new XMLPropertiesGuiceModule());
- *      
- *	    	SignatureService pifService = injector.getInstance(SignatureService.class);
- *	    	pifService.getFile(path);
+ *			XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+ *																	 .notUsingCache()
+ *																	 .forComponent(AppComponent.forId("test"));
+ *			SignatureServiceAPIData signServiceApiData = new SignatureServiceAPIData(props,
+ *																					 "test");
+ *			PifServiceAPIData pifApiData = new PifServiceAPIData(props,
+ *																 "test");
+ *			Injector injector = Guice.createInjector(new XLNetsGuiceModule(props,
+ *																		   "test"),
+ *													 new PifServiceGuiceModule(pifApiData),						// signature service uses pif
+ *					 								 new SignatureServiceGuiceModule(signServiceApiData));
+ *			
+ *			SignatureService service = injector.getInstance(SignatureService.class);
  *	    }
- * </pre>
- * ... or without using the signatureServiceGuiceModule
- * <pre class='brush:java'>
- * 		// create a provider method for the XMLProperties file that contains the sign properties
- *		@Provides @XMLPropertiesComponent("notifier")
- *		XMLPropertiesForAppComponent provideXMLPropertiesForServices(final XMLProperties props) {
- *			XMLPropertiesForAppComponent outPropsForComponent = new XMLPropertiesForAppComponent(props.forApp(_appCode),
- *																								 AppComponent.forId("notifier"));
- *			return outPropsForComponent;
- *		}
- *		// create a provider method for the signatureService
- *		@Provides @Singleton	// provides a single instance of the sign service
- *		signatureService _providesignatureService(@XMLPropertiesComponent("notifier") final XMLPropertiesForAppComponent props) {
- *			// Provide a new sign service api data using the provider
- *			signatureServiceApiDataProvider signApiServiceProvider = new signatureServiceApiDataProvider(_appCode,
- *																										props,"notifier");
- *			// Using the sign service api data create the signatureService object
- *			signatureService outsignatureService = new signatureService(signApiServiceProvider.get());
- *			return outsignatureService;
- *		}
- * </pre>
- * 
- * Sample usage in a not injected app:
- * <pre class='brush:java'>
- *		SignatureServiceApiDataProvider signServiceApiProvider = new SignatureServiceApiDataProvider(signProps);		// props must be loaded by hand
- *		// ... only if file signature is needed
- *		PifServiceApiDataProvider pifServiceApiProvider = new PifServiceApiDataProvider(pifProps);						// props must be loaded by hand		
- *
- *		SignatureService signService = new SignatureService(signServiceApiProvider.get(),
- *															pifServiceApiProvider.get());
- *	    signService.requiredBy(AppCode.of("myApp"))
- *				   .createXAdESSignatureOf("Sign this!!!");
  * </pre>
  * 
  * For this provider to work, a properties file with the following config MUST be provided:
@@ -128,13 +124,21 @@ public class SignatureServiceImpl
 /////////////////////////////////////////////////////////////////////////////////////////
 //	FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
+	private final SignatureServiceAPIData _apiData;
+	
+	private final XLNetsAuthTokenProvider _xlnetsAuthTokenProvider;	
+	private final Memoized<Document> _xlnetsAuthToken = new Memoized<Document>() {
+																		@Override
+																		protected Document supply() {
+																			return _xlnetsAuthTokenProvider.getXLNetsSessionTokenDoc();
+																		}
+																};
+
 	/**
 	 * If file signature is to be done, the SHF expects the file at a PIF location
 	 */
 	private final PifService _pifService;
-	
-	private final SignatureServiceAPIData _apiData;
-	
+																
 	private final Factory<X43FNSHF> _wsClientFactory = 
 						new Factory<X43FNSHF>() {
 								@Override 
@@ -143,9 +147,9 @@ public class SignatureServiceImpl
 											  _apiData.getWebServiceUrl());
 									X43FNSHF nshfService = null;
 									try {
-										if (_apiData.getXLNetsAuthToken() != null) {
+										if (_xlnetsAuthToken.get() != null) {
 											// [1] - Create the auth token
-											String xlnetsTokenLinearized = XMLUtils.asStringLinearized(_apiData.getXLNetsAuthToken());	// Linearize xml, strip white spaces and newlines
+											String xlnetsTokenLinearized = XMLUtils.asStringLinearized(_xlnetsAuthToken.get());	// Linearize xml, strip white spaces and newlines
 											if (log.isTraceEnabled()) log.trace("XLNetsToken: {}",xlnetsTokenLinearized);
 											
 											Map<String,String> authTokenMap = new HashMap<String,String>();
@@ -175,10 +179,13 @@ public class SignatureServiceImpl
 /////////////////////////////////////////////////////////////////////////////////////////
 //	CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-	public SignatureServiceImpl(final SignatureServiceAPIData signatureServiceData,
-								final PifServiceAPIData pifServiceApiData) {
-		_apiData = signatureServiceData;
-		_pifService = new PifService(pifServiceApiData);
+	@Inject
+	public SignatureServiceImpl(final SignatureServiceAPIData apiData,
+							    final XLNetsAuthTokenProvider xlnetsAuthTokenProvider,
+								final PifService pifService) {
+		_apiData = apiData;
+		_xlnetsAuthTokenProvider = xlnetsAuthTokenProvider;
+		_pifService = pifService;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	API
@@ -243,7 +250,8 @@ public class SignatureServiceImpl
 			SignatureRequestOutputData outputData = null;
 			// [1] - Create a ws client using the factory
 			X43FNSHF nshf = _wsClientFactory.create();
-			if (nshf == null) throw new IllegalStateException(Throwables.message("Could NOT create a {} instance!",X43FNSHF.class));
+			if (nshf == null) throw new IllegalStateException(Throwables.message("Could NOT create a {} instance!",
+																				 X43FNSHF.class));
 			try {
 				CreateAdESSignature cr = new CreateAdESSignature();
 				cr.setCertificateId(_apiData.getCertificateId()); 		// "0035"

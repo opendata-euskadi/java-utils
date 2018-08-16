@@ -98,7 +98,8 @@ public class JavaMailSenderProvider
 		} else if (impl == JavaMailSenderImpl.THIRD_PARTY_MAIL_HTTPSERVICE) {
 			JavaMailSenderConfigForThirdPartyHttpService thirdPartyHttpCfg = _config.as(JavaMailSenderConfigForThirdPartyHttpService.class);
 			outJavaMailSender =  ThridPartyHTTPMailSender.create(thirdPartyHttpCfg.getThirdPartyProviderUrl(),
-																 thirdPartyHttpCfg.getProxySettings());
+																 thirdPartyHttpCfg.getProxySettings(),
+																 thirdPartyHttpCfg.isSupportsMimeMessage());
 
 		} else {
 			throw new IllegalStateException("JavaMailSender implementation was NOT configured");

@@ -2,16 +2,18 @@ package r01f.types.url;
 
 import java.net.URL;
 import java.util.Collection;
-import java.util.List;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
+import lombok.RequiredArgsConstructor;
 import r01f.annotations.Immutable;
 import r01f.objectstreamer.annotations.MarshallType;
+import r01f.patterns.Memoized;
 import r01f.types.IsPath;
 import r01f.types.Path;
 import r01f.types.PathBase;
@@ -30,39 +32,143 @@ public class UrlPath
   implements IsUrlPath {
 	private static final long serialVersionUID = -4132364966392988245L;
 /////////////////////////////////////////////////////////////////////////////////////////
+//	FIELDS
+/////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * True is the trailing slash must be preserved
+	 * (sometimes the trailing slash is important and MUST be preserved)
+	 */
+	private final boolean _preserveTrailingSlash;
+	/**
+	 * true if the path ends with a trailing slash (ie: /foo/bar/) 
+	 * -this is usually important in url paths-
+	 */
+	private final boolean _trailingSlash;
+/////////////////////////////////////////////////////////////////////////////////////////
 //	CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	public UrlPath() {
+		this(false);		// do NOT preserve the trailing slash
+	}
+	public UrlPath(final boolean preserveTrailingSlash) {
 		super(Lists.newArrayList());
+		_trailingSlash = false;		
+		_preserveTrailingSlash = preserveTrailingSlash;
 	}
 	public UrlPath(final Collection<String> pathEls) {
+		this(false,		// do not preserve trailing slash
+			 pathEls);
+	}
+	public UrlPath(final boolean preserveTrailingSlash,
+				   final Collection<String> pathEls) {
 		super(pathEls);
+		_preserveTrailingSlash = preserveTrailingSlash;
+		_trailingSlash = CollectionUtils.hasData(pathEls) 
+								? Iterables.getLast(pathEls).endsWith("/")
+								: false;
+	}
+	public  UrlPath(final String... elements) { 
+		this(false,		// do not preserve trailing slash
+			 elements);
+	}
+	public UrlPath(final boolean preserveTrailingSlash,
+				   final String... elements) {
+		super(elements);
+		_preserveTrailingSlash = preserveTrailingSlash;
+		_trailingSlash = CollectionUtils.hasData(elements) 
+								? elements[elements.length-1].toString().endsWith("/")
+								: false;
 	}
 	public UrlPath(final Object... objs) {
+		this(false,		// do not preserve trailing slash
+			  objs);
+	}
+	public UrlPath(final boolean preserveTrailingSlash,
+				   final Object... objs) {
 		super(objs);
+		_preserveTrailingSlash = preserveTrailingSlash;
+		_trailingSlash = CollectionUtils.hasData(objs) 
+								? objs[objs.length-1].toString().endsWith("/")
+								: false;
 	}
 	public UrlPath(final Object obj) {
+		this(false,		// do not preserve trailing slash
+			 obj);
+	}
+	public UrlPath(final boolean preserveTrailingSlash,
+				   final Object obj) {
 		super(obj);
+		_preserveTrailingSlash = preserveTrailingSlash;
+		_trailingSlash = obj != null ? obj.toString().endsWith("/") : false;
 	}
 	public <P extends IsPath> UrlPath(final P otherPath) {
+		this(false,			// do not preserve trailing slash
+			 otherPath);
+	}
+	public <P extends IsPath> UrlPath(final boolean preserveTrailingSlash,
+									  final P otherPath) {
 		super(otherPath);
+		_preserveTrailingSlash = preserveTrailingSlash;
+		_trailingSlash = otherPath != null ? otherPath.asString().endsWith("/") 
+										   : false;
 	}
-	public UrlPath(final String... elements) {
-		super(elements);
+	public static final PathFactory<UrlPath> URL_PATH_FACTORY = _createUrlPathFactory(false);
+	public static final PathFactory<UrlPath> URL_PATH_FACTORY_PRESERVE_TRAILING_SLASH = _createUrlPathFactory(true);
+	private static final PathFactory<UrlPath> _createUrlPathFactory(final boolean preserveTrailingSlash) {
+		return new PathFactory<UrlPath>() {
+					@Override
+					public UrlPath createPathFrom(final Collection<String> elements) {
+						return new UrlPath(preserveTrailingSlash,
+										   elements);
+					}
+				};
 	}
-	public static PathFactory<UrlPath> PATH_FACTORY = new PathFactory<UrlPath>() {
-															@Override
-															public UrlPath createPathFrom(final Collection<String> elements) {
-																return new UrlPath(elements);
-															}
-												   };
+	private final Memoized<PathFactory<UrlPath>> _memoizedPathFactory = new Memoized<PathFactory<UrlPath>>() {
+																				@Override
+																				protected PathFactory<UrlPath> supply() {
+																					return _createUrlPathFactory(_preserveTrailingSlash);
+																				}
+																		};
 	@Override @SuppressWarnings("unchecked")
 	public <P extends IsPath> PathFactory<P> getPathFactory() {
-		return (PathFactory<P>)UrlPath.PATH_FACTORY;
+		return (PathFactory<P>)_memoizedPathFactory.get();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	FACTORIES
 /////////////////////////////////////////////////////////////////////////////////////////
+	public static UrlPathBuilderPreserveTrailingSlash preservingTrailingSlash() {
+		return new UrlPathBuilderPreserveTrailingSlash(true);
+	}
+	public static UrlPathBuilderPreserveTrailingSlash notPreservingTrailingSlash() {
+		return new UrlPathBuilderPreserveTrailingSlash(false);
+	}
+	@RequiredArgsConstructor
+	public static class UrlPathBuilderPreserveTrailingSlash {
+		private final boolean _preserveTrailingSlash;
+		
+		public UrlPath from(final String... elements) {
+			if (CollectionUtils.isNullOrEmpty(elements)) return null;
+			return new UrlPath(_preserveTrailingSlash,
+							   elements);
+		}
+		public <P extends IsPath> UrlPath from(final P other) {
+			if (other == null) return null;
+			UrlPath outPath = new UrlPath(_preserveTrailingSlash,
+										  other);
+			return outPath;
+		}
+		public UrlPath from(final Object... obj) {
+			if (obj == null) return null;
+			return new UrlPath(_preserveTrailingSlash,
+							   obj);
+		}
+		@GwtIncompatible
+		public UrlPath from(final URL url) {
+			if (url == null) return null;
+			return new UrlPath(_preserveTrailingSlash,
+							   url.toString());
+		}
+	}
 	/**
 	 * Factory from {@link String}
 	 * @param path
@@ -110,6 +216,39 @@ public class UrlPath
 		return new UrlPath(url.toString());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
+//	TO STRING
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public String asString() {
+		if (!_preserveTrailingSlash) return super.asString();
+		return _trailingSlash ? super.asString() + "/" 
+							  : super.asString();
+	}
+	@Override
+	public String asRelativeString() {
+		if (!_preserveTrailingSlash) return super.asRelativeString();
+		return _trailingSlash ? super.asRelativeString() + "/" 
+							  : super.asRelativeString();
+	}
+	@Override
+	public String asAbsoluteString() {
+		if (!_preserveTrailingSlash) return super.asAbsoluteString();
+		return _trailingSlash ? super.asAbsoluteString() + "/" 
+							  : super.asAbsoluteString();
+	}
+	@Override
+	public <P extends IsPath> String asAbsoluteStringFrom(final P parentPath) {
+		if (!_preserveTrailingSlash) return super.asAbsoluteStringFrom(parentPath);
+		return _trailingSlash ? super.<P>asAbsoluteStringFrom(parentPath) + "/" 
+							  : super.<P>asAbsoluteStringFrom(parentPath);
+	}
+	@Override
+	public <P extends IsPath> String asRelativeStringFrom(final P parentPath) {
+		if (!_preserveTrailingSlash) return super.asRelativeStringFrom(parentPath);
+		return _trailingSlash ? super.<P>asRelativeStringFrom(parentPath) + "/" 
+							  : super.<P>asRelativeStringFrom(parentPath);
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
@@ -152,14 +291,16 @@ public class UrlPath
 	@Override @SuppressWarnings("unchecked")
 	public UrlPath joinedWith(final Object... elements) {
 		if (CollectionUtils.isNullOrEmpty(elements)) return this;
-		return (UrlPath)PathBase.join(this.getPathFactory(),
-								  	  this,_sanitize(elements));
+		UrlPath outUrlPath = (UrlPath)PathBase.join(this.getPathFactory(),
+								  	  				this,_sanitize(elements));
+		return outUrlPath;
 	}
 	@Override @SuppressWarnings("unchecked")
 	public UrlPath prependedWith(final Object... elements) {
 		if (CollectionUtils.isNullOrEmpty(elements)) return this;
-		return (UrlPath)PathBase.prepend(this.getPathFactory(),
-								   	  	 this,_sanitize(elements));
+		UrlPath outUrlPath = (UrlPath)PathBase.prepend(this.getPathFactory(),
+								   	  	 			   this,_sanitize(elements));
+		return outUrlPath;		
 	}
 	private Collection<Object> _sanitize(final Object... elements) {
 		if (CollectionUtils.isNullOrEmpty(elements)) throw new IllegalArgumentException();
@@ -204,8 +345,10 @@ public class UrlPath
 	 */
 	public UrlPath remainingPathFrom(final UrlPath startingPath) {
 		Collection<String> remainingPathEls = this.getPathElementsAfter(startingPath);
-		return remainingPathEls != null ? new UrlPath(remainingPathEls)
-										: null;
+		UrlPath outUrlPath = remainingPathEls != null ? new UrlPath(_preserveTrailingSlash,
+																    remainingPathEls)
+													  : null;
+		return outUrlPath;
 	}
 	/**
 	 * Returns the url path AFTER the given prefix

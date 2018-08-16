@@ -68,11 +68,15 @@ public interface FileStoreFilerAPI {
 //  LIST
 /////////////////////////////////////////////////////////////////////////////////////////    
     /**
-     * Lists a dir's contents
+     * Lists a dir's contents, 1st level or complete subdirectories if recursive mode to true.
      * @param folderPath
-     * @return
+     * @param filter the filter, <code>null</code> if filter is not applied.
+     * @param recursive if <code>true</code> explore all subdir files.
+     * @return files and dirs
      * @throws IOException
      */
     public FileProperties[] listFolderContents(final Path folderPath,
-    										   final FileFilter fileFilter) throws IOException;
+    										   final FileFilter fileFilter,
+    										   final boolean recursive) throws IOException;
+
 }

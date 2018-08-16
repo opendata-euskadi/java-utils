@@ -315,8 +315,10 @@ public class TypeMetaDataInspector
 			if (CollectionUtils.hasData(nodeFieldsMetaData)) typeMetaData.getFieldsMetaData()
 																		 .addAll(nodeFieldsMetaData);
 			// 3.2 - Getter methods (used at interfaces)
-			if (!ReflectionUtils.isInterface(hasMetaDataTypeToken.getRawType())) continue;
-
+			boolean isIface = ReflectionUtils.isInterface(hasMetaDataTypeToken.getRawType());
+			boolean isAbstract = ReflectionUtils.isAbstract(hasMetaDataTypeToken.getRawType());
+			if (!isIface && !isAbstract) continue;
+			
 			final Method[] methods = hasMetaDataTypeToken.getRawType()
 														 .getDeclaredMethods();
 			Collection<TypeFieldMetaData> nodeMethodsMetaData = FluentIterable.from(methods)
@@ -337,7 +339,7 @@ public class TypeMetaDataInspector
 			if (CollectionUtils.hasData(nodeMethodsMetaData)) typeMetaData.getFieldsMetaData()
 																		  .addAll(nodeMethodsMetaData);
 
-		}
+		}	// for
 
 		// [4] - Cache
 		if (typeMetaData != null) _inspectedTypes.putIfAbsent(type,typeMetaData);

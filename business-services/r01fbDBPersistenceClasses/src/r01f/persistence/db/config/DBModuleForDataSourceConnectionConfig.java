@@ -26,11 +26,16 @@ public class DBModuleForDataSourceConnectionConfig
 
 		String xPath = "persistence/unit[@type='" + _unitType + "']/connection[@vendor='" + _dbSpec.getVendor() + "']";
 		Properties props = xmlProps.propertyAt(xPath)
-							   			.asProperties();
+							   	   .asProperties();
+		if (props == null) {
+			log.error("Could NOT find persistence unit properties at {} in {}.{} properties!",
+					  xPath,
+					  xmlProps.getAppCode(),xmlProps.getAppComponent());
+			props = new Properties();
+		}
 		// IMPORTANT
 		//		At least you must provide a name of datasource. If it is not provided it will generate one by default
-		if (props == null
-		 || !props.containsKey(PersistenceUnitProperties.NON_JTA_DATASOURCE)) {
+		if (!props.containsKey(PersistenceUnitProperties.NON_JTA_DATASOURCE)) {
 			log.error("Could NO load the DB connection properties FOR DATASOURCE at {} at properties file {}: does it contains a connection section?",
 					  xPath,super.getAppCode());
 			props.put(PersistenceUnitProperties.NON_JTA_DATASOURCE,Strings.customized("{}.{}DataSource",

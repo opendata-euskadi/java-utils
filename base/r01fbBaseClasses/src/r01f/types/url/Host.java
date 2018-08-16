@@ -39,6 +39,9 @@ public class Host
 	public Host(final Host other) {
 		this(other != null ? other.getId() : (String)null);
 	}
+	public static Host from(final String host) {
+		return new Host(host);
+	}
 	public static Host of(final String host) {
 		return new Host(host);
 	}

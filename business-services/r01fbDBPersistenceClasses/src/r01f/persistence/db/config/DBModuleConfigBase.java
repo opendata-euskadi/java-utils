@@ -9,6 +9,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.eclipse.persistence.config.PersistenceUnitProperties;
+import org.eclipse.persistence.exceptions.DatabaseException;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -268,37 +269,47 @@ public abstract class DBModuleConfigBase
 	public static <DB extends DBEntity> boolean testFullText(final EntityManager em,
 										 					 final Class<DB> dbEntity,
 										 					 final String fieldName) {
+		DBSpec theDBSpec = DBSpec.usedAt(em);
+		
 		boolean outSupportsFullText = false;
-		DBSpec dbSpec = DBSpec.usedAt(em);
+		// SELECT entity
+		//	 FROM AA14DBEntityForOrganizationalEntityBase entity 
+		//  WHERE ... predicates ...
+		StringBuilder jpql = new StringBuilder("SELECT entity " +
+										  		 "FROM ").append(dbEntity.getSimpleName()).append(" entity ")
+										.append("WHERE ");
+		if (theDBSpec.getVendor().is(DBVendor.MySQL)) {
+			jpql.append(Strings.customized("SQL('MATCH(?) AGAINST(?)',entity.{},:text)",
+										   fieldName));
+		} else if (theDBSpec.getVendor().is(DBVendor.ORACLE)) {
+			jpql.append(Strings.customized("AND SQL('CONTAINS(?,?,1) > 0',entity.{},:text) ",
+										   fieldName));
+		}
+		// Execute the query
 		try {
-			// SELECT entity
-			//	 FROM AA14DBEntityForOrganizationalEntityBase entity 
-			//  WHERE ... predicates ...
-			StringBuilder jpql = new StringBuilder("SELECT entity " +
-											  		 "FROM ").append(dbEntity.getSimpleName()).append(" entity ")
-											.append("WHERE ");
-			if (dbSpec.getVendor().is(DBVendor.MySQL)) {
-				jpql.append(Strings.customized("SQL('MATCH(?) AGAINST(?)',entity.{},:text)",
-											   fieldName));
-			} else if (dbSpec.getVendor().is(DBVendor.ORACLE)) {
-				jpql.append(Strings.customized("AND SQL('CONTAINS(?,?,1) > 0',entity.{},:text) ",
-											   fieldName));
-			}
 			TypedQuery<DB> qry = em.createQuery(jpql.toString(),
 												dbEntity);
 			qry.setParameter("text","anything...");
 			qry.getResultList();			// this should fail if full text is NOT properly enabled
 			outSupportsFullText = true;		// it it reach this point... full text is enabled	
 		} catch(Throwable dbEx) {
-			// ignore
+			log.error("It seems the {} DB engine does NOT supports FULL-TEXT queries: testing {} leads to an error: {}",
+					  theDBSpec.getVendor(),jpql,
+					  dbEx.getMessage(),
+					  dbEx);
 		}
-		if (!outSupportsFullText) {
-			if (dbSpec.getVendor().is(DBVendor.MySQL)) {
-				log.warn("The {} db store does NOT supports full-text searching: ensure that the tables are MyISAM type and that a FULLTEXT index exists on name cols of entity table",DBVendor.MySQL);
-			} else if (dbSpec.getVendor().is(DBVendor.ORACLE)) {
-				log.warn("The {} db store does NOT supports full-text searching: ensure that ORACLE-TEXT is enabled and that a FULLTEXT index exists on name cols of entity table",DBVendor.ORACLE);
-			}
+		// log
+		log.warn("**************************************************************************************************************************************************************************");
+		if (theDBSpec.getVendor().is(DBVendor.MySQL)) {
+			log.warn("The {} db store does{} supports full-text searching: ensure that the tables are MyISAM type and that a FULLTEXT index exists on name cols of entity table",
+					 DBVendor.MySQL,
+					 outSupportsFullText ? "" : " NOT");
+		} else if (theDBSpec.getVendor().is(DBVendor.ORACLE)) {
+			log.warn("The {} db store does{} supports full-text searching: ensure that ORACLE-TEXT is enabled and that a FULLTEXT index exists on name cols of entity table",
+					 DBVendor.ORACLE,
+					 outSupportsFullText ? "" : " NOT");
 		}
+		log.warn("**************************************************************************************************************************************************************************");
 		return outSupportsFullText;
 	}
 

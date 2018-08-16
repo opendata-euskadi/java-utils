@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import r01f.concurrent.Threads;
 import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.OID;
@@ -18,6 +19,7 @@ import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDSer
 import r01f.types.dirtytrack.DirtyTrackAdapter;
 import r01f.util.types.collections.CollectionUtils;
 
+@Slf4j
 @Accessors(prefix="_")
 public class TestPersistableModelObjectManager<O extends OID,M extends PersistableModelObject<O>>
 	 extends TestPersistableModelObjectManagerBase<O,M> {
@@ -100,8 +102,9 @@ public class TestPersistableModelObjectManager<O extends OID,M extends Persistab
 																	  new Date()));			// Ensure tracking info
 
 			final M createdModelObj = _CRUDApi.save(objectToBeCreated);
+			if (createdModelObj.getOid() == null) throw new IllegalStateException("The created model object of type " + _modelObjType + " does NOT have oid value!");
 			createdModelObjs.add(createdModelObj.getOid());
-			System.out.println("... Created " + _modelObjType.getSimpleName() + " mock object with oid=" + createdModelObj.getOid());
+			log.info("... Created {} mock object with oid={}",_modelObjType.getSimpleName(),createdModelObj.getOid());
 			outCreatedModelObjs.add(createdModelObj);
 		}
 		// add the oids to the created model obj oids
@@ -118,14 +121,15 @@ public class TestPersistableModelObjectManager<O extends OID,M extends Persistab
 		// an error in the background job will raise if the DB records are deleted before background jobs finish (ie lucene indexing or notification tasks)
 		final long milisToWaitForBackgroundJobs = _createdMockObjsOids.size() * _milisToWaitForBackgroundJobs;
 		if (milisToWaitForBackgroundJobs > 0) {
-			System.out.println(".... give " + milisToWaitForBackgroundJobs + " milis for background jobs (ie lucene index or notifications) to complete before deleting created DB records (lucene indexing or notifications will fail if the DB record is deleted)");
+			log.info(".... give {} milis for background jobs (ie lucene index or notifications) to complete before deleting created DB records (lucene indexing or notifications will fail if the DB record is deleted)",
+					 milisToWaitForBackgroundJobs);
 			Threads.safeSleep(milisToWaitForBackgroundJobs);
 		}
 
 		// delete all DB records
 		for (final O oid : _createdMockObjsOids) {
 			_CRUDApi.delete(oid);
-			System.out.println("... Deleted " + _modelObjType.getSimpleName() + " mock object with oid=" + oid);
+			log.info("... Deleted {} mock object with oid={}",_modelObjType.getSimpleName(),oid);
 		}
 		this.reset();
 	}

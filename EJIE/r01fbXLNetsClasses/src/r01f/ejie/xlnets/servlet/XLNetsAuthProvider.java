@@ -16,7 +16,7 @@ import r01f.ejie.xlnets.XLNetsItemSeguridad;
 import r01f.ejie.xlnets.XLNetsSession;
 import r01f.ejie.xlnets.XLNetsSession.XLNetsSessionType;
 import r01f.ejie.xlnets.XLNetsTipoObjeto;
-import r01f.ejie.xlnets.login.XLNetsAuthenticatedApiServiceDataProvider;
+import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
 import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceCfg;
 import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceItemType;
 import r01f.types.url.Url;
@@ -35,7 +35,7 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
 @Accessors(prefix="_")
 @Slf4j
 public class XLNetsAuthProvider
-	extends XLNetsAuthenticatedApiServiceDataProvider {
+	 extends XLNetsAuthTokenProvider {
 // /////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANTES
 ///////////////////////////////////////////////////////////////////////////////////////////

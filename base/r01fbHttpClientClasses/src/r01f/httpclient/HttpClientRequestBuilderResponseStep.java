@@ -156,9 +156,10 @@ public class HttpClientRequestBuilderResponseStep
 		}
 		
 		// [6]: Establish the connection
-		if (!_connected && useGAEHttpFetch) {
+		/*if (!_connected && useGAEHttpFetch) {
 			_doGAERequest(_targetUrl);
-		} else if (!_connected) {
+		} else*/
+		 if (!_connected) {
 			_doRequest(_targetUrl,
 					  _proxySettings,
 					  _conxTimeOut);			// <-- this is where the connection is really done
@@ -215,7 +216,7 @@ public class HttpClientRequestBuilderResponseStep
 	 * @param url the final url
 	 * @throws IOException if an I/O error occurs
 	 */
-	private void _doGAERequest(final Url url) throws IOException {
+	/*private void _doGAERequest(final Url url) throws IOException {
 		log.trace("...retrieving GAE connection using {} method",_method);
 		HttpURLConnection conx = new HttpGoogleURLFetchConnectionWrapper(url,_conxTimeOut);
 		conx.setDoInput(true);
@@ -229,7 +230,7 @@ public class HttpClientRequestBuilderResponseStep
 			_sendPayload(conx);	// Sends the payload 
 		}
 		_conx = conx;
-	}
+	}*/
 	private void _setConnectionRequestMethod(final HttpURLConnection conx) throws IOException {
 		if (_method.isPOST()) {
 			conx.setDoOutput(true);

@@ -3,6 +3,8 @@ package r01f.mail;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 import javax.mail.Address;
@@ -10,6 +12,7 @@ import javax.mail.Message.RecipientType;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.mail.util.MimeMessageParser;
 import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -20,6 +23,8 @@ import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import r01f.httpclient.HttpClient;
 import r01f.httpclient.HttpClientProxySettings;
+import r01f.httpclient.HttpRequestFormParameter;
+import r01f.httpclient.HttpRequestFormParameterForText;
 import r01f.httpclient.HttpRequestPayload;
 import r01f.httpclient.HttpResponse;
 import r01f.httpclient.HttpResponseCode;
@@ -32,22 +37,28 @@ import r01f.util.types.Strings;
 @Slf4j
 public class JavaMailSenderThridPartyHTTPImpl
   implements JavaMailSender,
-  			 ServiceCanBeDisabled {
+			 ServiceCanBeDisabled {
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 //FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter @Setter private Properties _javaMailProperties = new Properties();
 	@Getter private final HttpClientProxySettings _proxySettings;
 	@Getter private final Url _thirdPartyProviderUrl;
+	@Getter private final boolean _supportsMimeMessage;
 	private boolean _disabled;
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-	public JavaMailSenderThridPartyHTTPImpl(final Url thirdPartyProviderUrl ,final HttpClientProxySettings proxySettings) {
+	public JavaMailSenderThridPartyHTTPImpl(final Url thirdPartyProviderUrl ,
+											final HttpClientProxySettings proxySettings ,
+											final boolean supportsMimeMessage) {
 		_thirdPartyProviderUrl = thirdPartyProviderUrl;
 		_proxySettings = proxySettings;
-
+		_supportsMimeMessage = supportsMimeMessage;
 	}
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 //	ServiceCanBeDisabled
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -67,6 +78,7 @@ public class JavaMailSenderThridPartyHTTPImpl
 	public void setDisabled() {
 		_disabled = true;
 	}
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 //JavaMailSender
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -98,6 +110,7 @@ public class JavaMailSenderThridPartyHTTPImpl
 			send(s);
 		}
 	}
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 // UNSOPPORTED METHODS(...yet)
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -119,6 +132,7 @@ public class JavaMailSenderThridPartyHTTPImpl
 	public void send(MimeMessagePreparator... mimeMessagePreparators) throws MailException {
 		throw new UnsupportedOperationException("JavaMailSenderThridPartyHTTPImpl mime not supported");
 	}
+	
 /////////////////////////////////////////////////////////////////////////////////////////
 //	SEND
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -127,39 +141,40 @@ public class JavaMailSenderThridPartyHTTPImpl
 		String from = simpleMessage.getFrom();
 		String text = simpleMessage.getText();
 		String subject = simpleMessage.getSubject();
-		
-		Url url = _thirdPartyProviderUrl.joinWith( (from != null) 
-				 										? UrlQueryString.fromParams(UrlQueryStringParam.of("to",to[0]),
-														  UrlQueryStringParam.of("from",from),
-														  UrlQueryStringParam.of("subject",subject),
-														  UrlQueryStringParam.of("messageText",text))
-				 												
-                                                        : // The "from" parameter could be null depending on mail provider.	
-														  UrlQueryString.fromParams(UrlQueryStringParam.of("to",to[0]),																		
-														  UrlQueryStringParam.of("subject",subject),
-														  UrlQueryStringParam.of("messageText",text))
-													
-																				
-				                                      );
+		_doSend(from, to, subject, text);
+	}
+	
+	private void _doSend(final String from,
+						 final String[] to,
+						 final String subject,
+						 final String text) {
+		List<HttpRequestFormParameter> parameters = new ArrayList<HttpRequestFormParameter>();
+		if (from != null) {
+			parameters.add(HttpRequestFormParameterForText.of(from).withName("from"));
+		}
+		parameters.add(HttpRequestFormParameterForText.of(to[0]).withName("to"));
+		parameters.add(HttpRequestFormParameterForText.of(subject).withName("subject"));
+		parameters.add(HttpRequestFormParameterForText.of(text).withName("messageText"));
 		HttpResponse response = null;
 		try {
 			if (_proxySettings != null) {
 				log.debug(">>>>>>>>>>>>>>>> HTTP VIA PROXY");;
-				response = HttpClient.forUrl(url)
-								      .POST()
-								      .getResponse()
-								      		.usingProxy(_proxySettings).withoutTimeOut().noAuth();
+				response = HttpClient.forUrl(_thirdPartyProviderUrl)
+									 .POSTForm()
+									 .withPOSTFormParameters(parameters)
+									 .getResponse()
+									 .usingProxy(_proxySettings).withoutTimeOut().noAuth();
 			} else {
 				log.debug(">>>>>>>>>>>>>>>> HTTP DIRECT");;
 				
-				log.debug("URL {}" , url);
-				response = HttpClient.forUrl(url)
-								      .POST()
-								      .getResponse()
-								      		.notUsingProxy().withoutTimeOut().noAuth();
+				log.debug("URL {}" , _thirdPartyProviderUrl);
+				response = HttpClient.forUrl(_thirdPartyProviderUrl)
+									 .POSTForm()
+									 .withPOSTFormParameters(parameters)
+									 .getResponse()
+									 .notUsingProxy().withoutTimeOut().noAuth();
 			}
 			
-
 			if (!response.getCode().isIn(HttpResponseCode.OK)) {
 				log.warn("> HTTP Mail Response Code : {}",response.getCode(),response.loadAsString());
 				throw new JavaMailSenderThridPartyHTTPImplException(Strings.customized("Remote Server Error int HTTP Mail Service {}",
@@ -176,6 +191,7 @@ public class JavaMailSenderThridPartyHTTPImpl
 			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
 		}
 	}
+	
 	private void _doSend(final MimeMessage mimeMessage) throws MessagingException, 
 															   IOException {
 		Address[] toAddress =  mimeMessage.getRecipients(RecipientType.TO);
@@ -191,40 +207,62 @@ public class JavaMailSenderThridPartyHTTPImpl
 			from[j++] = f.toString();
 		}
 		String subject = mimeMessage.getSubject();
-		InputStream is = mimeMessage.getInputStream();
-		try {
-			Url url = _thirdPartyProviderUrl.joinWith(UrlQueryString.fromParams(UrlQueryStringParam.of("to",to[0]),
-																				UrlQueryStringParam.of("from",from[0]),
-																				UrlQueryStringParam.of("subject",subject)));
-			HttpResponse response = null;
-			if (_proxySettings != null) {
-				 response = HttpClient.forUrl(url)
-									      .POST()
-									           .withPayload(HttpRequestPayload.wrap(is))
-									       .getResponse()
-									       		.usingProxy(_proxySettings).withoutTimeOut().noAuth();
-			} else {
-				response = HttpClient.forUrl(_thirdPartyProviderUrl)
-					      .POST()
-					           .withPayload(HttpRequestPayload.wrap(is))
-					       .getResponse()
-					       		.notUsingProxy().withoutTimeOut().noAuth();
-			}
-			if (!response.getCode().isIn(HttpResponseCode.OK)) {
-				log.warn("HTTP Mail Response Code {}",response.getCode(),response.loadAsString() );
-				throw new JavaMailSenderThridPartyHTTPImplException(Strings.customized("Remote Server Error int HTTP Mail Service {}",response.loadAsString()));
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-		} catch (IOException e){
-			e.printStackTrace();
-			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-		} catch (Throwable e){
+		if (_supportsMimeMessage) {
+			log.debug(">>>>>>>>>> MIME MESSAGE SUPPORTED");
+			InputStream is = mimeMessage.getInputStream();
+			try {
+				Url url = _thirdPartyProviderUrl.joinWith(UrlQueryString.fromParams(UrlQueryStringParam.of("to",to[0]),
+																					UrlQueryStringParam.of("from",from[0]),
+																					UrlQueryStringParam.of("subject",subject)));
+				HttpResponse response = null;
+				if (_proxySettings != null) {
+					 response = HttpClient.forUrl(url)
+										      .POST()
+										           .withPayload(HttpRequestPayload.wrap(is))
+										       .getResponse()
+										       		.usingProxy(_proxySettings).withoutTimeOut().noAuth();
+				} else {
+					response = HttpClient.forUrl(_thirdPartyProviderUrl)
+						      .POST()
+						           .withPayload(HttpRequestPayload.wrap(is))
+						       .getResponse()
+						       		.notUsingProxy().withoutTimeOut().noAuth();
+				}
+				if (!response.getCode().isIn(HttpResponseCode.OK)) {
+					log.warn("HTTP Mail Response Code {}",response.getCode(),response.loadAsString() );
+					throw new JavaMailSenderThridPartyHTTPImplException(Strings.customized("Remote Server Error int HTTP Mail Service {}",response.loadAsString()));
+				}
+			} catch (MalformedURLException e) {
 				e.printStackTrace();
-			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
+				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
+			} catch (IOException e){
+				e.printStackTrace();
+				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
+			} catch (Throwable e){
+					e.printStackTrace();
+				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
+			}
+		} else {
+			System.out.println(">>>>>>>>>> MIME MESSAGE NOT SUPPORTED");
+			_doSend(from[0], to, subject, 
+					_getMimeMessageAsPlainText(mimeMessage));
 		}
 	}
+	
+	private String _getMimeMessageAsPlainText(final MimeMessage mimeMessage) {
+		MimeMessageParser parser = new MimeMessageParser(mimeMessage);
+		try {
+			parser.parse();
+		} catch (Throwable e) {
+			e.printStackTrace();
+		}
+		if (parser.hasHtmlContent()) {
+			return parser.getHtmlContent();
+		} else {
+			return parser.getPlainContent();
+		}
+	}
+	
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INNER CLASSES
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

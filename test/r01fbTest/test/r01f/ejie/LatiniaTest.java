@@ -14,12 +14,11 @@ import r01f.model.latinia.LatiniaResponseMessage;
 import r01f.model.latinia.LatiniaResponsePhone;
 import r01f.objectstreamer.Marshaller;
 import r01f.objectstreamer.MarshallerBuilder;
-import r01f.services.latinia.LatiniaConfig;
 import r01f.services.latinia.LatiniaService;
+import r01f.services.latinia.LatiniaServiceAPIData;
 import r01f.services.latinia.LatiniaServiceGuiceModule;
 import r01f.xmlproperties.XMLPropertiesBuilder;
 import r01f.xmlproperties.XMLPropertiesForAppComponent;
-import r01f.xmlproperties.XMLPropertiesGuiceModule;
 /**
  * ERPI Consoles can help you to check process success:
  * DESARROLLO: svc.integracion.jakina.ejiedes.net/w43saConsolaWAR/
@@ -31,16 +30,28 @@ public class LatiniaTest {
 //	LATINIA SERVICE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Test
-	public void testLatiniaService() {
-		XMLPropertiesForAppComponent notifierXmlProps = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+	public void testLatiniaServiceNOGuice() {
+		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
 																			.notUsingCache()
 																			.forComponent(AppComponent.forId("test"));
-		LatiniaConfig cfg = LatiniaConfig.createFrom(notifierXmlProps,
-															"test");
+		LatiniaServiceAPIData latiniaApiData = LatiniaServiceAPIData.createFrom(props,
+																				"test");
 		
-		Injector injector = Guice.createInjector(new XMLPropertiesGuiceModule(),
-												 new LatiniaServiceGuiceModule(cfg));
-
+		LatiniaService latiniaService = new LatiniaService(latiniaApiData);
+		
+		LatiniaRequestMessage msg = _createRequestMessage("TEST");
+		System.out.println("=====> " + latiniaService.getLatiniaRequestMessageAsXml(msg));
+		latiniaService.sendNotification(msg);
+	}
+	@Test
+	public void testLatiniaServiceUsingGuice() {
+		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
+																			.notUsingCache()
+																			.forComponent(AppComponent.forId("test"));
+		LatiniaServiceAPIData latiniaApiData = LatiniaServiceAPIData.createFrom(props,
+																				"test");
+		
+		Injector injector = Guice.createInjector(new LatiniaServiceGuiceModule(latiniaApiData));
 
 		LatiniaService latiniaService = injector.getInstance(LatiniaService.class);
 		

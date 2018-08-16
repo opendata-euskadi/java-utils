@@ -212,10 +212,10 @@ public abstract class StringPersistenceUtils {
 	 */
 	public static String loadNotExceding(final Reader r,final int maxChars) throws IOException {
         StringBuilderWriter sw = new StringBuilderWriter();
-        IOUtils.copyLarge(r,sw,
-        				  0,						// initial offset
-        				  maxChars,					// max number of chars to be readed
-        				  new char[1024 * 4]);		// 4k buffer
+        long copied = IOUtils.copyLarge(r,sw,
+        				  				0,						// initial offset
+        				  				maxChars,					// max number of chars to be readed
+        				  				new char[1024 * 4]);		// 4k buffer
         return sw.toString();
 	}
     /**
@@ -225,7 +225,9 @@ public abstract class StringPersistenceUtils {
      * @throws IOException
      */
     public static String load(final Reader r) throws IOException {
-    	return IOUtils.toString(r);
+        StringBuilderWriter sw = new StringBuilderWriter();
+        long copied = IOUtils.copyLarge(r,sw);		// IOUtils.copy() copies a maximum of Integer.MAX chars
+        return sw.toString();
 //        StringBuilder outString = new StringBuilder();
 //        if (r != null) {
 //            char[] buf = new char[2 * 1024]; // Buffer 2K

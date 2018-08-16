@@ -10,7 +10,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.google.inject.Singleton;
 
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
+import r01f.types.url.UrlPath;
 
 
 
@@ -67,6 +69,7 @@ import lombok.experimental.Accessors;
  */
 @Singleton
 @Accessors(prefix="_")
+@RequiredArgsConstructor
 public class HttpProxyServlet 
 	 extends HttpServlet {
 

@@ -34,7 +34,7 @@ import r01f.model.otp.validation.OTPValidationRequestBuilder;
 import r01f.model.otp.validation.OTPValidationResponse;
 import r01f.service.otp.OTPService;
 import r01f.service.otp.OTPServiceGuiceModule;
-import r01f.services.latinia.LatiniaConfig;
+import r01f.services.latinia.LatiniaServiceAPIData;
 import r01f.types.contact.EMail;
 import r01f.types.url.Url;
 import r01f.types.url.UrlQueryString;
@@ -78,7 +78,7 @@ public class OTPServiceTest  {
 			
 			
 			XMLPropertiesForAppComponent latiniaXMLProps = appXmlProps.forComponent("latinia");
-			LatiniaConfig latiniaCfg = LatiniaConfig.createFrom(latiniaXMLProps);
+			LatiniaServiceAPIData latiniaCfg = LatiniaServiceAPIData.createFrom(latiniaXMLProps);
 			
 			GUICE_INJECTOR = Guice.createInjector(new XMLPropertiesGuiceModule(),
 					                              new OTPServiceGuiceModule(hzCfg,

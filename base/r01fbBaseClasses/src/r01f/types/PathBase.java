@@ -90,8 +90,12 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 		return this.getPathElementsIterator();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//	
-/////////////////////////////////////////////////////////////////////////////////////////	
+//	TO STRING
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public String toString() {
+		return this.asString();
+	}
 	@Override
 	public String asString() {
 		return PathBase.asString(this);
@@ -169,7 +173,7 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 	 * @param pathElements
 	 * @return
 	 */
-	private static String _asRelativeString(final Collection<String> pathElements) {
+	protected static String _asRelativeString(final Collection<String> pathElements) {
 		String outStr = _joinPathElements(pathElements);
 		if (outStr == null) outStr = "";
 		return outStr;
@@ -179,7 +183,7 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 	 * @param pathElements
 	 * @return
 	 */
-	private static String _asAbsoluteString(final Collection<String> pathElements) {
+	protected static String _asAbsoluteString(final Collection<String> pathElements) {
 		String outStr = _joinPathElements(pathElements);
 		if (outStr == null) return "";
 		if (outStr.matches("([a-zA-Z]:|http://|https://).*")) return outStr;	// d: or http://
@@ -190,10 +194,10 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 	 * @param pathElements
 	 * @return
 	 */
-	private static String _asString(final Collection<String> pathElements) {
+	protected static String _asString(final Collection<String> pathElements) {
 		return _asRelativeString(pathElements);
 	}
-	private static String _joinPathElements(final Collection<String> pathElements) {
+	protected static String _joinPathElements(final Collection<String> pathElements) {
 		String outStr = null;
 		if (pathElements != null && pathElements.size() > 0) {
 			outStr = Joiner.on('/')
@@ -271,7 +275,7 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 	@Override
 	public List<String> getPathElementsExceptLast() {
 		if (_pathElements.size() == 1) return Lists.newArrayList();
-		return this.getFirstNPathElements(_pathElements.size()-2);
+		return this.getFirstNPathElements(_pathElements.size()-1);
 	}
 	@Override
 	public List<String> getPathElementsFrom(final int pos) {
@@ -1130,10 +1134,6 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 /////////////////////////////////////////////////////////////////////////////////////////
 // 	OVERRIDEN METHODS	
 /////////////////////////////////////////////////////////////////////////////////////////	
-	@Override
-	public String toString() {
-		return this.asString();
-	}
 	@Override
 	public int hashCode() {
 		final int prime = 31;

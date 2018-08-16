@@ -23,6 +23,7 @@ import r01f.guids.CommonOIDs.Environment;
 import r01f.guids.CommonOIDs.Password;
 import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.CommonOIDs.UserRole;
+import r01f.guids.OID;
 import r01f.locale.Language;
 import r01f.objectstreamer.Marshaller;
 import r01f.reflection.ReflectionUtils;
@@ -150,6 +151,18 @@ public final class XMLPropertyWrapper {
 	public <T> Collection<T> asObjectList(final Function<Node,T> transformFunction) {
 		return _props.getObjectList(_xPath,
 									transformFunction);
+	}
+	/**
+	 * Transforms the child nodes into a collection of objects
+	 * @param transformFunction
+	 * @param defaultVal
+	 * @return
+	 */
+	public <T> Collection<T> asObjectList(final Function<Node,T> transformFunction,
+										  final Collection<T> defaultVal) {
+		return _props.getObjectList(_xPath,
+									transformFunction,
+									defaultVal);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  STRING
@@ -520,7 +533,7 @@ public final class XMLPropertyWrapper {
 								  : valByEnv.getFor(_props.getEnvironment());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  PASSWORD
+//  USER / PASSWORD
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Gets a property as a {@link UserCode}
@@ -630,6 +643,44 @@ public final class XMLPropertyWrapper {
 		String outUserRole = _props.getString(_xPath);
 		return outUserRole != null ? UserRole.forId(outUserRole)
 								   : valByEnv.getFor(_props.getEnvironment());
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//	OID
+/////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * The property value as an {@link OID} object
+	 * @return
+	 */
+	public <O extends OID> O asOID(final Class<O> oidType) {
+		String oid = this.asString();
+		return Strings.isNOTNullOrEmpty(oid) ? (O)_createOIDFromString(oidType,oid) 
+											 : null;
+	}
+	/**
+	 * The property value as an {@link OID} object or the default value if the
+	 * property is not found
+	 * @param defaultVal
+	 * @return
+	 */
+	public <O extends OID> O asOID(final Class<O> oidType,
+								   final O defaultVal) {
+		String oid = _props.getString(_xPath);
+		return oid != null ? (O)_createOIDFromString(oidType,oid)
+						   : defaultVal;
+	}
+	private static <O extends OID> O _createOIDFromString(final Class<O> oidType,
+														  final String oidAsString) {
+		O outOid = null;
+		try {
+			outOid = ReflectionUtils.createInstanceFromString(oidType,oidAsString);
+		} catch(Throwable th) {
+			th.printStackTrace(System.out);
+		}
+		if (outOid == null) outOid = ReflectionUtils.<O>invokeStaticMethod(oidType,
+													   					   "forId",
+													   					   new Class<?>[] {String.class},
+													   					   new Object[] {oidAsString});
+		return outOid;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	RegEx

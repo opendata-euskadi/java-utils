@@ -5,17 +5,17 @@ import java.util.Collection;
 
 import com.google.common.collect.Sets;
 
-import r01f.facets.StringTagged;
-import r01f.facets.StringTagged.HasTaggeableFacet;
-import r01f.types.TagList;
+import r01f.facets.Tagged;
+import r01f.facets.Tagged.HasTaggeableFacet;
+import r01f.types.tag.TagList;
 
 /**
- * Delegate for {@link StringTagged} behavior
+ * Delegate for {@link Tagged} behavior
  * @param <M>
  */
-public class TaggeableDelegate<M extends HasTaggeableFacet>
+public class TaggeableDelegate<T extends Comparable<T>,M extends HasTaggeableFacet<T>>
 	 extends FacetDelegateBase<M>
-  implements StringTagged {
+  implements Tagged<T> {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
@@ -27,41 +27,41 @@ public class TaggeableDelegate<M extends HasTaggeableFacet>
 //  Taggeable interface
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public TagList getTags() {
+	public TagList<T> getTags() {
 		return _modelObject.getTags();
 	}
 	@Override
-	public boolean containsTag(final String tag) {
+	public boolean containsTag(final T tag) {
 		return this.getTags() != null ? this.getTags().contains(tag)
 									  : false;
 	}
 	@Override
-	public boolean containsAllTags(final String... tags) {
+	public boolean containsAllTags(final T... tags) {
 		return this.containsAllTags(Arrays.asList(tags));
 	}
 	@Override
-	public boolean containsAllTags(final Collection<String> tags) {
+	public boolean containsAllTags(final Collection<T> tags) {
 		return this.getTags() != null ? this.getTags().containsAll(tags)
 									  : false;
 	}
 	@Override
-	public boolean addTag(final String tag) {
+	public boolean addTag(final T tag) {
 		_ensureTagList(_modelObject);
 		return this.getTags().add(tag);
 	}
 	@Override
-	public boolean addTags(final Collection<String> tags) {
+	public boolean addTags(final Collection<T> tags) {
 		if (tags == null || tags.size() == 0) return false;
 		_ensureTagList(_modelObject);
 		return this.getTags().addAll(tags);
 	}
 	@Override
-	public boolean addTags(final String... tags) {
+	public boolean addTags(final T... tags) {
 		if (tags == null || tags.length == 0) return false;
 		return this.addTags(Sets.newHashSet(tags));
 	}
 	@Override
-	public boolean removeTag(final String tag) {
+	public boolean removeTag(final T tag) {
 		return this.getTags() != null ? this.getTags().remove(tag)
 									  : false;
 	}
@@ -87,9 +87,8 @@ public class TaggeableDelegate<M extends HasTaggeableFacet>
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
-	private static void _ensureTagList(final HasTaggeableFacet modelObject) {
-		if (modelObject.getTags() == null) modelObject.setTags(new TagList());
+	private static <T extends Comparable<T>> void _ensureTagList(final HasTaggeableFacet<T> modelObject) {
+		if (modelObject.getTags() == null) modelObject.setTags(new TagList<T>());
 	}
-
 
 }
