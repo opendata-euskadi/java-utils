@@ -38,8 +38,8 @@ public class CRUDResultForSingleEntityBuilder {
 		protected final PersistenceRequestedOperation _requestedOp;
 		
 		public CRUDResultBuilderForErrorAboutStep<T> because(final Throwable th) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-							    				_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 							    				th);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 												 			 err);
@@ -51,51 +51,51 @@ public class CRUDResultForSingleEntityBuilder {
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientCannotConnectToServer(final Url serverUrl) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-							    				_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+											    _entityType,
 							    				Strings.customized("Cannot connect to server at {}",serverUrl),PersistenceErrorType.CLIENT_CANNOT_CONNECT_SERVER);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseServerError(final String errData,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+											    _entityType,
 												Strings.customized(errData,vars),PersistenceErrorType.SERVER_ERROR);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientError(final PersistenceErrorType errorType,
 																		final String msg,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 												Strings.customized(msg,vars),errorType);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientBadRequest(final String msg,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 												Strings.customized(msg,vars),PersistenceErrorType.BAD_REQUEST_DATA);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientBadRequest(final ObjectValidationResultNOK<?> valid) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 												valid.getReason(),PersistenceErrorType.BAD_REQUEST_DATA);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientRequestedEntityWasNOTFound() {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-							   					_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 							   					PersistenceErrorType.ENTITY_NOT_FOUND);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseRequiredRelatedEntityWasNOTFound(final String msg,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 												Strings.customized(msg,vars),PersistenceErrorType.RELATED_REQUIRED_ENTITY_NOT_FOUND);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);		
@@ -189,15 +189,15 @@ public class CRUDResultForSingleEntityBuilder {
 				  reqOp);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseOptimisticLockingError() {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-							    				_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 							    				PersistenceErrorType.OPTIMISTIC_LOCKING_ERROR);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientSentEntityValidationErrors(final ObjectValidationResultNOK<T> validNOK) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-							    				_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 							    				validNOK.getReason(),PersistenceErrorType.ENTITY_NOT_VALID);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
@@ -219,8 +219,8 @@ public class CRUDResultForSingleEntityBuilder {
 				  reqOp);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseClientRequestedEntityAlreadyExists() {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-											    _requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 											    PersistenceErrorType.ENTITY_ALREADY_EXISTS);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
@@ -236,8 +236,8 @@ public class CRUDResultForSingleEntityBuilder {
 				  PersistenceRequestedOperation.UPDATE);
 		}
 		public CRUDResultBuilderForErrorAboutStep<T> becauseTargetEntityWasInAnIllegalStatus(final String msg,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												_requestedOp,
+			CRUDError<T> err = new CRUDError<T>(_requestedOp,
+												_entityType,
 												Strings.customized(msg,vars),PersistenceErrorType.ILLEGAL_STATUS);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 															 err);
@@ -255,8 +255,8 @@ public class CRUDResultForSingleEntityBuilder {
 		protected final PersistencePerformedOperation _performedOp;
 		
 		public CRUDOK<T> entity(final T entity) {
-			CRUDOK<T> outPersistenceOpResult = new CRUDOK<T>(_entityType,
-											 				 _requestedOp,_performedOp,
+			CRUDOK<T> outPersistenceOpResult = new CRUDOK<T>(_requestedOp,_performedOp,
+															 _entityType,
 											 				 entity);
 			return outPersistenceOpResult;			
 		}
@@ -285,8 +285,8 @@ public class CRUDResultForSingleEntityBuilder {
 			Function<DB,M> dbEntityToModelObjConverter = DBEntityToModelObjectTransformerBuilder.createFor(_securityContext,
 																										   transformer);
 			M obj = dbEntityToModelObjConverter.apply(_dbEntity);
-			CRUDOK<M> outPersistenceOpResult = new CRUDOK<M>((Class<M>)_entityType,
-				 						     				 _requestedOp,_performedOp,
+			CRUDOK<M> outPersistenceOpResult = new CRUDOK<M>(_requestedOp,_performedOp,
+															 (Class<M>)_entityType,
 				 						     				 obj);
 			return outPersistenceOpResult;
 		}

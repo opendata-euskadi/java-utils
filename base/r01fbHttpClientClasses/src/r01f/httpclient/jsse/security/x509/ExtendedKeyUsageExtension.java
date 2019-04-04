@@ -206,7 +206,7 @@ implements CertAttrSet<String> {
         String usage = "  ";
         boolean first = true;
         for (ObjectIdentifier oid: keyUsages) {
-            if(!first) {
+            if (!first) {
                 usage += "\n  ";
             }
 

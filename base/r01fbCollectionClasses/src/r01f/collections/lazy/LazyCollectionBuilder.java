@@ -31,7 +31,7 @@ public abstract class LazyCollectionBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyCollectionBuilderValuesLoaderStep<V> {
+	public final class LazyCollectionBuilderValuesLoaderStep<V> {
 		private final Collection<V> _initialEntries;
 		/**
 		 * Collection values supplier
@@ -43,7 +43,7 @@ public abstract class LazyCollectionBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyCollectionBuilderBuildStep<V> {
+	public final class LazyCollectionBuilderBuildStep<V> {
 		private final Collection<V> _initialEntries;
 		private final CollectionValuesSupplier<? extends V> _valuesSupplier;
 		/**

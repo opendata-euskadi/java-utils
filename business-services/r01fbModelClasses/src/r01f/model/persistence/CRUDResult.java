@@ -20,8 +20,4 @@ public interface CRUDResult<T>
 	 * @return a {@link CRUDError} instance
 	 */
 	public CRUDError<T> asCRUDError();
-	/**
-	 * @return the requested operation
-	 */
-	public PersistenceRequestedOperation getRequestedOperation();
 }

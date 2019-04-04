@@ -27,7 +27,7 @@ public class EJIESoapMessageHandler
 //  INIT / DESTROY
 /////////////////////////////////////////////////////////////////////////////////////////
     @Override
-	public void init(HandlerInfo info) {
+	public void init(final HandlerInfo info) {
         _handlerInfo = info;
     }
 	@Override

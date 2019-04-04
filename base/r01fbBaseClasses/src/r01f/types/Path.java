@@ -114,22 +114,22 @@ public class Path
 // 	
 ///////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
-	public Path withoutLastPathElement() {
-		return (Path)PathBase.withoutLastPathElement(this.getPathFactory(),
-											         this);
+	public <P extends IsPath> P withoutLastPathElement() {
+		return (P)PathBase.withoutLastPathElement(this.getPathFactory(),
+											      this);
 	}
 ///////////////////////////////////////////////////////////////////////////////
 // 	
 ///////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
-	public Path joinedWith(final Object... elements) {
-		return (Path)PathBase.join(this.getPathFactory(),
-								   this,elements);
+	public <P extends IsPath> P joinedWith(final Object... elements) {
+		return (P)PathBase.join(this.getPathFactory(),
+								this,elements);
 	}
 	@Override @SuppressWarnings("unchecked")
-	public Path prependedWith(final Object... elements) {
-		return (Path)PathBase.prepend(this.getPathFactory(),
-								   	  this,elements);
+	public <P extends IsPath> P prependedWith(final Object... elements) {
+		return (P)PathBase.prepend(this.getPathFactory(),
+								   this,elements);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -184,6 +184,7 @@ public class Path
 	 * @param p
 	 * @return
 	 */
+	@GwtIncompatible("regex not supported")
 	public boolean matches(final Pattern p) {
 		String asStr = this.asAbsoluteString();
 		Matcher m = p.matcher(asStr);

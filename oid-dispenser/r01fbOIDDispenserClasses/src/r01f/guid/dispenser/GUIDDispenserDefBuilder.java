@@ -28,7 +28,7 @@ public abstract class GUIDDispenserDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
     @RequiredArgsConstructor(access=AccessLevel.PRIVATE)    
-    public class GUIDDispenserDefBuilderUniqueIDStep {
+    public final class GUIDDispenserDefBuilderUniqueIDStep {
 	    private final AppCode _appCode;      		
 	    private final String _sequenceName;
 	    
@@ -41,7 +41,7 @@ public abstract class GUIDDispenserDefBuilder
 	    }
     }
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)    
-	public class GUIDDispenserDefBuilderLengthStep {
+	public final class GUIDDispenserDefBuilderLengthStep {
 	    private final AppCode _appCode;      		
 	    private final String _sequenceName;
 	    private final String _uniqueID;
@@ -52,7 +52,7 @@ public abstract class GUIDDispenserDefBuilder
 	    }
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)    
-	public class GUIDDispenserDefBuilderFactoryBindingIdStep {
+	public final class GUIDDispenserDefBuilderFactoryBindingIdStep {
 	    private final AppCode _appCode;      		
 	    private final String _sequenceName;
 	    private final String _uniqueID;
@@ -81,7 +81,7 @@ public abstract class GUIDDispenserDefBuilder
 	    }
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)    
-	public class GUIDDispenserDefBuilderFactoryPropertiesStep {
+	public final class GUIDDispenserDefBuilderFactoryPropertiesStep {
 	    private final AppCode _appCode;      		
 	    private final String _sequenceName;
 	    private final String _uniqueID;
@@ -105,7 +105,7 @@ public abstract class GUIDDispenserDefBuilder
 	     }
 	}
     @RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-    public static class GUIDDispenserDefBuilderBuildStep {
+    public final class GUIDDispenserDefBuilderBuildStep {
 	    private final AppCode _appCode;      		// AppCode
 	    private final String _sequenceName;   		// Sequence name
 	    private final String _uniqueID;       		// Unique id (is appended to the generated guids)

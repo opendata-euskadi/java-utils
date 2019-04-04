@@ -6,7 +6,7 @@ import com.google.common.eventbus.EventBus;
 
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.search.SearchFilterForModelObject;
 import r01f.model.search.SearchResultItemForModelObject;
 import r01f.objectstreamer.Marshaller;
@@ -43,9 +43,9 @@ public abstract class CoreSearchServicesForModelObjectBase<F extends SearchFilte
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
-	@Override
-	public <O extends OID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
-													   	   final F filter) {
+	@Override @SuppressWarnings("unchecked")
+	public <O extends PersistableObjectOID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
+													   	   					final F filter) {
 		return  this.forSecurityContext(securityContext)
 						.createDelegateAs(SearchServicesForModelObject.class)
 							.filterRecordsOids(securityContext,

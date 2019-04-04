@@ -28,12 +28,6 @@ abstract class PersistenceOperationOnObjectError<T>
 				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter @Setter protected Class<T> _objectType;
 	/**
-	 * The requested operation
-	 */
-	@MarshallField(as="requestedOperation",
-				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter protected PersistenceRequestedOperation _requestedOperation;
-	/**
 	 * Some data about the requested operation target entity such as it's oid
 	 */
 	@MarshallField(as="requestedOperationTarget")
@@ -42,19 +36,23 @@ abstract class PersistenceOperationOnObjectError<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	public PersistenceOperationOnObjectError() {
-		// nothing
+	public PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp) {
+		super(reqOp);
+	}
+	public PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp,final String reqOpName) {
+		super(reqOp,reqOpName);
 	}
 	@SuppressWarnings("unchecked")
-	public PersistenceOperationOnObjectError(final Class<?> entityType) {
+	public PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp,
+											 final Class<?> entityType) {
+		super(reqOp);
 		_objectType = (Class<T>)entityType;
 	}
-	PersistenceOperationOnObjectError(final Class<?> entityType,
-		 				 			  final PersistenceRequestedOperation requestedOp,
+	PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp,
+									  final Class<?> entityType,
 		 				 			  final Throwable th) {
-		this(entityType);
-		_requestedOperation = requestedOp;
-		_requestedOperationName = requestedOp.name();
+		this(reqOp,
+			 entityType);
 		_error = th;		
 		if (th != null) {
 			_errorMessage = th.getMessage();
@@ -68,20 +66,20 @@ abstract class PersistenceOperationOnObjectError<T>
 			}
 		}
 	}
-	PersistenceOperationOnObjectError(final Class<?> entityType,
-						 			  final PersistenceRequestedOperation requestedOp,
+	PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp,
+									  final Class<?> entityType,
 						 			  final PersistenceErrorType errCode) {
-		this(entityType,
-			 requestedOp,
+		this(reqOp,
+			 entityType,
 			 (Throwable)null);		// no exception
 		_errorDebug = null;
 		_errorType = errCode;
 	}
-	PersistenceOperationOnObjectError(final Class<?> entityType,
-						 			  final PersistenceRequestedOperation requestedOp,
+	PersistenceOperationOnObjectError(final PersistenceRequestedOperation reqOp,
+									  final Class<?> entityType,
 						 			  final String errMsg,final PersistenceErrorType errCode) {
-		this(entityType,
-			 requestedOp,
+		this(reqOp,
+			 entityType,
 			 (Throwable)null);		// no exception
 		_errorMessage = errMsg;
 		_errorDebug = null;

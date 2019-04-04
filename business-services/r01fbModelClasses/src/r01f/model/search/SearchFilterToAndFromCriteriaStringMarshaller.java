@@ -48,7 +48,8 @@ class SearchFilterToAndFromCriteriaStringMarshaller<F extends SearchFilterForMod
 		
 		// [3] - Compose the model object filter's type part 
 		// 2.b: model objs type codes
-		Collection<Long> modelObjTypesCodes = FluentIterable.from(filter.getFilteredModelObjectTypes())
+		Collection<Long> modelObjTypesCodes = CollectionUtils.hasData(filter.getFilteredModelObjectTypes())
+												? FluentIterable.from(filter.getFilteredModelObjectTypes())
 												    .transform(new Function<Class<? extends MetaDataDescribable>,Long>() {
 																		@Override
 																		public Long apply(final Class<? extends MetaDataDescribable> modelObjType) {
@@ -57,9 +58,13 @@ class SearchFilterToAndFromCriteriaStringMarshaller<F extends SearchFilterForMod
 																											.modelObjTypeCode();
 																		}
 												   			  })
-												    .toSet();
-		String modelObjTypesCriteriaStrPart = Strings.customized("modelObjTypes:{}",CollectionUtils.of(modelObjTypesCodes)
-																				 			       .toStringCommaSeparated());
+												    .toSet()
+												: null;
+		String modelObjTypesCriteriaStrPart = CollectionUtils.hasData(modelObjTypesCodes)
+													? Strings.customized("modelObjTypes:{}",
+																 		 CollectionUtils.of(modelObjTypesCodes)
+																			    		.toStringCommaSeparated())
+													: "";
 		
 		// [3] - Compose the boolean query criteria string
 		String boolClausesPart = filter.getBooleanQuery().encodeAsString();

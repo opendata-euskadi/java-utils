@@ -4,9 +4,6 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.debug.Debuggable;
-import r01f.facets.HasOID;
-import r01f.facets.Summarizable;
-import r01f.guids.OID;
 import r01f.model.HasModelObjectTypeCode;
 import r01f.model.HasModelObjectTypeInfo;
 import r01f.model.IndexableModelObject;
@@ -18,7 +15,6 @@ import r01f.model.search.SearchOIDs.SearchEngineDBID;
 import r01f.model.search.SearchOIDs.SearchSourceID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
-import r01f.types.summary.Summary;
 import r01f.util.types.Strings;
 
 @Accessors(prefix="_")
@@ -27,7 +23,6 @@ public abstract class SearchResultItemForModelObjectBase<M extends IndexableMode
            			  HasEntityVersion,
            			  HasNumericID,
            			  HasModelObjectTypeInfo<M>,HasModelObjectTypeCode,
-           			  HasOID<OID>,
            			  Debuggable {
 	
 	private static final long serialVersionUID = 126535994364020659L;
@@ -45,12 +40,6 @@ public abstract class SearchResultItemForModelObjectBase<M extends IndexableMode
 	@MarshallField(as="objectTypeCode",
 				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter @Setter protected long _modelObjectTypeCode;
-    /**
-     * Oid
-     */
-	@MarshallField(as="oid",
-				   whenXml=@MarshallFieldAsXml(attr=true))
-    @Getter @Setter protected OID _oid;
 	/**
 	 * Numeric Id
 	 */
@@ -67,12 +56,6 @@ public abstract class SearchResultItemForModelObjectBase<M extends IndexableMode
 	 */
 	@MarshallField(as="trackingInfo")
 	@Getter @Setter protected ModelObjectTracking _trackingInfo;
-	/**
-	 * A summary / abstract of the search result
-	 * (it's NOT serialized)
-	 */
-	@MarshallField(as="summary")
-	@Getter @Setter protected transient Summary _summary;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  SEARCH ENGINE FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -108,22 +91,6 @@ public abstract class SearchResultItemForModelObjectBase<M extends IndexableMode
 		// nothing
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  HasSummary
-/////////////////////////////////////////////////////////////////////////////////////////
-	@Override
-	public Summarizable asSummarizable() {
-		return new Summarizable() {
-						@Override
-						public Summary getSummary() {
-							return _summary;
-						}
-						@Override
-						public void setSummary(final Summary summary) {
-							_summary = summary;
-						}
-		};
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
 //  TRACKABLE
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
@@ -137,21 +104,13 @@ public abstract class SearchResultItemForModelObjectBase<M extends IndexableMode
 	public <U extends IndexableModelObject> void unsafeSetModelObjectType(final Class<U> modelObjectType) {
 		_modelObjectType = (Class<M>)modelObjectType;
 	}
-	@Override 
-	public void unsafeSetOid(final OID oid) {
-		_oid = oid;
-	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String debugInfo() {
-		return Strings.customized("      oid: {}\n" + 
-						          "numericId: {}\n" + 
-						          "  summary: {}",
-						          this.getOid(),
-						          this.getNumericId(),
-						          this.getSummary());
+		return Strings.customized("search result itme for object of type {} with numericId: {}",
+								  _modelObjectType,_numericId);
 	}
 
 

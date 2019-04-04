@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Iterator;
 
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
@@ -25,31 +26,37 @@ import r01f.util.types.collections.Lists;
 @MarshallType(as="monthOfYear")
 @GwtIncompatible
 @Accessors(prefix="_")
-public class MonthOfYear 
+public class MonthOfYear
   implements Serializable,
   			 CanBeRepresentedAsString,
   			 Comparable<MonthOfYear> {
 
 	private static final long serialVersionUID = 7658275370612790932L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter @Setter private int _monthOfYear;
+
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  REGEX
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static final String REGEX = "(0?[1-9]|1[012])";		// does not match 13,,,
+	public static final String REGEX_NOCAPTURE = "(?:0?[1-9]|1[012])";
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 /////////////////////////////////////////////////////////////////////////////////////////
    public static boolean canBe(final String str) {
-         return Strings.isNOTNullOrEmpty(str) 
+         return Strings.isNOTNullOrEmpty(str)
              && Numbers.isInteger(str)
              && Integer.parseInt(str) >= 1 && Integer.parseInt(str) <= 12;
    }
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public MonthOfYear(final int month) {
 		this._set(month);
 	}
-	public MonthOfYear(final String month) { 
+	public MonthOfYear(final String month) {
 		int m = Integer.parseInt(month);
 		this._set(m);
 	}
@@ -81,14 +88,14 @@ public class MonthOfYear
 		return MonthOfYear.of(new Date());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	private void _set(final int month) {
 		Preconditions.checkArgument(month <= 12 || month > 0,"Not a valid month");
-		_monthOfYear = month;		
+		_monthOfYear = month;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String toString() {
@@ -105,7 +112,7 @@ public class MonthOfYear
 		return _monthOfYear;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public boolean is(final MonthOfYear other) {
 		return _monthOfYear == other.asInteger();
@@ -126,12 +133,41 @@ public class MonthOfYear
 		return _monthOfYear >= other.asInteger();
 	}
 	public MonthOfYear nextMonth() {
-		return _monthOfYear < 12 ? MonthOfYear.of(_monthOfYear+1) 
+		return _monthOfYear < 12 ? MonthOfYear.of(_monthOfYear+1)
 								 : MonthOfYear.of(1);
 	}
 	public MonthOfYear prevMonth() {
-		return _monthOfYear > 1 ? MonthOfYear.of(_monthOfYear-1) 
-								 : MonthOfYear.of(12);
+		return _monthOfYear > 1 ? MonthOfYear.of(_monthOfYear-1)
+								: MonthOfYear.of(12);
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//	ITERABLE
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static Iterable<MonthOfYear> yearMonthsIterable() {
+		return new Iterable<MonthOfYear>() {
+						@Override
+						public Iterator<MonthOfYear> iterator() {
+							return new Iterator<MonthOfYear>() {
+											private int _curr = -1;
+
+											@Override
+											public boolean hasNext() {
+												return _curr < 12;
+											}
+											@Override
+											public MonthOfYear next() {
+												if (!this.hasNext()) throw new IllegalStateException();
+												_curr = _curr == -1 ? 0
+																	: _curr + 1;
+												return MonthOfYear.of(_curr);
+											}
+											@Override
+											public void remove() {
+												throw new UnsupportedOperationException();
+											}
+								   };
+						}
+			   };
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  EQUALS & HASHCODE
@@ -145,15 +181,15 @@ public class MonthOfYear
 	}
 	@Override
 	public int hashCode() {
-		return new Integer(_monthOfYear).hashCode();
+		return Integer.valueOf(_monthOfYear).hashCode();
 	}
 	@Override
 	public int compareTo(final MonthOfYear other) {
-		return new Integer(this.asInteger())
-						.compareTo(new Integer(other.asInteger()));
+		return Integer.valueOf(this.asInteger())
+						.compareTo(Integer.valueOf(other.asInteger()));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static final MonthOfYear JANUARY = new MonthOfYear(1);
 	public static final MonthOfYear FEBRUARY = new MonthOfYear(2);
@@ -167,9 +203,9 @@ public class MonthOfYear
 	public static final MonthOfYear OCTOBER = new MonthOfYear(10);
 	public static final MonthOfYear NOVEMBER = new MonthOfYear(11);
 	public static final MonthOfYear DECEMBER = new MonthOfYear(12);
-	
+
 	public static final Collection<MonthOfYear> MONTHS_OF_YEAR = Lists.newArrayList(JANUARY,FEBRUARY,MARCH,APRIL,MAY,JUNE,JULY,AUGUST,SEPTEMBER,OCTOBER,NOVEMBER,DECEMBER);
-	
+
 	public static final MonthOfYear MONTH1 = JANUARY;
 	public static final MonthOfYear MONTH2 = FEBRUARY;
 	public static final MonthOfYear MONTH3 = MARCH;

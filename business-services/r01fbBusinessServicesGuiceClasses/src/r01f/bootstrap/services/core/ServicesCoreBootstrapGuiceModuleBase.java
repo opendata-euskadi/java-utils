@@ -12,6 +12,7 @@ import com.google.inject.Module;
 import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.ServicesBootstrapUtil;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.guids.CommonOIDs.AppComponent;
 import r01f.inject.HasMoreBindings;
 import r01f.reflection.ReflectionUtils;
@@ -27,7 +28,7 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 	/**
 	 * Core config
 	 */
-	protected final ServicesCoreBootstrapConfig<?,?> _coreBootstrapCfg;
+	protected final ServicesCoreBootstrapConfig _coreBootstrapCfg;
 	/**
 	 * The installed modules
 	 */
@@ -35,11 +36,11 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-	public ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreModuleCfg) {
+	public ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreModuleCfg) {
 		_coreBootstrapCfg = coreModuleCfg;
 		_installedModules = Lists.newArrayList();
 	}
-	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreBootstrapCfg,
+	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreBootstrapCfg,
 												   final Collection<? extends Module> modulesToInstall) {
 		this(coreBootstrapCfg);
 		
@@ -50,7 +51,7 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 			}
 		}
 	}
-	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreBootstrapCfg,
+	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreBootstrapCfg,
 												   final Module m1,
 												   final Collection<? extends Module> otherModules) {
 		this(coreBootstrapCfg);
@@ -65,7 +66,7 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 		     }
 		}
 	}
-	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreBootstrapCfg,
+	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreBootstrapCfg,
 												   final Module m1,final Module m2,
 												   final Collection<? extends Module> otherModules) {
 		this(coreBootstrapCfg);
@@ -83,7 +84,7 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 		     }
 		}
 	}
-	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreBootstrapCfg,
+	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreBootstrapCfg,
 												   final Module m1,final Module m2,final Module m3,
 												   final Collection<? extends Module> otherModules) {
 		this(coreBootstrapCfg);
@@ -104,7 +105,7 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 		     }
 		}
 	}
-	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig<?,?> coreBootstrapCfg,
+	protected ServicesCoreBootstrapGuiceModuleBase(final ServicesCoreBootstrapConfig coreBootstrapCfg,
 												   final Module m1,final Module m2,final Module m3,final Module m4,
 												   final Collection<? extends Module> otherModules) {
 		this(coreBootstrapCfg);
@@ -134,6 +135,10 @@ abstract class ServicesCoreBootstrapGuiceModuleBase
 	@Override
 	public void configure(final Binder binder) {
 		Binder theBinder = binder; 
+		
+		// [0]: Bind the core config
+		binder.bind(ServicesCoreBootstrapConfigWhenBeanExposed.class)
+			  .toInstance((ServicesCoreBootstrapConfigWhenBeanExposed)_coreBootstrapCfg);
 		
 		// [1] - Bind the core properties to be injected as @XmlPropertiesForAppComponent("{clientAppCode}.services")
 		ServicesBootstrapUtil.bindXMLPropertiesForAppComponent(_coreBootstrapCfg.getCoreAppCode(),AppComponent.compose(_coreBootstrapCfg.getCoreModule(),

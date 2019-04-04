@@ -4,6 +4,7 @@ import java.util.Date;
 import java.util.Set;
 
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
@@ -18,7 +19,7 @@ import r01f.securitycontext.SecurityContext;
  * @param <V>
  * @param <M>
  */
-public interface CRUDServicesForVersionableModelObject<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet> 
+public interface CRUDServicesForVersionableModelObject<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet> 
 		 extends CRUDServicesForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //	LOAD

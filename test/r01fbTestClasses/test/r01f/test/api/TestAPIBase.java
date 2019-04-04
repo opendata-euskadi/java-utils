@@ -16,7 +16,9 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.ServicesBootstrapUtil;
 import r01f.bootstrap.services.config.ServicesBootstrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.concurrent.Threads;
+import r01f.guids.CommonOIDs.UserCode;
 import r01f.services.client.ClientAPI;
 import r01f.types.TimeLapse;
 import r01f.util.types.Strings;
@@ -29,6 +31,10 @@ import r01f.util.types.Strings;
 @Accessors(prefix="_")
 @RequiredArgsConstructor
 public abstract class TestAPIBase {
+/////////////////////////////////////////////////////////////////////////////////////////
+//	CONSTANTS
+/////////////////////////////////////////////////////////////////////////////////////////	
+	public static final UserCode TEST_USER = UserCode.forId("testUser");
 /////////////////////////////////////////////////////////////////////////////////////////
 //  STATIC FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -44,10 +50,10 @@ public abstract class TestAPIBase {
 	public static <A extends ClientAPI> A getClientApi(final Class<A> apiType) {
 		return GUICE_INJECTOR.getInstance(apiType);
 	}
-///////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////	
 //  RUN EXACTLY ONCE AT THE VERY BEGINNING OF THE TEST AS A WHOLE
 //  (in fact they're run even before the type is constructed -that's why they're static)
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	protected static void _setUpBeforeClass(final ServicesBootstrapConfig... srvcBootstrap) {
 		if (srvcBootstrap == null) throw new IllegalArgumentException();
 		_setUpBeforeClass(Lists.newArrayList(srvcBootstrap));		
@@ -60,9 +66,17 @@ public abstract class TestAPIBase {
 	}
 	protected static void _setUpBeforeClass(final Collection<ServicesBootstrapConfig> servicesBootstrapConfig,
 											final Module... commonClientModules) {
+		_setUpBeforeClass(servicesBootstrapConfig,
+						  null,
+						  commonClientModules);
+	}
+	protected static void _setUpBeforeClass(final Collection<ServicesBootstrapConfig> servicesBootstrapConfig,
+										    final ServicesCoreModuleEventsConfig coreEventsCfg,
+											final Module... commonClientModules) {
 		SERVICES_BOOTSTRAP_CONFIG = servicesBootstrapConfig;
 		
 		GUICE_INJECTOR = Guice.createInjector(ServicesBootstrapUtil.getBootstrapGuiceModules(SERVICES_BOOTSTRAP_CONFIG)
+																		.withCommonEventsExecutor(coreEventsCfg)
 																		.withCommonBindingModules(commonClientModules));
 		
 		// If stand-alone (no app-server is used), init the JPA service or any service that needs to be started

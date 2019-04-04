@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.inject.Inject;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.FluentIterable;
 import com.interwoven.cssdk.common.CSException;
 import com.interwoven.cssdk.filesys.CSDir;
 import com.interwoven.cssdk.filesys.CSFile;
@@ -16,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 import r01f.file.FileNameAndExtension;
 import r01f.file.FileProperties;
 import r01f.filestore.api.FileFilter;
+import r01f.filestore.api.FileFilters;
 import r01f.filestore.api.FileStoreChecksDelegate;
 import r01f.filestore.api.FileStoreFilerAPI;
 import r01f.filestore.api.teamsite.TeamSiteStorageObjectsPaths.TeamSiteWorkAreaRelativePath;
@@ -67,6 +69,21 @@ public class TeamSiteFileStoreFilerAPI
 /////////////////////////////////////////////////////////////////////////////////////////
 //  EXISTS
 /////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public FileProperties getFolderProperties(Path path) throws IOException {
+		// check
+		_check.checkFolderExists(path);
+		
+		// [0] - Get the workarea & workarea relative path
+    	TeamSiteWorkAreaAndWorkAreaRelativePath waAndRelPath = _workAreaAndWorkAreaRelativePathFor(path);
+        CSWorkarea csWorkArea = waAndRelPath.getWorkArea();
+      	TeamSiteWorkAreaRelativePath waRelPath = waAndRelPath.getWorkAreaRelativePath();
+
+      	// [1] - Find the file
+      	CSFile csFile = TeamSiteFileStoreFindUtils.findFolderOrFile(csWorkArea,
+      															    waRelPath);
+      	return TeamSiteFileProperties.from(csFile);
+	}
 	@Override
 	public boolean existsFolder(final Path path) throws IOException {
 		// [0] - Get the workarea & workarea relative path
@@ -185,9 +202,6 @@ public class TeamSiteFileStoreFilerAPI
     public FileProperties[] listFolderContents(final Path folderPath,
     										   final FileFilter fileFilter,
     										   final boolean recursive) throws IOException {
-
-		if (fileFilter != null) throw new IllegalArgumentException("Not supported filter");
-
 		// check
 		_check.checkBeforeListFolderContents(folderPath);
 
@@ -219,7 +233,10 @@ public class TeamSiteFileStoreFilerAPI
         		i++;
         	}
         }
-        return outProps;
+		return outProps != null ? FluentIterable.from(outProps)
+										.filter(FileFilters.predicateFrom(fileFilter))
+										.toArray(FileProperties.class)
+							    : new FileProperties[] { /* empty */ };
     }
 /////////////////////////////////////////////////////////////////////////////////////////
 //	PROPERTIES see FileStoreFileAPI

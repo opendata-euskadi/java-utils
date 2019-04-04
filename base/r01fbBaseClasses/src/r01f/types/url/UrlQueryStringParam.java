@@ -3,6 +3,7 @@ package r01f.types.url;
 import java.io.Serializable;
 import java.util.Date;
 
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Objects;
 
 import lombok.Getter;
@@ -31,12 +32,12 @@ public class UrlQueryStringParam
 
 	private static final long serialVersionUID = 2469798253802346787L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallField(as="name",
 				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter protected final String _name;
-	
+
 	@MarshallField(as="value",
 				   whenXml=@MarshallFieldAsXml(asParentElementValue=true))
 	@Getter protected final String _value;
@@ -48,9 +49,17 @@ public class UrlQueryStringParam
 		_name = name;
 		_value = value;
 	}
+	public UrlQueryStringParam(final String name,final CanBeRepresentedAsString value) {
+		this(name,
+			 value != null ? value.asString() : null);
+	}
 	public static UrlQueryStringParam of(final String paramName,final String paramValue) {
 		UrlQueryStringParam outParam = new UrlQueryStringParam(paramName,paramValue);
 		return outParam;
+	}
+	public static UrlQueryStringParam of(final String name,final CanBeRepresentedAsString value) {
+		return UrlQueryStringParam.of(name,
+									  value != null ? value.asString() : null);
 	}
 	public static UrlQueryStringParam from(final String paramAndValue) {
 		String[] paramAndValueSplitted = paramAndValue.split("=");
@@ -79,7 +88,7 @@ public class UrlQueryStringParam
 	}
 	public static UrlQueryStringParam of(final String paramName,final boolean val) {
 		return new UrlQueryStringParam(paramName,Boolean.toString(val));
-	}	
+	}
 	public static UrlQueryStringParam of(final String paramName,final int num) {
 		return new UrlQueryStringParam(paramName,Integer.toString(num));
 	}
@@ -98,14 +107,16 @@ public class UrlQueryStringParam
 	public static UrlQueryStringParam of(final String paramName,final Date date) {
 		return new UrlQueryStringParam(paramName,Long.toString(Dates.asEpochTimeStamp(date)));
 	}
+	@GwtIncompatible
 	public static UrlQueryStringParam of(final String paramName,final Range<Date> dateRange) {
 		return new UrlQueryStringParam(paramName,dateRange.asString());
 	}
+	@GwtIncompatible
 	public static UrlQueryStringParam of(final String paramName,final com.google.common.collect.Range<Date> dateRange) {
 		return UrlQueryStringParam.of(paramName,new Range<Date>(dateRange));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @return true if the param contains data
@@ -159,11 +170,11 @@ public class UrlQueryStringParam
 	@Override
 	public String toString() {
 		return this.asString();
-				
+
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	EQUALS & HASHCODDE
-/////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public boolean equals(final Object obj) {
 		if (obj == null) return false;
@@ -175,8 +186,7 @@ public class UrlQueryStringParam
 	}
 	private boolean _equals(final String a,final String b) {
 		if (a == null && b == null) return true;
-		if (a != null && b == null) return false;
-		if (a == null && b != null) return false;
+		if (a == null || b == null) return false;
 		return a.equals(b);
 	}
 	@Override

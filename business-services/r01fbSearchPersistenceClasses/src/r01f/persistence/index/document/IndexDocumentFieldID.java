@@ -11,7 +11,7 @@ import r01f.guids.OIDBase;
 import r01f.locale.Language;
 import r01f.model.IndexableModelObject;
 import r01f.model.metadata.FieldMetaData;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.TypeFieldMetaData;
 import r01f.model.metadata.TypeMetaData;
 import r01f.objectstreamer.annotations.MarshallType;
@@ -20,10 +20,10 @@ import r01f.util.types.Strings;
 
 /**
  * The id of an index-stored metadata (the id of a field in an indexed document)
- * Beware that the {@link IndexDocumentFieldID} might NOT be the same as the {@link IndexableFieldID} for fields
+ * Beware that the {@link IndexDocumentFieldID} might NOT be the same as the {@link FieldID} for fields
  * with multiple "dimensions" like multi-language {@link Summary} fields where each language {@link Summary}
  * is stored in a separate field with an id like: metaDataId.{dimensionId}
- * For example, a multi-language {@link Summary} field with {@link IndexableFieldID}=r01.summary
+ * For example, a multi-language {@link Summary} field with {@link FieldID}=r01.summary
  * is stored in multiple lucene fields, one for each document: r01.summary.es, r01.summary.eu, etc
  */
 @MarshallType(as="indexDocumentFieldId")
@@ -44,7 +44,7 @@ public class IndexDocumentFieldID
 	public static IndexDocumentFieldID forId(final String id) {
 		return new IndexDocumentFieldID(id);
 	}
-	public static IndexDocumentFieldID forId(final IndexableFieldID fieldId) {
+	public static IndexDocumentFieldID forId(final FieldID fieldId) {
 		return IndexDocumentFieldID.forId(fieldId.asString());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +73,7 @@ public class IndexDocumentFieldID
 	 * @param point
 	 * @return
 	 */
-	public static <D> IndexDocumentFieldID fieldIdOf(final IndexableFieldID fieldId,
+	public static <D> IndexDocumentFieldID fieldIdOf(final FieldID fieldId,
 								   		  		 	 final D point) {
 		if (point == null) throw new IllegalArgumentException("Language cannot be null to compose a language dependent index document's field id for " + fieldId.asString());
 		return IndexDocumentFieldID.forId(Strings.customized("{}.{}",
@@ -84,7 +84,7 @@ public class IndexDocumentFieldID
 	 * @param fieldName
 	 * @return
 	 */
-	public static IndexDocumentFieldID fieldIdOf(final IndexableFieldID fieldId) {
+	public static IndexDocumentFieldID fieldIdOf(final FieldID fieldId) {
 		return IndexDocumentFieldID.forId(fieldId.asString());
 	}
 	/**
@@ -109,27 +109,27 @@ public class IndexDocumentFieldID
 	 * @param baseName
 	 * @return
 	 */
-	public static final Pattern dynamicDimensionDependantFieldNamePattern(final IndexableFieldID fieldId) { 
+	public static final Pattern dynamicDimensionDependantFieldNamePattern(final FieldID fieldId) { 
 		return Pattern.compile(fieldId + "\\.(.+)");
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * This method finds the {@link IndexableFieldID} from the {@link IndexDocumentFieldID} 
-	 * Beware that the {@link IndexDocumentFieldID} might NOT be the same as the {@link IndexableFieldID} for fields
+	 * This method finds the {@link FieldID} from the {@link IndexDocumentFieldID} 
+	 * Beware that the {@link IndexDocumentFieldID} might NOT be the same as the {@link FieldID} for fields
 	 * with multiple "dimensions" like multi-language {@link Summary} fields where each language {@link Summary}
 	 * is stored in a separate field with an id like: metaDataId.{dimensionId}
-	 * For example, a multi-language {@link Summary} field with {@link IndexableFieldID}=r01.summary
+	 * For example, a multi-language {@link Summary} field with {@link FieldID}=r01.summary
 	 * is stored in multiple lucene fields, one for each document: r01.summary.es, r01.summary.eu, etc
 	 * 
 	 * @param modelObjectMetaData
 	 * @param fieldId
 	 * @return
 	 */
-	public static <M extends IndexableModelObject> IndexableFieldID findMetaDataId(final TypeMetaData<M> modelObjectMetaData,
+	public static <M extends IndexableModelObject> FieldID findMetaDataId(final TypeMetaData<M> modelObjectMetaData,
 									   			  								   final IndexDocumentFieldID indexFieldId) {
-		IndexableFieldID outMetaDataId = null;
+		FieldID outMetaDataId = null;
 		String[] indexFieldIdSplitted = indexFieldId.asString().split("\\.");
 		int i = indexFieldIdSplitted.length;
 		boolean found = false;
@@ -141,7 +141,7 @@ public class IndexDocumentFieldID
 				if (j < i-1) metaDataIdAsString.append(".");
 			}
 			// Try to find a metaData with the composed id
-			IndexableFieldID metaDataId = IndexableFieldID.forId(metaDataIdAsString.toString());
+			FieldID metaDataId = FieldID.forId(metaDataIdAsString.toString());
 			TypeFieldMetaData typeFieldMetaData = modelObjectMetaData.findFieldByIdOrNull(metaDataId);			
 			if (typeFieldMetaData != null) {
 				//FieldMetaData fieldMetaData = typeFieldMetaData.asFieldMetaData();

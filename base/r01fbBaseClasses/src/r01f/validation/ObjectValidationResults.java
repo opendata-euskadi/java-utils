@@ -55,16 +55,26 @@ public class ObjectValidationResults {
 	@Accessors(prefix="_")
 	public static class ObjectValidationResultNOK<M> 
 				extends ObjectValidationResultBase<M> {
+		@Getter private final int _code;			// a code
 		@Getter private final String _reason;
 		@Getter private final Collection<ObjectValidationErrorSourceID> _errorSources; 
 		
 		ObjectValidationResultNOK(final M modelObject,
-								  final String reason,
+								  final int code,final String reason,
 								  final Collection<ObjectValidationErrorSourceID> errorSources) {
 			super(modelObject,
 				  false);	// it's NOT valid
+			_code = code;
 			_reason = reason;
 			_errorSources = errorSources;
+		}
+		
+		ObjectValidationResultNOK(final M modelObject,
+								  final String reason,
+								  final Collection<ObjectValidationErrorSourceID> errorSources) {
+			this(modelObject,
+				 -1,reason,			// no error code
+				 errorSources);
 		}
 		public ObjectValidationErrorSourceID getSingleExpectedErrorSource() {
 			return CollectionUtils.hasData(_errorSources) ? CollectionUtils.<ObjectValidationErrorSourceID>pickOneAndOnlyElement(_errorSources,

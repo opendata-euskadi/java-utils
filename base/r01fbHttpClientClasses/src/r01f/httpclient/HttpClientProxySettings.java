@@ -3,6 +3,7 @@ package r01f.httpclient;
 import java.io.Serializable;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.debug.Debuggable;
@@ -18,6 +19,7 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
 /**
  * Proxy info
  */
+@NoArgsConstructor
 @MarshallType(as="proxySettings")
 @Slf4j
 @Accessors(prefix="_")
@@ -31,19 +33,19 @@ public class HttpClientProxySettings
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallField(as="host",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter private final Host _proxyHost;
+	@Getter private  Host _proxyHost;
 	@MarshallField(as="port",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter private final int _proxyPort;
+	@Getter private int _proxyPort;
 	@MarshallField(as="user",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter private final UserCode _user;
+	@Getter private UserCode _user;
 	@MarshallField(as="password",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter private final Password _password;
+	@Getter private  Password _password;
 	@MarshallField(as="enabled",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter private final boolean _enabled;
+	@Getter private boolean _enabled;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////

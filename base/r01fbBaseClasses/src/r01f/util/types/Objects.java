@@ -7,6 +7,7 @@ public class Objects {
 	 * @param o2
 	 * @return
 	 */
+	@SuppressWarnings("null")
 	public static boolean sameObjectOrSameType(final Object o1,final Object o2) {
 		if (o1 == o2) return true;
 		if (o1 == null && o2 == null) return true;

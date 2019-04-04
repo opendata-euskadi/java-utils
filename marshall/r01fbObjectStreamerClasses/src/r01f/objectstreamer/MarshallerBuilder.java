@@ -57,7 +57,7 @@ public abstract class MarshallerBuilder
 //	
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MarshallerBuilderModulesStep {
+	public final class MarshallerBuilderModulesStep {
 		private final Set<AppCode> _appCodes;
 		
 		public MarshallerBuilderBuildStep registerModules(final MarshallerModule... marshallerModules) {
@@ -84,7 +84,7 @@ public abstract class MarshallerBuilder
 //	
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MarshallerBuilderBuildStep {
+	public final class MarshallerBuilderBuildStep {
 		private final Set<AppCode> _appCodes;
 		private final Set<? extends MarshallerModule> _customModules;
 					

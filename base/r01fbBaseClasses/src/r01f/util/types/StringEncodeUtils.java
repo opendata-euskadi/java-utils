@@ -7,12 +7,10 @@ import java.nio.charset.Charset;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.EncoderException;
 import org.apache.commons.codec.net.URLCodec;
-
-import com.google.common.annotations.GwtIncompatible;
+import org.apache.commons.codec.binary.Base64;
 
 import lombok.extern.slf4j.Slf4j;
 
-@GwtIncompatible
 @Slf4j
 public class StringEncodeUtils {
 
@@ -23,7 +21,7 @@ public class StringEncodeUtils {
 	 * Encodes a {@link String}
 	 * @param str the string to be encoded
 	 * @param encoding the encoding
-	 * @return the provided {@link String} encoded 
+	 * @return the provided {@link String} encoded
 	 */
 	public static CharSequence encode(final CharSequence str,final Charset encoding) {
 		if (str == null) return null;
@@ -31,14 +29,14 @@ public class StringEncodeUtils {
     	// Encode
 		CharBuffer cb = CharBuffer.wrap(str);
 		ByteBuffer bb = theEncoding.encode(cb);
-		
+
 		// Transform to a CharBuffer in order to get an CharSequence
 		CharBuffer outCb = theEncoding.decode(bb);
 		return outCb;
 	}
 	/**
-	 * UTF-8 Encodes an {@link String} 
-	 * @param str 
+	 * UTF-8 Encodes an {@link String}
+	 * @param str
 	 * @return the UTF-8 encoded provided {@link String}
 	 */
 	public static CharSequence encodeUTF(final CharSequence str) {
@@ -46,7 +44,7 @@ public class StringEncodeUtils {
 	}
 	/**
 	 * ISO-8859- encodes an {@link String}
-	 * @param str 
+	 * @param str
 	 * @return the ISO-8859-1 encoded provided {@link String}
 	 */
 	public static CharSequence encodeISO8859(final CharSequence str) {
@@ -54,7 +52,7 @@ public class StringEncodeUtils {
 	}
     /**
      * According to http://en.wikipedia.org/wiki/Windows-1252 there are 27 NON-standard characters
-     * used by Microsoft's Windows-1252 character set that is supposed to be an ISO-8859-1 super-set 
+     * used by Microsoft's Windows-1252 character set that is supposed to be an ISO-8859-1 super-set
      * This method replaces those characters with other from the ISO-8859-1 character set while other characters are removed
 	 * References:
      *       http://en.wikipedia.org/wiki/Windows-1252
@@ -64,12 +62,12 @@ public class StringEncodeUtils {
      */
     public static CharSequence windows1252ToIso8859(final CharSequence str)  {
        if (null == str) return null;
-       StringBuilder modif = new StringBuilder(str);	// Create an original string copy that will be modified 
+       StringBuilder modif = new StringBuilder(str);	// Create an original string copy that will be modified
        for (int i = 0; i < str.length(); i++)  {
           int origCharAsInt = str.charAt(i);
-          
+
           switch (origCharAsInt) {
-          // replaced characters	
+          // replaced characters
           case ('\u2018'):  modif.setCharAt(i,'\''); break;  // left single quote
           case ('\u2019'):  modif.setCharAt(i,'\''); break;  // right single quote
           case ('\u201A'):  modif.setCharAt(i,'\''); break;  // lower quotation mark
@@ -105,20 +103,20 @@ public class StringEncodeUtils {
           case ('\u20AC'):  modif.deleteCharAt(i); break;
 
           // by default the character remains the same
-          default: modif.setCharAt(i,str.charAt(i)); 	break;	
+          default: modif.setCharAt(i,str.charAt(i)); 	break;
           }
        }
        return modif;
     }
     /**
-     * Filters the input {@link String} to replace any occurrence of the characters of the provided array that are 
+     * Filters the input {@link String} to replace any occurrence of the characters of the provided array that are
      * replaced by the chars also provided in the other array
      * This method is useful specially to filter forbidden characters as '<' or '>' in HTML {@link String} that are
      * replaced by '&gt;' y '&lt;'
      * @param strToBeFiltered the input {@link String} some of whose characters are to be replaced
      * @param charsToFilter the characters to be filtered
      * @param charsFiltered the filtered characters substitutions
-     * @return 
+     * @return
      */
     public static CharSequence filterAndReplaceChars(final CharSequence strToBeFiltered,
     								 	   			 final char[] charsToFilter,final String[] charsFiltered) {
@@ -142,7 +140,7 @@ public class StringEncodeUtils {
             if (!replaced) result.append(content[i]);
         }
         return (result.toString());
-    }  
+    }
 ///////////////////////////////////////////////////////////////////////////////
 //  CODE / DECODE www-form-urlencodec
 ///////////////////////////////////////////////////////////////////////////////
@@ -156,7 +154,7 @@ public class StringEncodeUtils {
 		if (str == null) return null;
 		URLCodec codec = new URLCodec();
 		String encodedStr = codec.encode(str.toString());
-		return encodedStr;		
+		return encodedStr;
 	}
 	/**
 	 * Encodes in a www-form-urlencoded format using the default charset
@@ -170,8 +168,35 @@ public class StringEncodeUtils {
 		} catch(EncoderException encEx) {
 			log.error("Could NOT url encode {}",str,encEx);
 		}
-		return str;	// fall back to the original not-encoded string			
+		return str;	// fall back to the original not-encoded string
 	}
+
+///////////////////////////////////////////////////////////////////////////////
+// ENCODE / DECODE BASE64
+///////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Encodes in Base64
+	 * @param str the {@link String} to be encoded
+	 * @return the Base64 {@link String}
+	 * @throws EncoderException if the encoding could not be done
+	 */
+	public static CharSequence encodeBase64(final CharSequence str) {
+		if (str == null) return null;
+		String encodedStr = new String(Base64.encodeBase64(str.toString().getBytes()));
+		return encodedStr;
+	}
+	/**
+	 * Encodes in Base64
+	 * @param str the {@link String} to be encoded
+	 * @return the Base64 {@link String}
+	 * @throws EncoderException if the encoding could not be done
+	 */
+	public static CharSequence decodeBase64(final CharSequence str) {
+		if (str == null) return null;
+		String encodedStr = new String(Base64.decodeBase64(str.toString().getBytes()));
+		return encodedStr;
+	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //  DECODE
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -185,7 +210,7 @@ public class StringEncodeUtils {
 		if (str == null) return null;
 		URLCodec codec = new URLCodec();
 		String encodedStr = codec.decode(str.toString());
-		return encodedStr;		
+		return encodedStr;
 	}
 	/**
 	 * Decodes a www-form-urlencoded  {@link String} using the default charset

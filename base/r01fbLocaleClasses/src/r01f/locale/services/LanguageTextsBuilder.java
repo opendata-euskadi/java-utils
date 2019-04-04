@@ -6,6 +6,7 @@ import java.util.Map;
 import com.google.common.annotations.GwtIncompatible;
 
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import r01f.bundles.ResourceBundleControl;
 import r01f.locale.Language;
@@ -42,16 +43,18 @@ import r01f.util.types.collections.CollectionUtils;
  * </pre>
  */
 @GwtIncompatible
-public class LanguageTextsBuilder 
+@NoArgsConstructor(access=AccessLevel.PRIVATE)
+public abstract class LanguageTextsBuilder 
   implements IsBuilder {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  MapBacked Builder
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static LanguageTextsMapBackedBuilderBehaviorStep createMapBacked() {
-		return new LanguageTextsMapBackedBuilderBehaviorStep(new LanguageTextsMapBacked());
+		return new LanguageTextsBuilder() { /* nothing */} 
+					.new LanguageTextsMapBackedBuilderBehaviorStep(new LanguageTextsMapBacked());
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class LanguageTextsMapBackedBuilderBehaviorStep {		
+	public final class LanguageTextsMapBackedBuilderBehaviorStep {		
 		private final LanguageTextsMapBacked _langTexts;
 		
 		/**
@@ -87,7 +90,7 @@ public class LanguageTextsBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class LanguageTextsMapBackedBuilderAddStep {
+	public final class LanguageTextsMapBackedBuilderAddStep {
 		private final LanguageTextsMapBacked _langTexts;
 		
 		/**
@@ -144,10 +147,11 @@ public class LanguageTextsBuilder
 // 	I18NBundleBacked Builder
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static LanguageTextsI18NBundleBackedBuilderControlStep createI18NBundleBacked() {
-		return new LanguageTextsI18NBundleBackedBuilderControlStep();
+		return new LanguageTextsBuilder() { /* nothing */} 
+					.new LanguageTextsI18NBundleBackedBuilderControlStep();
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class LanguageTextsI18NBundleBackedBuilderControlStep {	
+	public final class LanguageTextsI18NBundleBackedBuilderControlStep {	
 		
 		@SuppressWarnings("static-method")
 		public LanguageTextsI18NBundleBackedBuilderBundleStep loadedAsDefinedAt(final ResourceBundleControl resControl) {
@@ -155,7 +159,7 @@ public class LanguageTextsBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class LanguageTextsI18NBundleBackedBuilderBundleStep {
+	public final class LanguageTextsI18NBundleBackedBuilderBundleStep {
 		private final ResourceBundleControl _resControl;
 		
 		/**
@@ -184,7 +188,7 @@ public class LanguageTextsBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class LanguageTextsI18NBundleBackedBackedBuilderBehaviorStep {		
+	public final class LanguageTextsI18NBundleBackedBackedBuilderBehaviorStep {		
 		private final LanguageTextsI18NBundleBackedImpl _langTexts;
 		
 		/**

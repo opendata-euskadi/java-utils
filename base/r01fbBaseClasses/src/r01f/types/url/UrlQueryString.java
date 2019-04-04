@@ -7,6 +7,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Maps;
@@ -17,6 +18,8 @@ import r01f.annotations.Immutable;
 import r01f.objectstreamer.annotations.MarshallIgnoredField;
 import r01f.patterns.Memoized;
 import r01f.patterns.Provider;
+import r01f.types.ParametersParser;
+import r01f.types.ParametersParserRegexBased;
 import r01f.types.ParametersWrapperBase;
 import r01f.util.types.collections.CollectionUtils;
 
@@ -133,7 +136,7 @@ public class UrlQueryString
 	 */
 	public static UrlQueryString fromParamsString(final String paramsStr) {
 		return UrlQueryString.fromParamsString(paramsStr,
-											   new DefaultParametersParser());				// not gwt-compatible by default
+											   new ParametersParserRegexBased());				// not gwt-compatible by default
 	}
 	/**
 	 * Creates a new instance form a full query string
@@ -142,7 +145,7 @@ public class UrlQueryString
 	 */
 	public static UrlQueryString fromUrlEncodedParamsString(final String paramsStr) {
 		return UrlQueryString.fromUrlEncodedParamsString(paramsStr,
-														 new DefaultParametersParser());	// not gwt-compatible by default
+														 new ParametersParserRegexBased());	// not gwt-compatible by default
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -266,6 +269,7 @@ public class UrlQueryString
 	 * @param paramName
 	 * @return
 	 */
+	@GwtIncompatible
 	public UrlQueryString withoutParamsMatching(final Pattern p) {
 		if (CollectionUtils.isNullOrEmpty(this.getQueryStringParams())) return this;
 		

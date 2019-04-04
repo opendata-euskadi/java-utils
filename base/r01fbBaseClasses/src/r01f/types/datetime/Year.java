@@ -24,25 +24,30 @@ import r01f.util.types.Strings;
 @GwtIncompatible
 @Accessors(prefix="_")
 @NoArgsConstructor
-public class Year 
+public class Year
   implements Serializable,
   			 CanBeRepresentedAsString,
   			 Comparable<Year> {
 
 	private static final long serialVersionUID = 7658275370612790932L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter @Setter private int _year;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  REGEX
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static final String REGEX = "(19\\d{2}|20\\d{2})";
+	public static final String REGEX_NOCAPTURE = "(?:19\\d{2}|20\\d{2})";
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 /////////////////////////////////////////////////////////////////////////////////////////
    public static boolean canBe(final String str) {
-         return Strings.isNOTNullOrEmpty(str) 
+         return Strings.isNOTNullOrEmpty(str)
                 && Numbers.isInteger(str);
    }
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public Year(final int year) {
 		_set(year);
@@ -87,14 +92,14 @@ public class Year
 		return Year.of(_year-1);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	private void _set(final int year) {
 		Preconditions.checkArgument(year >= 0,"Not a valid day year");
-		_year = year;		
+		_year = year;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String toString() {
@@ -107,8 +112,12 @@ public class Year
 	public int asInteger() {
 		return _year;
 	}
+	public String asStringInCentury() {
+		return this.toString().substring(this.toString().length()-2,
+										 this.toString().length());
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public boolean is(final Year other) {
 		return _year == other.asInteger();
@@ -140,22 +149,22 @@ public class Year
 	}
 	@Override
 	public int hashCode() {
-		return new Integer(_year).hashCode();
+		return Integer.valueOf(_year).hashCode();
 	}
 	@Override
 	public int compareTo(final Year other) {
-		return new Integer(this.asInteger())
-						.compareTo(new Integer(other.asInteger()));
+		return Integer.valueOf(this.asInteger())
+						.compareTo(Integer.valueOf(other.asInteger()));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Creates a new Year from this year minus the given number of years
 	 * @param years
 	 * @return
 	 */
-	public Year minus(final int years) { 
+	public Year minus(final int years) {
 		return Year.of(_year - years);
 	}
 	/**
@@ -163,7 +172,7 @@ public class Year
 	 * @param years
 	 * @return
 	 */
-	public Year plus(final int years) { 
+	public Year plus(final int years) {
 		return Year.of(_year + years);
 	}
 }

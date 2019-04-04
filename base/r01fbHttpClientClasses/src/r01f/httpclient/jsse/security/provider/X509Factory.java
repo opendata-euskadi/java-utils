@@ -162,10 +162,10 @@ public class X509Factory extends CertificateFactorySpi {
             return null;
         }
         byte[] encoding = new byte[totalLength];
-        if( totalLength < b.length ) {
+        if ( totalLength < b.length ) {
             in.reset();
             i = readFully(in, encoding, 0, totalLength);
-            if( i != totalLength ) {
+            if ( i != totalLength ) {
                 in.reset();
                 return null;
             }

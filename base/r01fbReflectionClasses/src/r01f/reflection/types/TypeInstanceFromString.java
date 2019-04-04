@@ -19,7 +19,7 @@ import r01f.util.types.collections.CollectionUtils;
 
 public class TypeInstanceFromString {
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Creates an instance of a type from it {@link String} value
@@ -34,38 +34,38 @@ public class TypeInstanceFromString {
 			return dataType != Boolean.class ? null
 											 : (T)Boolean.valueOf(false);
 		}
-			
+
 		T value = null;
 		if (dataType == Boolean.class) {
 			value = (T)Boolean.valueOf(valueStr);
-			
+
 		} else if (dataType == Integer.class) {
-			value = (T)new Integer(valueStr);
-			
+			value = (T)Integer.valueOf(valueStr);
+
 		} else if (dataType == Long.class) {
-			value = (T)new Long(valueStr);	
-			
+			value = (T)Long.valueOf(valueStr);
+
 		} else if (dataType == Double.class) {
-			value = (T)new Double(valueStr);
-			
+			value = (T)Double.valueOf(valueStr);
+
 		} else if (dataType == Float.class) {
-			value = (T)new Float(valueStr);	
-			
+			value = (T)Float.valueOf(valueStr);
+
 		} else if (dataType == String.class) {
-			value = (T)valueStr;	
-			
+			value = (T)valueStr;
+
 		} else if (dataType == Character.class) {
-			value = (T)new Character(valueStr.charAt(0));
-			
+			value = (T)Character.valueOf(valueStr.charAt(0));
+
 		} else if (dataType == Date.class) {
-			value = (T)Dates.fromMillis(new Long(valueStr));	// dates are serialized as milis
-			
+			value = (T)Dates.fromMillis(Long.valueOf(valueStr));	// dates are serialized as milis
+
 		} else if (dataType != null && ReflectionUtils.isSubClassOf(dataType,OID.class)) {
 			value = (T)ReflectionUtils.invokeStaticMethod(dataType,
 														  OID.STATIC_FACTORY_METHOD_NAME,new Class<?>[] {String.class},new Object[] {valueStr});
 		} else if (dataType != null && ReflectionUtils.isSubClassOf(dataType,Enum.class)) {
 			value = (T)Enum.valueOf((Class<? extends Enum>)dataType,valueStr);
-			
+
 		}
 		return value;
 	}
@@ -84,41 +84,41 @@ public class TypeInstanceFromString {
 		T[] spectrum = null;
 		if (dataType == Integer.class) {
 			spectrum = (T[])new Integer[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)new Integer(arrayItems[i]);
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Integer.valueOf(arrayItems[i]);
+
 		} else if (dataType == Long.class) {
 			spectrum = (T[])new Long[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)new Long(arrayItems[i]);	
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Long.valueOf(arrayItems[i]);
+
 		} else if (dataType == Double.class) {
 			spectrum = (T[])new Double[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)new Double(arrayItems[i]);
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Double.valueOf(arrayItems[i]);
+
 		} else if (dataType == Float.class) {
 			spectrum = (T[])new Float[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)new Float(arrayItems[i]);
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Float.valueOf(arrayItems[i]);
+
 		} else if (dataType == String.class) {
 			spectrum = (T[])new String[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)arrayItems[i];	
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)arrayItems[i];
+
 		} else if (dataType == Character.class) {
 			spectrum = (T[])new Character[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)new Character(arrayItems[i].charAt(0));
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Character.valueOf(arrayItems[i].charAt(0));
+
 		} else if (dataType == Date.class) {
 			spectrum = (T[])new Date[arrayItems.length];
-			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Dates.fromMillis(new Long(arrayItems[i]));
-			
+			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Dates.fromMillis(Long.valueOf(arrayItems[i]));
+
 		} else if (ReflectionUtils.isSubClassOf(dataType,OID.class)) {
 			spectrum = (T[])Array.newInstance(dataType,arrayItems.length);
 			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)ReflectionUtils.invokeStaticMethod(dataType,
 																										   OID.STATIC_FACTORY_METHOD_NAME,new Class<?>[] {String.class},new Object[] {arrayItems[i]});
-			
+
 		} else if (ReflectionUtils.isSubClassOf(dataType,Enum.class)) {
 			spectrum = (T[])Array.newInstance(dataType,arrayItems.length);
 			for (int i=0; i<arrayItems.length; i++) spectrum[i] = (T)Enum.valueOf((Class<? extends Enum>)dataType,arrayItems[i]);
-			
+
 		} else {
 			throw new IllegalArgumentException(dataType.getName());
 		}

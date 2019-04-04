@@ -3,7 +3,7 @@ package r01f.persistence.index.document;
 import java.util.Map;
 
 import r01f.model.IndexableModelObject;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.TypeMetaData;
 
 /**
@@ -23,31 +23,31 @@ public interface IndexDocument<M extends IndexableModelObject> {
 	 * 	- a metadata can contain multiple values
 	 * @return
 	 */
-	public Map<IndexableFieldID,IndexDocumentFieldValue<?>> getFields();
+	public Map<FieldID,IndexDocumentFieldValue<?>> getFields();
 	/**
 	 * Returns a document's field by it's id
 	 * @param metaDataId
 	 * @return
 	 */
-	public <T> IndexDocumentFieldValue<T> getField(final IndexableFieldID metaDataId);
+	public <T> IndexDocumentFieldValue<T> getField(final FieldID metaDataId);
 	/**
 	 * Returns a document's field value by it's id
 	 * @param metaDataId
 	 * @return
 	 */
-	public <T> T getFieldValue(final IndexableFieldID metaDataId);
+	public <T> T getFieldValue(final FieldID metaDataId);
 	/**
 	 * Returns a document's field by it's id or throw an {@link IllegalStateException}
 	 * if the field is NOT found
 	 * @param metaDataId
 	 * @return
 	 */
-	public <T> IndexDocumentFieldValue<T> getFieldOrThrow(final IndexableFieldID metaDataId);
+	public <T> IndexDocumentFieldValue<T> getFieldOrThrow(final FieldID metaDataId);
 	/**
 	 * Returns a document's field value by it's id or throw an {@link IllegalStateException}
 	 * if the field is NOT found
 	 * @param metaDataId
 	 * @return
 	 */
-	public <T> T getFieldValueOrThrow(final IndexableFieldID metaDataId);
+	public <T> T getFieldValueOrThrow(final FieldID metaDataId);
 }

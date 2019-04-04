@@ -13,7 +13,8 @@ public enum FileStoreType
  implements EnumWithCode<String,FileStoreType> {
 	LOCAL("local"),
 	HDFS("hdfs"),
-	TEAM_SITE("team-site");
+	TEAM_SITE("team-site"),
+	KEY_VALUE("key-value");
 	
 	@Getter private final String _code;
 	@Getter private final Class<String> _codeType = String.class;

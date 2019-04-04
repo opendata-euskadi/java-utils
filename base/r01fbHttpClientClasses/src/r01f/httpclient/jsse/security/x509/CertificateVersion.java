@@ -196,7 +196,7 @@ public class CertificateVersion implements CertAttrSet<String> {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(VERSION)) {
-            return(new Integer(getVersion()));
+            return(Integer.valueOf(getVersion()));
         } else {
             throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet: CertificateVersion.");

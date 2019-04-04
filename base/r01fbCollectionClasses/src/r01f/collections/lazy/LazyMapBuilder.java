@@ -7,7 +7,6 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Supplier;
 import com.google.common.base.Suppliers;
 import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 
 import lombok.AccessLevel;
@@ -37,7 +36,7 @@ public abstract class LazyMapBuilder
 // 	
 ///////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyMapBuilderLoadedStep<K,V,C> {
+	public final class LazyMapBuilderLoadedStep<K,V,C> {
 		private final Map<K,V> _initialEntries;
 		
 		/**
@@ -66,7 +65,7 @@ public abstract class LazyMapBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyMapBuilderSuppliedKeySetValueLoaderStep<K,V,C> {
+	public final class LazyMapBuilderSuppliedKeySetValueLoaderStep<K,V,C> {
 		private final Map<K,V> _initialEntries;
 		private final MapKeySetSupplier<K,C> _keySetSupplier;
 		private final C _keySetLoadCriteria;
@@ -82,7 +81,7 @@ public abstract class LazyMapBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyMapBuilderSuppliedKeySetKeyIntrospectorStep<K,V,C> {
+	public final class LazyMapBuilderSuppliedKeySetKeyIntrospectorStep<K,V,C> {
 		private final Map<K,V> _initialEntries;
 		private final MapKeySetSupplier<K,C> _keySetSupplier;
 		private final C _keySetLoadCriteria;
@@ -100,7 +99,7 @@ public abstract class LazyMapBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LazyMapBuilderSuppliedKeySetBuildStep<K,V,C> {
+	public final class LazyMapBuilderSuppliedKeySetBuildStep<K,V,C> {
 		private final boolean _fullLoadedOnCreation;
 		private final Map<K,V> _initialEntries;
 		private final MapKeySetSupplier<K,C> _keySetSupplier;
@@ -135,7 +134,7 @@ public abstract class LazyMapBuilder
 			LoadingCache<K,V> mapInstance = CacheBuilder.newBuilder()
 											  		    .initialCapacity(initialCapacity)
 											  		    .expireAfterWrite(expirationPeriod,expirationPeriodTimeUnit)	// cache entries expiration
-											  		    .build((CacheLoader<K,V>)_valuesSupplier.asCacheLoader());
+											  		    .build(_valuesSupplier.asCacheLoader());
 			// PUT the initial entries
 			if (_initialEntries != null && _initialEntries.size() > 0) mapInstance.putAll(_initialEntries);
 			

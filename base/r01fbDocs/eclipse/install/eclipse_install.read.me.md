@@ -1,6 +1,14 @@
 # Eclipse install
 =======================================
 
+The following instructions creates an eclipse MASTER workspace that will be used as a TEMPLATE to
+create any eclipse workspaces for any project
+
+The idea is:
+
+1 - Install eclipse and create a MASTER workspace (_a TEMPLATE workspace_)
+
+2.- To create an eclipse workspace for a given project, just *copy* the MASTER (_or TEMPLATE_) eclipse workspace
 
 ## [1]: Create the file system structure
 ```
@@ -31,6 +39,8 @@ d) Edit the `/{dev_home}/eclipse/instances/[instance_name]/eclipse.ini` file and
 * check that the org.eclipse.equinox.launcher versions still the SAME as those in the eclipse.ini.original file
 
 * replace [instance_name] with it's real value
+
+> Download lombok.jar from this site https://projectlombok.org/download, and copy to eclipse instance root dir.
 
 ```
 	-clean
@@ -102,12 +112,12 @@ b) **IvyDE** > https://builds.apache.org/job/IvyDE-updatesite/lastSuccessfulBuil
 					Ivy user dir: D:\eclipse\ivy_libs
 ```
 c) **Eclipse WTP tools** (from eclipse update site)
-
+For Eclipse 2018-19 version use this site http://download.eclipse.org/releases/2018-09
 ```
 		  Web, XML, Java EE and OSGi Enterprise Development
 			[X]	Eclipse Faceted Project Framework
 			[X] Eclipse Faceted Project Framework JDT Enablement
-			[X] Java EE developer tools
+			[X] Eclipse Java EE developer tools
 			[X] Eclipse Java Web Developer Tools
 			[X] Eclipse Web Developer Tools
 			[X] Eclipse XSL Developer Tools
@@ -118,14 +128,20 @@ c) **Eclipse WTP tools** (from eclipse update site)
 			[X] JST Server UI
 			[X] WST Server Adapters
 ```
+If you have compatibility problems uninstall "Eclipse XML Editors and Tools" checking the option "Update my installation to be compatible with the items being installed".
 
-d) **Colaboration Tools: SVN**
+d) **Collaboration Tools: SVN**
 
 ```
 					[X] Subversive SVN Connectors
 					[X] Subversive SVN JDT Ignore Extensions (Optional)
 					[X] Subversive SVN Team Provider
 ```
+
+**Eclipse Photon NOTE:** Eclipse Photon has discontinued the SVN support so in order to install SVN in Photon SVN MUST be installed from Oxygen update site: http://download.eclipse.org/releases/oxygen
+For eclipse 2018-19 only check this:
+					[X] Subversive SVN Team Provider
+
 
 e) **[Polarion SVN connectors]**
 
@@ -148,10 +164,13 @@ Select AT LEAST [svnkit]
 
  If this DOES NOT EVEN WORKS try:
 
-		1.- DELETE all org.polarion zip files from d:\eclipse\instances\master_photonM2\plugins
-		2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\master_[instance_name]\artifacts.xml
+		1.- DELETE all org.polarion zip files from d:\eclipse\instances\{workspace_name}\plugins
+		2.- DELETE all polarion ARTIFACTS from d:\eclipse\instances\{workspace_name}\artifacts.xml
 
 f) **[AnyEdit Tools]** either using the [eclipse marketplace] or from the update site at: http://andrei.gmxhome.de/eclipse/
+		[X] Eclipse 3.8 - 4.11 plugins
+			[X] AnyEditTools
+
 
 ## [5]: Configure plugins
 
@@ -162,38 +181,51 @@ b) **[Ivy]**
 
 > `[Classpath container] > Resolve dependencies in workspace` : true
 > `[settings] > Ivy user dir`: /{dev_home}/ivy_libs
-> `[settings] > Property files`: Add the file at `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/ivy/r01.version.properties}`
+> `[settings] > Property files`: Add the file at `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/ivy/r01.versions.properties}`
 
 *BEWARE*: Some artifacts are NOT published at MAVEN CENTRAL; this is the case of javax.ejb / javax.servlet-api or javax.jms. The only workarround is to put all those artifacts in {dev_home}/ivy_libs/local
 
     extract the local_libs.7z file at {dev_home}/ivy_libs/local
 
-*BEWARE*: to create a welblogic fullclient jar to be used as external dependency:
+*BEWARE*: to create a weblogic fullclient jar to be used as external dependency:
 ```
 	> cd \app-server\wls_10.3.6\wlserver\server\lib
 	> java -jar d:\app-server\wls_10.3.6\modules\com.bea.core.jarbuilder_1.7.0.0.jar
-``` 
+```
 
 
 c) **[Java]**
-> `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE
 
 > Import `[compiler preferences]`: `[File] > [Import] > [Preferences]` browse filesystem and select `/{dev_home}/eclipse/projects_r01/base/r01fbDocs/eclipse/preferences/pci_compiler_preferences.epf`
 
-> `[Java] > [Editor] > [Templates]` add a NEW **Java** template named **_sep** with
-> /////////////////////////////////////////////////////////////////////////////////////////  
-> //	${cursor}  
-> /////////////////////////////////////////////////////////////////////////////////////////   
+> `[Java] > [Editor] > [Templates]` add a NEW **Java** template named **_sep** with the following content
+
+> /////////////////////////////////////////////////////////////////////////////////////////
+> //	${cursor}
+> /////////////////////////////////////////////////////////////////////////////////////////
 
 > `[Java] > [Editor] > [Typing]`
->       - Automacially insert at correct position [X] semicolons [X] braces
->       - When pasting:  [-] Adjust indentation
+>       - Automatically insert at correct position [X] semicolons [X] braces
+>       - When pasting (remove check):  [-] Adjust indentation
 
 d) **[AnyEdit Tools]**
-> `[General] > [Editor] > [AnyEditTools]` Remove Trailing spaces (DISABLE)
+> `[General] > [Editors] > [AnyEditTools]` Remove Trailing whitespace (DISABLE)
+
+e) **Team Colaboration**
+> `[Team] > [Ignored Resources] > add new pattern [Add Pattern] named */build `
+This changes exclude .class files from synchronized files.
 
 
-## [6]: Create a workspace for a project
+## [6]: Configure R01F
 
-Just copy the _template_ workspace folde: `/{dev_home}/eclipse/workspaces/master_[instance_name]` with a new name id: `/{dev_home}/eclipse/workspaces/my_project`  
+a) **[Java]**
+> `[Java] > [Installed JREs]`: Add a NEW JRE named R01FB_JRE
+
+b) **Local User Libraries**
+Import eclipse's local libs from `[r01fbDocs]/eclipse/libs/pci-localLibs_(linux|win)_userlibraries`
+> `[Java] > [Build Path] > [User Libraries] > [Import]`
+
+## [7]: Create a workspace for a project
+
+Just copy the _template_ workspace folde: `/{dev_home}/eclipse/workspaces/master_[instance_name]` with a new name id: `/{dev_home}/eclipse/workspaces/my_project`
 ... now simply launch eclipse from  `/{dev_home}/eclipse/instances/[instance_name]` as usual and when asked, select the workspace folder

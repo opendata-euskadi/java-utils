@@ -28,7 +28,7 @@ public class FieldMetaDataForSummary
 			 other.getSearchEngineIndexingConfig(),
 			 (Class<? extends Summary>)other.getDataType());
 	}
-	public FieldMetaDataForSummary(final IndexableFieldID fieldId,
+	public FieldMetaDataForSummary(final FieldID fieldId,
 								   final LanguageTexts name,final LanguageTexts description,
 								   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								   final Class<? extends Summary> summaryType) {

@@ -15,17 +15,17 @@ public abstract class Numbers {
      */
     public static final int INTEGER_WIDTH = 4;
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  MISC METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Returns true if the provided type is a numeric type
      * @param type
      * @return
      */
     public static boolean isNumberType(final Class<?> type) {
-    	return type.equals(Number.class) || type.equals(Integer.class) || type.equals(Long.class) || 
-    		   type.equals(Double.class) || type.equals(Float.class) || type.equals(Short.class) || 
+    	return type.equals(Number.class) || type.equals(Integer.class) || type.equals(Long.class) ||
+    		   type.equals(Double.class) || type.equals(Float.class) || type.equals(Short.class) ||
     		   type.equals(Byte.class);
     }
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -68,7 +68,7 @@ public abstract class Numbers {
         return (longNum & 1) != 0;
     }
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Checks if the first number is within the other ones
@@ -78,7 +78,7 @@ public abstract class Numbers {
      */
     public static boolean isWithin(final int num,final int... others) {
     	if (others == null || others.length == 0) return false;
-    	for(int o : others) {
+    	for (int o : others) {
     		if (num == o) return true;
     	}
     	return false;
@@ -91,7 +91,7 @@ public abstract class Numbers {
      */
     public static boolean isWithin(final long num,final long... others) {
     	if (others == null || others.length == 0) return false;
-    	for(long o : others) {
+    	for (long o : others) {
     		if (num == o) return true;
     	}
     	return false;
@@ -104,7 +104,7 @@ public abstract class Numbers {
      */
     public static boolean isWithin(final double num,final double... others) {
     	if (others == null || others.length == 0) return false;
-    	for(double o : others) {
+    	for (double o : others) {
     		if (num == o) return true;
     	}
     	return false;
@@ -117,7 +117,7 @@ public abstract class Numbers {
      */
     public static boolean isWithin(final float num,final float... others) {
     	if (others == null || others.length == 0) return false;
-    	for(float o : others) {
+    	for (float o : others) {
     		if (num == o) return true;
     	}
     	return false;
@@ -130,14 +130,14 @@ public abstract class Numbers {
      */
     public static boolean isWithin(final short num,final short... others) {
     	if (others == null || others.length == 0) return false;
-    	for(short o : others) {
+    	for (short o : others) {
     		if (num == o) return true;
     	}
     	return false;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  BIT MASKING
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Obtiene una m�scara para ver el valor de un bit de un entero
      * @param bitIndex El indice del bit cuya m�scara se quiere obtener
@@ -173,9 +173,9 @@ public abstract class Numbers {
     public static boolean getBit(final int integer,final int bitIndex) {
         return ((integer & getMask(bitIndex)) != 0);
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS DE CONVERSION
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Convierte un entero en un array de bytes NOTA: Devuelve el LSB (LessSignificantByte) en [0]
      * @param integer El entero a convertir
@@ -209,35 +209,35 @@ public abstract class Numbers {
      */
     public static byte toByte(final double d) {
         if (d < -128 || d > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Double(d).byteValue();
+        return Double.valueOf(d).byteValue();
     }
     /**
      * float to byte
      */
     public static byte toByte(final float f) {
         if (f < -128 || f > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Float(f).byteValue();
+        return Float.valueOf(f).byteValue();
     }
     /**
      * int to byte
      */
     public static byte toByte(final int i) {
         if (i < -128 || i > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Integer(i).byteValue();
+        return Integer.valueOf(i).byteValue();
     }
     /**
      * long to byte
      */
     public static byte toByte(final long l) {
         if (l < -128 || l > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Long(l).byteValue();
+        return Long.valueOf(l).byteValue();
     }
     /**
      * short to byte
      */
     public static byte toByte(final short sh) {
         if (sh < -128 || sh > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Short(sh).byteValue();
+        return Short.valueOf(sh).byteValue();
     }
     /**
      * String to byte
@@ -245,7 +245,7 @@ public abstract class Numbers {
     public static byte toByte(final String s) {
         long l = toLong(s);
         if (l < -128 || l > 127) throw new IllegalArgumentException("Number is too large. Range is -128 to 127");
-        return new Long(l).byteValue();
+        return Long.valueOf(l).byteValue();
     }
     /***************************************************************************************************************************************
      * toDouble ********************************* double = 64 bits, range = 1.7976931348623157 x 10^308, 4.9406564584124654 x 10^-324
@@ -254,37 +254,37 @@ public abstract class Numbers {
      * byte to double
      */
     public static double toDouble(final byte b) {
-        return new Byte(b).doubleValue();
+        return Byte.valueOf(b).doubleValue();
     }
     /**
      * float to double
      */
     public static double toDouble(final float f) {
-        return new Float(f).doubleValue();
+        return Float.valueOf(f).doubleValue();
     }
     /**
      * int to double
      */
     public static double toDouble(final int i) {
-        return new Integer(i).doubleValue();
+        return Integer.valueOf(i).doubleValue();
     }
     /**
      * long to double
      */
     public static double toDouble(final long l) {
-        return new Long(l).doubleValue();
+        return Long.valueOf(l).doubleValue();
     }
     /**
      * short to double
      */
     public static double toDouble(final short s) {
-        return new Short(s).doubleValue();
+        return Short.valueOf(s).doubleValue();
     }
     /**
      * String to double
      */
     public static double toDouble(final String s) {
-        return new Double(s).doubleValue();
+        return Double.valueOf(s).doubleValue();
     }
     /***************************************************************************************************************************************
      * toFloat ************************* float = 32 bits, range = 3 1.40239846 x 10^-45 to .40282347 x 10^38
@@ -293,38 +293,38 @@ public abstract class Numbers {
      * byte to float
      */
     public static float toFloat(final byte b) {
-        return new Byte(b).floatValue();
+        return Byte.valueOf(b).floatValue();
     }
     /**
      * double to float
      */
     public static float toFloat(final double d) {
         if (d < 1.40239846 * Math.pow(10, -45) || d > 3.40282347 * Math.pow(10, 38)) throw new IllegalArgumentException("Number is too large. Range is 1.40239846 x 10^-45 to 3.40282347 x 10^38 ");
-        return new Double(d).floatValue();
+        return Double.valueOf(d).floatValue();
     }
     /**
      * int to float
      */
     public static float toFloat(final int i) {
-        return new Integer(i).floatValue();
+        return Integer.valueOf(i).floatValue();
     }
     /**
      * long to float
      */
     public static float toFloat(final long l) {
-        return new Long(l).floatValue();
+        return Long.valueOf(l).floatValue();
     }
     /**
      * short to float
      */
     public static float toFloat(final short sh) {
-        return new Short(sh).floatValue();
+        return Short.valueOf(sh).floatValue();
     }
     /**
      * String to float
      */
     public static float toFloat(final String s) {
-        return new Float(s).floatValue();
+        return Float.valueOf(s).floatValue();
     }
     /***************************************************************************************************************************************
      * toInt ********************** int = 32 bits, range = -2,147,483,648 .. 2,147,483,647
@@ -333,33 +333,33 @@ public abstract class Numbers {
      * byte to int
      */
     public static int toInt(final byte b) {
-        return new Byte(b).intValue();
+        return Byte.valueOf(b).intValue();
     }
     /**
      * double to int
      */
     public static int toInt(final double d) {
         if (d < -2147483648 || d > 2147483647) throw new IllegalArgumentException("Number is too large. Range is -2,147,483,648 to 2,147,483,647");
-        return new Double(d).intValue();
+        return Double.valueOf(d).intValue();
     }
     /**
      * float to int
      */
     public static int toInt(final float f) {
         if (f < -2147483648 || f > 2147483647) throw new IllegalArgumentException("Number is too large. Range is -2,147,483,648 to 2,147,483,647");
-        return new Float(f).intValue();
+        return Float.valueOf(f).intValue();
     }
     /**
      * long to int
      */
     public static int toInt(final long l) {
-        return new Long(l).intValue();
+        return Long.valueOf(l).intValue();
     }
     /**
      * short to int
      */
     public static int toInt(final short sh) {
-        return new Short(sh).intValue();
+        return Short.valueOf(sh).intValue();
     }
     /**
      * String to int
@@ -367,7 +367,7 @@ public abstract class Numbers {
     public static int toInt(final String s) {
         long l = toLong(s);
         if (l < -2147483648 || l > 2147483647) throw new IllegalArgumentException("Number is too large. Range is -2,147,483,648 to 2,147,483,647");
-        return new Long(l).intValue();
+        return Long.valueOf(l).intValue();
     }
     /***************************************************************************************************************************************
      * toLong ******************************** long = 64 bits, range = -9,223,372,036,854,775,808 .. 9,223,372,036,854,775,807
@@ -376,31 +376,31 @@ public abstract class Numbers {
      * byte to Long
      */
     public static long toLong(final byte b) {
-        return new Byte(b).longValue();
+        return Byte.valueOf(b).longValue();
     }
     /**
      * double to Long
      */
     public static long toLong(final double d) {
-        return new Double(d).longValue();
+        return Double.valueOf(d).longValue();
     }
     /**
      * float to Long
      */
     public static long toLong(final float f) {
-        return new Float(f).longValue();
+        return Float.valueOf(f).longValue();
     }
     /**
      * int to Long
      */
     public static long toLong(final int i) {
-        return new Long(i).longValue();
+        return Long.valueOf(i).longValue();
     }
     /**
      * short to Long
      */
     public static long toLong(final short sh) {
-        return new Short(sh).longValue();
+        return Short.valueOf(sh).longValue();
     }
     /**
      * String to Long
@@ -413,7 +413,7 @@ public abstract class Numbers {
         }
         double d = toDouble(newLong);
         if (d < -9223372036854775808D || d > 9223372036854775807D)throw new IllegalArgumentException("Number is too large. Range is -9,223,372,036,854,775,808 to 9,223,372,036,854,775,807");
-        return new Double(d).longValue();
+        return Double.valueOf(d).longValue();
     }
     /***************************************************************************************************************************************
      * toShort ************** short = 16 bits, range = -32,768 .. 32,767
@@ -422,35 +422,35 @@ public abstract class Numbers {
      * byte to Short
      */
     public static short toShort(final byte b) {
-        return new Byte(b).shortValue();
+        return Byte.valueOf(b).shortValue();
     }
     /**
      * double to Short
      */
     public static short toShort(final double d) {
         if (d < -32768 || d > 32767) throw new IllegalArgumentException("Number is too large.  Range is -32,768 to 32,767");
-        return new Double(d).shortValue();
+        return Double.valueOf(d).shortValue();
     }
     /**
      * float to Short
      */
     public static short toShort(final float f) {
         if (f < -32768 || f > 32767) throw new IllegalArgumentException("Number is too large.  Range is -32,768 to 32,767");
-        return new Float(f).shortValue();
+        return Float.valueOf(f).shortValue();
     }
     /**
      * int to Short
      */
     public static short toShort(final int i) {
         if (i < -32768 || i > 32767) throw new IllegalArgumentException("Number is too large.  Range is -32,768 to 32,767");
-        return new Integer(i).shortValue();
+        return Integer.valueOf(i).shortValue();
     }
     /**
      * long to Short
      */
     public static short toShort(final long l) {
         if (l < -32768 || l > 32767) throw new IllegalArgumentException("Number is too large.  Range is -32,768 to 32,767");
-        return new Long(l).shortValue();
+        return Long.valueOf(l).shortValue();
     }
     /**
      * String to Short
@@ -458,7 +458,7 @@ public abstract class Numbers {
     public static short toShort(final String s) {
         long l = toLong(s);
         if (l < -32768 || l > 32767) throw new IllegalArgumentException("Number is too large. Range is -32,768 to 32,767");
-        return new Long(l).shortValue();
+        return Long.valueOf(l).shortValue();
     }
     /** ****************** toString ******************** */
     /**
@@ -499,12 +499,12 @@ public abstract class Numbers {
     }
     /**
      * Checks if an string is a number
-     * @param s 
+     * @param s
      * @return true if it's a number; false otherwise
      */
     @GwtIncompatible(value = "GWT does NOT suppports CharMatcher")
     public static boolean isNumber(final String s) {
-    	return CharMatcher.JAVA_DIGIT.matchesAllOf(s);
+    	return CharMatcher.javaDigit().matchesAllOf(s);
         // Regex is not supported by GWT
     	/*
         if (s == null) {
@@ -524,9 +524,9 @@ public abstract class Numbers {
     public static <T> boolean isNumber(final T obj) {
     	return obj instanceof Number;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FORMAT
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Checks if an object is an Integer
      * @param obj

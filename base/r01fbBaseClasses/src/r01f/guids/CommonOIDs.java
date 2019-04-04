@@ -103,6 +103,7 @@ public class CommonOIDs {
 	public static abstract class AppComponentBase
 	                     extends OIDBaseMutable<String> {
 		private static final long serialVersionUID = 2884200091000668089L;
+		
 		public static final AppComponent DEFAULT = AppComponent.forId("default");
 
 		public AppComponentBase(final String oid) {
@@ -118,8 +119,6 @@ public class CommonOIDs {
 	public static class AppComponent
 	            extends AppComponentBase {
 		private static final long serialVersionUID = 137722031497569807L;
-
-		public static final AppComponent DEFAULT = AppComponent.forId("default");
 
 		public AppComponent(final String oid) {
 			super(oid);
@@ -168,6 +167,31 @@ public class CommonOIDs {
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Immutable
+	@MarshallType(as="workPlaceCode")
+	@EqualsAndHashCode(callSuper=true)
+	@NoArgsConstructor
+	public static final class WorkPlaceCode
+	     		      extends OIDBaseMutable<String> {
+		private static final long serialVersionUID = -9005995212776716044L;
+		
+		public WorkPlaceCode(final String oid) {
+			super(oid);
+		}
+		public static WorkPlaceCode forId(final String id) {
+			return new WorkPlaceCode(id);
+		}
+		public static WorkPlaceCode valueOf(final String id) {
+			return WorkPlaceCode.forId(id);
+		}
+		public static WorkPlaceCode forAuthenticatedUserId(final AuthenticatedActorID authActorId) {
+			return new WorkPlaceCode(authActorId.asString());
+		}
+		public static final WorkPlaceCode ANONYMOUS = WorkPlaceCode.forId("anonymous");
+		public boolean isAnonymous() {
+			return this.is(WorkPlaceCode.ANONYMOUS);
+		}
+	}
+	@Immutable
 	@MarshallType(as="userGroupCode")
 	@EqualsAndHashCode(callSuper=true)
 	@NoArgsConstructor
@@ -206,6 +230,10 @@ public class CommonOIDs {
 		}
 		public static UserCode forAuthenticatedUserId(final AuthenticatedActorID authActorId) {
 			return new UserCode(authActorId.asString());
+		}
+		public static final UserCode ANONYMOUS = UserCode.forId("anonymous");
+		public boolean isAnonymous() {
+			return this.is(ANONYMOUS);
 		}
 	}
 	@Immutable
@@ -273,6 +301,8 @@ public class CommonOIDs {
 
 		private static final long serialVersionUID = -7186228864961079493L;
 
+		public static final AuthenticatedActorID MASTER = AuthenticatedActorID.forId("master",false);	// it's an app
+		
 		private boolean _app;	// sets if the auth actor is a physical user or an app
 
 		public AuthenticatedActorID(final String id) {
@@ -310,7 +340,6 @@ public class CommonOIDs {
 	@NoArgsConstructor
 	public static final class SecurityID
 	     		      extends OIDBaseMutable<String> {
-
 		private static final long serialVersionUID = -8145305261344081383L;
 
 		public SecurityID(final String oid) {
@@ -321,6 +350,24 @@ public class CommonOIDs {
 		}
 		public static SecurityID valueOf(final String id) {
 			return new SecurityID(id);
+		}
+	}
+	@Immutable
+	@MarshallType(as="securityToken")
+	@EqualsAndHashCode(callSuper=true)
+	@NoArgsConstructor
+	public static final class SecurityToken
+	     		      extends OIDBaseMutable<String> {
+		private static final long serialVersionUID = -6056892755877680637L;
+		
+		public SecurityToken(final String oid) {
+			super(oid);
+		}
+		public static SecurityToken forId(final String id) {
+			return new SecurityToken(id);
+		}
+		public static SecurityToken valueOf(final String id) {
+			return new SecurityToken(id);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

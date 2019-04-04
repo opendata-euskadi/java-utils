@@ -22,4 +22,7 @@ public interface HasFieldsMetaData {
 	public final long HAS_FULL_TEXT_SUMMARY_MODEL_OBJECT_TYPE_CODE = 116;
 	
 	public final long HAS_VERSION_INFO_MODEL_OBJECT_TYPE_CODE = 117;
+	
+	public final long HAS_LANGUAGE_DEPENDENT_MODEL_OBJECT_TYPE_CODE = 118;
+	public final long HAS_LANGUAGE_INDDEPENDENT_MODEL_OBJECT_TYPE_CODE = 119;
 }

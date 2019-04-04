@@ -25,7 +25,7 @@ public class FieldMetaDataForEnum
 			 other.getSearchEngineIndexingConfig(),
 			 (Class<? extends Enum<?>>)other.getDataType());
 	}
-	public FieldMetaDataForEnum(final IndexableFieldID fieldId,
+	public FieldMetaDataForEnum(final FieldID fieldId,
 							    final LanguageTexts name,final LanguageTexts description,
 							    final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								final Class<? extends Enum<?>> enumType) {

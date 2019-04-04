@@ -69,7 +69,7 @@ abstract public class URLConnection extends java.net.URLConnection {
     }
 
     public void setRequestProperty(String key, String value) {
-        if(connected)
+        if (connected)
             throw new IllegalAccessError("Already connected");
         if (key == null)
             throw new NullPointerException ("key cannot be null");

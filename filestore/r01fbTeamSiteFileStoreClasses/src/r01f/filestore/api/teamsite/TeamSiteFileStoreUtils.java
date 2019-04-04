@@ -712,7 +712,7 @@ public class TeamSiteFileStoreUtils {
     	
 		log.debug("DATASTORE MANAGER (IW) - Moving {} files from {} to {}",
 				  srcWARelPaths.length,srcCSWorkArea.getVPath(),dstCSWorkArea.getVPath());
-		for(int i=0;i<srcWARelPaths.length;i++) {
+		for (int i=0;i<srcWARelPaths.length;i++) {
 			log.debug("\t-path: {}",(srcWARelPaths[i] == null ? "[NULL]":srcWARelPaths[i].toString()));
 		}
 		if (srcWARelPaths.length != dstWARelPaths.length) throw new IllegalArgumentException("The source workarea relative paths collection has NOT the same size as the destination one!");
@@ -726,7 +726,7 @@ public class TeamSiteFileStoreUtils {
 			// beware that the source WorkArea can be the same as the target workArea > the CSSDK op is different
 			// a) SAME WORKAREA
 		    if (srcCSWorkArea.getVPath().equals(dstCSWorkArea.getVPath())) {
-				for(int i=0; i< srcWARelPaths.length; i++) {
+				for (int i=0; i< srcWARelPaths.length; i++) {
 					_copyOrMoveWithinWorkArea(srcCSWorkArea,
 											  srcWARelPaths[i],dstWARelPaths[i],
 											  false);	// mpve
@@ -781,7 +781,7 @@ public class TeamSiteFileStoreUtils {
     	
 		log.debug("DATASTORE MANAGER (IW) - Copying {} files from {} to {}",
 				  srcWARelPaths.length,srcCSWorkArea.getVPath(),dstCSWorkArea.getVPath());
-		for(int i=0;i<srcWARelPaths.length;i++) {
+		for (int i=0;i<srcWARelPaths.length;i++) {
 			log.debug("\t- {} to {}",srcWARelPaths[i],dstWARelPaths[i]);
 		}
 		if (srcWARelPaths.length != dstWARelPaths.length) throw new IllegalArgumentException("The source workarea relative paths collection has NOT the same size as the destination one!");
@@ -795,7 +795,7 @@ public class TeamSiteFileStoreUtils {
 			// beware that the source WorkArea can be the same as the target workArea > the CSSDK op is diferent			
 		    if (srcCSWorkArea.getVPath().equals(dstCSWorkArea.getVPath())) {
 				// SAME WORKAREA
-				for(int i=0; i< srcWARelPaths.length; i++) {
+				for (int i=0; i< srcWARelPaths.length; i++) {
 					_copyOrMoveWithinWorkArea(srcCSWorkArea,
 											  srcWARelPaths[i],dstWARelPaths[i],
 											  true);	// copy
@@ -1022,9 +1022,9 @@ public class TeamSiteFileStoreUtils {
             }
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  PRIVATE FUNCTIONS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     private static CSDir _findFileParentFolder(final CSWorkarea csWorkArea,
     										   final TeamSiteWorkAreaRelativePath fileWARelPath) {
     	TeamSiteWorkAreaRelativePath parentFolderWARelPath = TeamSiteWorkAreaRelativePath.create(Path.from(fileWARelPath.getPathElementsExceptLast()));

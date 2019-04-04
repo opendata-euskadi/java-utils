@@ -2,7 +2,7 @@ package r01f.types.contact;
 
 
 /**
- * Tipos de número de teléfono
+ * Phone types
  */
 public enum ContactInfoUsage {
 	WORK,			// Work personal Phone

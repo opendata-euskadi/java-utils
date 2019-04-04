@@ -104,24 +104,23 @@ public class KrbAsRep extends KrbKdcRep {
 
         check(req, rep);
 
-        creds = new Credentials(
-                                rep.ticket,
-                                req.reqBody.cname,
-                                rep.ticket.sname,
-                                enc_part.key,
-                                enc_part.flags,
-                                enc_part.authtime,
-                                enc_part.starttime,
-                                enc_part.endtime,
-                                enc_part.renewTill,
-                                enc_part.caddr);
+		this.creds = new Credentials(rep.ticket,
+									 req.reqBody.cname,
+									 rep.ticket.sname,
+									 enc_part.key,
+									 enc_part.flags,
+									 enc_part.authtime,
+									 enc_part.starttime,
+									 enc_part.endtime,
+									 enc_part.renewTill,
+									 enc_part.caddr
+									);
         if (DEBUG) {
             System.out.println(">>> KrbAsRep cons in KrbAsReq.getReply " +
                                req.reqBody.cname.getNameString());
         }
 
         this.rep = rep;
-        this.creds = creds;
     }
 
     public Credentials getCreds() {

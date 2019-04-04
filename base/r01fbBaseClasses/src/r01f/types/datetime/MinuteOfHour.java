@@ -3,7 +3,9 @@ package r01f.types.datetime;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
@@ -21,26 +23,31 @@ import r01f.util.types.Strings;
 @MarshallType(as="minuteOfHour")
 @GwtIncompatible
 @Accessors(prefix="_")
-public class MinuteOfHour 
+public class MinuteOfHour
   implements Serializable,
   			 CanBeRepresentedAsString,
   			 Comparable<MinuteOfHour> {
 
 	private static final long serialVersionUID = -6492644548389808923L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter private int _minuteOfHour;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  REGEX
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static final String REGEX = "([0-5][0-9])";
+	public static final String REGEX_NOCAPTURE = "[0-5][0-9]";
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 /////////////////////////////////////////////////////////////////////////////////////////
    public static boolean canBe(final String str) {
-         return Strings.isNOTNullOrEmpty(str) 
+         return Strings.isNOTNullOrEmpty(str)
              && Numbers.isInteger(str)
              && Integer.parseInt(str) >= 0 && Integer.parseInt(str) < 60;
    }
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public MinuteOfHour(final int minuteOfHour) {
 		_set(minuteOfHour);
@@ -48,7 +55,7 @@ public class MinuteOfHour
 	public MinuteOfHour(final Integer minuteOfHour) {
 		_set(minuteOfHour);
 	}
-	public MinuteOfHour(final String month) { 
+	public MinuteOfHour(final String month) {
 		int m = Integer.parseInt(month);
 		_set(m);
 	}
@@ -73,15 +80,18 @@ public class MinuteOfHour
 	public static MinuteOfHour fromString(final String minuteOfHour) {
 		return new MinuteOfHour(minuteOfHour);
 	}
+	public static MinuteOfHour now() {
+		return MinuteOfHour.of(new Date());
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	private void _set(final int minuteOfHour) {
 		Preconditions.checkArgument(minuteOfHour < 60 || minuteOfHour >= 0,"Not a valid minute of hour");
-		_minuteOfHour = minuteOfHour;		
+		_minuteOfHour = minuteOfHour;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String toString() {
@@ -91,11 +101,14 @@ public class MinuteOfHour
 	public String asString() {
 		return this.toString();
 	}
+	public String asStringPaddedWithZero() {
+		return StringUtils.leftPad(this.asString(),2,'0');
+	}
 	public int asInteger() {
 		return _minuteOfHour;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public boolean is(final MinuteOfHour other) {
 		return _minuteOfHour == other.asInteger();
@@ -116,6 +129,35 @@ public class MinuteOfHour
 		return _minuteOfHour >= other.asInteger();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
+//	ITERABLE
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static Iterable<MinuteOfHour> hourMinutesIterable() {
+		return new Iterable<MinuteOfHour>() {
+						@Override
+						public Iterator<MinuteOfHour> iterator() {
+							return new Iterator<MinuteOfHour>() {
+											private int _curr = -1;
+
+											@Override
+											public boolean hasNext() {
+												return _curr < 60;
+											}
+											@Override
+											public MinuteOfHour next() {
+												if (!this.hasNext()) throw new IllegalStateException();
+												_curr = _curr == -1 ? 0
+																	: _curr + 1;
+												return MinuteOfHour.of(_curr);
+											}
+											@Override
+											public void remove() {
+												throw new UnsupportedOperationException();
+											}
+								   };
+						}
+			   };
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
 //  EQUALS & HASHCODE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
@@ -127,11 +169,11 @@ public class MinuteOfHour
 	}
 	@Override
 	public int hashCode() {
-		return new Integer(_minuteOfHour).hashCode();
+		return Integer.valueOf(_minuteOfHour).hashCode();
 	}
 	@Override
 	public int compareTo(final MinuteOfHour other) {
-		return new Integer(this.asInteger())
-						.compareTo(new Integer(other.asInteger()));
+		return Integer.valueOf(this.asInteger())
+						.compareTo(Integer.valueOf(other.asInteger()));
 	}
 }

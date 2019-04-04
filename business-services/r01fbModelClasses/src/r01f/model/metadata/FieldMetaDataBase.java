@@ -25,7 +25,7 @@ abstract class FieldMetaDataBase
     @MarshallField(as="oid",
     			   whenXml=@MarshallFieldAsXml(attr=true)) 
     @OidField
-    @Getter @Setter protected IndexableFieldID _fieldId;
+    @Getter @Setter protected FieldID _fieldId;
 	/**
      * Name by language
      */
@@ -53,7 +53,7 @@ abstract class FieldMetaDataBase
 	public FieldMetaDataBase() {
 		super();
 	}
-	public FieldMetaDataBase(final IndexableFieldID metaDataId,
+	public FieldMetaDataBase(final FieldID metaDataId,
 							 final LanguageTexts name,final LanguageTexts description,
 							 final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 							 final Class<?> dataType) {
@@ -67,8 +67,8 @@ abstract class FieldMetaDataBase
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public IndexableFieldID getIndexableFieldId() {
-		IndexableFieldID outId = IndexableFieldID.forId(_fieldId.asString());
+	public FieldID getIndexableFieldId() {
+		FieldID outId = FieldID.forId(_fieldId.asString());
 		return outId;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

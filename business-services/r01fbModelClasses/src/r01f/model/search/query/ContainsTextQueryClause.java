@@ -12,8 +12,7 @@ import lombok.experimental.Accessors;
 import r01f.enums.EnumExtended;
 import r01f.enums.EnumExtendedWrapper;
 import r01f.locale.Language;
-import r01f.model.metadata.IndexableFieldID;
-import r01f.model.metadata.SearchableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.search.query.QueryClauseSerializerUtils.ContainedTextSpec;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
@@ -59,7 +58,7 @@ public class ContainsTextQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	public ContainsTextQueryClause(final IndexableFieldID fieldId,
+	public ContainsTextQueryClause(final FieldID fieldId,
 								   final ContainedTextAt at, 
 								   final String text,
 								   final Language lang) {
@@ -68,7 +67,7 @@ public class ContainsTextQueryClause
 		_text = text;
 		_lang = lang;
 	}
-	ContainsTextQueryClause(final IndexableFieldID fieldId,
+	ContainsTextQueryClause(final FieldID fieldId,
 							final ContainedTextSpec containedTextSpec) {
 		super(fieldId);
 		_position = containedTextSpec.getPosition();
@@ -147,8 +146,9 @@ public class ContainsTextQueryClause
 		if (obj == this) return true;
 		if (!(obj instanceof ContainsTextQueryClause)) return false;
 		
+		if (!super.equals(obj)) return false;	// checks field id
+		
 		ContainsTextQueryClause otherContains = (ContainsTextQueryClause)obj;
-		if (!super.equals(obj)) return false;
 		boolean textEqs = _text != null ? otherContains.getText() != null ? _text.equals(otherContains.getText())
 																		  : false	
 									    : true;	// both null
@@ -170,7 +170,7 @@ public class ContainsTextQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 //  BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	private ContainsTextQueryClause(final IndexableFieldID fieldId,
+	private ContainsTextQueryClause(final FieldID fieldId,
 							    	final String text,
 							    	final Language lang,
 							    	final ContainedTextAt at) {
@@ -179,10 +179,7 @@ public class ContainsTextQueryClause
 		_lang = lang;
 		_position = at;
 	}
-	public static <ID extends SearchableFieldID> ContainsTextQueryClauseStep1Builder forField(final ID id) {
-		return ContainsTextQueryClause.forField(id.getFieldId());
-	}
-	public static ContainsTextQueryClauseStep1Builder forField(final IndexableFieldID fieldId) {
+	public static ContainsTextQueryClauseStep1Builder forField(final FieldID fieldId) {
 		return new ContainsTextQueryClauseStep1Builder(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -190,7 +187,7 @@ public class ContainsTextQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainsTextQueryClauseStep1Builder {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 
 		ContainsTextQueryClause forSpec(final ContainedTextSpec spec) {
 			return new ContainsTextQueryClause(_fieldId,
@@ -225,7 +222,7 @@ public class ContainsTextQueryClause
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainsTextQueryClauseTextStepBuilder {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		private final ContainedTextAt _position;
 		
 		public ContainsTextQueryClauseStep2Builder text(final String text) {
@@ -236,7 +233,7 @@ public class ContainsTextQueryClause
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainsTextQueryClauseStep2Builder {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		private final String _text;
 		private final ContainedTextAt _position;
 		

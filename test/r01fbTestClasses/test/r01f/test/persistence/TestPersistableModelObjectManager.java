@@ -10,18 +10,19 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.concurrent.Threads;
 import r01f.guids.CommonOIDs.UserCode;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.ModelObjectTracking;
 import r01f.model.PersistableModelObject;
 import r01f.patterns.Factory;
 import r01f.reflection.ReflectionUtils;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDServices;
+import r01f.test.api.TestAPIBase;
 import r01f.types.dirtytrack.DirtyTrackAdapter;
 import r01f.util.types.collections.CollectionUtils;
 
 @Slf4j
 @Accessors(prefix="_")
-public class TestPersistableModelObjectManager<O extends OID,M extends PersistableModelObject<O>>
+public class TestPersistableModelObjectManager<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 	 extends TestPersistableModelObjectManagerBase<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTORS TO USE WHEN THERE'RE BACKGROUND JOBS (ie indexing)
@@ -55,28 +56,28 @@ public class TestPersistableModelObjectManager<O extends OID,M extends Persistab
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FACTORY
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final Class<M> modelObjType,final Factory<? extends M> mockObjectsFactory,
-																													final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
-																													final long milisToWaitForBackgroundJobs) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final Class<M> modelObjType,final Factory<? extends M> mockObjectsFactory,
+																																	 final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
+																																	 final long milisToWaitForBackgroundJobs) {
 		return new TestPersistableModelObjectManager<O,M>(modelObjType,mockObjectsFactory,
 														  crudAPI,
 														  milisToWaitForBackgroundJobs);
 	}
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final Class<M> modelObjType,final Factory<M> mockObjectsFactory,
-																													final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final Class<M> modelObjType,final Factory<M> mockObjectsFactory,
+																																	 final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI) {
 		return new TestPersistableModelObjectManager<O,M>(modelObjType,mockObjectsFactory,
 														  crudAPI,
 														  0L);		// no need to wait for crud-associated background jobs
 	}
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final M modelObj,
-																													final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
-																													final long milisToWaitForBackgroundJobs) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final M modelObj,
+																																	 final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
+																																	 final long milisToWaitForBackgroundJobs) {
 		return new TestPersistableModelObjectManager<O,M>(modelObj,
 														  crudAPI,
 														  milisToWaitForBackgroundJobs);
 	}
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final M modelObj,
-																													final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectManager<O,M> create(final M modelObj,
+																																	 final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI) {
 		return new TestPersistableModelObjectManager<O,M>(modelObj,
 														  crudAPI);
 	}
@@ -98,7 +99,7 @@ public class TestPersistableModelObjectManager<O extends OID,M extends Persistab
 			}
 			objectToBeCreated.setEntityVersion(0);						// ensure it have a zero entity numeric id
 
-			objectToBeCreated.setTrackingInfo(new ModelObjectTracking(UserCode.forId("testUser"),
+			objectToBeCreated.setTrackingInfo(new ModelObjectTracking(TestAPIBase.TEST_USER,
 																	  new Date()));			// Ensure tracking info
 
 			final M createdModelObj = _CRUDApi.save(objectToBeCreated);

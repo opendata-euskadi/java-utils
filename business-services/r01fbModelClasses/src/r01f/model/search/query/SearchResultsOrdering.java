@@ -9,7 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 import r01f.objectstreamer.annotations.MarshallType;
@@ -29,7 +29,7 @@ public class SearchResultsOrdering
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallField(as="id",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter private IndexableFieldID _fieldId;
+	@Getter @Setter private FieldID _fieldId;
 	
 	@MarshallField(as="direction",
 				   whenXml=@MarshallFieldAsXml(attr=true))
@@ -37,13 +37,13 @@ public class SearchResultsOrdering
 /////////////////////////////////////////////////////////////////////////////////////////
 //  BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static SearchResultsOrdering from(final IndexableFieldID fieldId,final AscendingDescending direction) {
+	public static SearchResultsOrdering from(final FieldID fieldId,final AscendingDescending direction) {
 		return new SearchResultsOrdering(fieldId,direction);
 	}
-	public static SearchResultsOrdering ascending(final IndexableFieldID fieldId) {
+	public static SearchResultsOrdering ascending(final FieldID fieldId) {
 		return new SearchResultsOrdering(fieldId,AscendingDescending.ASCENDING);
 	}
-	public static SearchResultsOrdering descending(final IndexableFieldID fieldId) {
+	public static SearchResultsOrdering descending(final FieldID fieldId) {
 		return new SearchResultsOrdering(fieldId,AscendingDescending.DESCENDING);
 	}
 	private static final Pattern STR_SERIALIZED_PATTERN = Pattern.compile("([^(]+)(\\([^)]+\\))");
@@ -52,7 +52,7 @@ public class SearchResultsOrdering
 		if (m.find()) {
 			String fieldId = m.group(1);
 			String direction = m.group(2);
-			return new SearchResultsOrdering(IndexableFieldID.forId(fieldId),
+			return new SearchResultsOrdering(FieldID.forId(fieldId),
 											 AscendingDescending.fromCode(direction));
 		}
 		throw new IllegalArgumentException(str + " does NOT matches the " + SearchResultsOrdering.class.getSimpleName() +

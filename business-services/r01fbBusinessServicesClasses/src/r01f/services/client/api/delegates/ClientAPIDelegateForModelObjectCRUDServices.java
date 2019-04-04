@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
 import r01f.aspects.interfaces.dirtytrack.DirtyStateTrackable;
 import r01f.exceptions.Throwables;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.CRUDResult;
 import r01f.model.persistence.PersistenceException;
@@ -22,7 +22,7 @@ import r01f.types.dirtytrack.DirtyTrackAdapter;
  * @param <M>
  */
 @Slf4j
-public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends OID,M extends PersistableModelObject<O>> 
+public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 	          extends ClientAPIServiceDelegateBase<CRUDServicesForModelObject<O,M>> {
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -96,9 +96,14 @@ public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends OID,
 	public M update(final M record) throws PersistenceException {
 		// [0] - If the record is a DirtyStateTrackable instance check that the instance is NEW
 		if (record instanceof DirtyStateTrackable) {
-			DirtyStateTrackable trckReceivedRecord = DirtyTrackAdapter.adapt(record);
-			if (trckReceivedRecord.getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance new... maybe you have to call create() or save() method instead of update",
-																													   record.getClass()));
+			// TODO trckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+			// FIXME rckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+//			DirtyStateTrackable trckReceivedRecord = DirtyTrackAdapter.adapt(record);
+//			if (!trckReceivedRecord.getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance new... maybe you have to call create() or save() method instead of update",
+//																													  	record.getClass()));
+			if (((DirtyStateTrackable)record).getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance new... maybe you have to call create() or save() method instead of update",
+																													    		  record.getClass()));
+			
 		}
 		// [1] - Do the update
 		CRUDResult<M> saveOpResult = this.getServiceProxy()
@@ -123,9 +128,14 @@ public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends OID,
 	public M create(final M record) throws PersistenceException {
 		// [0] - If the record is a DirtyStateTrackable instance check that the instance is NEW
 		if (record instanceof DirtyStateTrackable) {
-			DirtyStateTrackable trckReceivedRecord = DirtyTrackAdapter.adapt(record);
-			if (!trckReceivedRecord.getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance is NOT new... maybe you have to call update() or save() method instead of create",
-																													    record.getClass()));
+			// TODO trckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+			// FIXME rckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+//			DirtyStateTrackable trckReceivedRecord = DirtyTrackAdapter.adapt(record);
+//			if (!trckReceivedRecord.getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance is NOT new... maybe you have to call update() or save() method instead of create",
+//																													  	record.getClass()));
+
+			if (!((DirtyStateTrackable)record).getTrackingStatus().isThisNew()) throw new IllegalStateException(Throwables.message("{} instance is NOT new... maybe you have to call update() or save() method instead of create",
+																													    		   record.getClass()));
 		}
 		// [1] - Do the creation
 		CRUDResult<M> saveOpResult = this.getServiceProxy()
@@ -165,8 +175,8 @@ public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends OID,
 		M outRecord = null; 
 		CRUDResult<M> saveOpResult = null;
 		
-		// Check if the record is dirty (is changed)		
-		if (trckReceivedRecord.getTrackingStatus().isThisNew()) {
+		// Check if the record is dirty (is changed)	
+		if (((DirtyStateTrackable)record).getTrackingStatus().isThisNew()) {
 			// 2.1) the record is new
 			saveOpResult = this.getServiceProxy()
 									.create(this.getSecurityContext(),
@@ -220,8 +230,12 @@ public abstract class ClientAPIDelegateForModelObjectCRUDServices<O extends OID,
 		M outRecord = null; 
 		CRUDResult<M> saveOpResult = null;
 		
-		// Check if the record is dirty (is changed)		
-		if (trckReceivedRecord.getTrackingStatus().isThisNew()) {
+		// Check if the record is dirty (is changed)	
+		// TODO trckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+		// FIXME rckReceivedRecord.getTrackingStatus().isThisNew() always returns NEW!!
+		// DirtyStateTrackable trckReceivedRecord = DirtyTrackAdapter.adapt(record);
+		// if (trckReceivedRecord.getTrackingStatus().isThisNew()) vs if ((DirtyStateTrackable)record).getTrackingStatus().isThisNew()
+		if (((DirtyStateTrackable)record).getTrackingStatus().isThisNew()) {
 			// 2.1) the record is new
 			saveOpResult = this.getServiceProxy()
 									.create(this.getSecurityContext(),

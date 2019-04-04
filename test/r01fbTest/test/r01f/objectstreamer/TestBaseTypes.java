@@ -25,8 +25,6 @@ import r01f.guids.CommonOIDs.Password;
 import r01f.guids.CommonOIDs.UserAndPassword;
 import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.OID;
-import r01f.html.MediaQuery;
-import r01f.html.MediaQuery.MediaQueryDevice;
 import r01f.locale.Language;
 import r01f.locale.LanguageTexts;
 import r01f.locale.LanguageTextsMapBacked;
@@ -60,17 +58,39 @@ import r01f.types.datetime.MonthOfYear;
 import r01f.types.datetime.SecondOfMinute;
 import r01f.types.datetime.Time;
 import r01f.types.datetime.Year;
+import r01f.types.html.MediaQuery;
+import r01f.types.html.MediaQuery.MediaQueryDevice;
 import r01f.types.summary.Summary;
 import r01f.types.summary.SummaryLanguageTextsBacked;
 import r01f.types.summary.SummaryStringBacked;
 import r01f.types.tag.StringTagList;
-import r01f.types.tag.TagList;
 import r01f.types.url.Url;
 import r01f.types.url.UrlQueryStringParam;
+import r01f.types.url.web.WebLink;
+import r01f.types.url.web.WebLinkBuilder;
 
 @Slf4j
-public class TestBaseTypes 
-	 extends TestObjectStreamerBase {	
+public class TestBaseTypes
+	 extends TestObjectStreamerBase {
+/////////////////////////////////////////////////////////////////////////////////////////
+//  URL BY LANG
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Test
+	public void testUrlCollection() throws IOException {
+		WebLink link1 = WebLinkBuilder.of(Url.from("www.googlg.com"))
+									  .withText("Google")
+									  .build();
+		Marshaller m = MarshallerBuilder.build();
+		String xml = m.forWriting().toXml(link1);
+		System.out.println(xml);
+		WebLink link2 = m.forReading().fromXml(xml,WebLink.class);
+		Assert.assertTrue(link1.equals(link2));
+
+		String json = m.forWriting().toJson(link2);
+		System.out.println(json);
+		WebLink link3 = m.forReading().fromJson(json,WebLink.class);
+		Assert.assertTrue(link3.equals(link2));
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 // 	Taglist
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -84,24 +104,24 @@ public class TestBaseTypes
 	@Test
 	public void testTagList() throws IOException  {
 		StringTagList tagList1 = new StringTagList("tag1","tag2");
-		StringTagList tagList2 = new StringTagList("tagA","tagB");	
-		
+		StringTagList tagList2 = new StringTagList("tagA","tagB");
+
 		// alone
 		_doTest(tagList1,
-			    StringTagList.class, 
+			    StringTagList.class,
 				_buildObjEqualsChecker(StringTagList.class));
-		
+
 		// contained
 		TestTagListContainerBean tagListContainer = new TestTagListContainerBean(tagList1);
 		_doTest(tagListContainer,
-			    TestTagListContainerBean.class, 
+			    TestTagListContainerBean.class,
 				new MarhallTestCheck<TestTagListContainerBean>() {
 						@Override
 						public void check(final TestTagListContainerBean original,final TestTagListContainerBean readed) {
 							Assert.assertEquals(original.getTagList(),readed.getTagList());
 						}
 				});
-	}	
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  AppVersion
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -116,20 +136,20 @@ public class TestBaseTypes
 	public void testAppVersion() throws IOException  {
 		AppVersion appVersion1 = AppVersion.from("1.0.1");
 		AppVersion appVersion2 = AppVersion.from("1.1.2");
-		
+
 		// alone
 		_doTest(appVersion1,
-			    AppVersion.class, 
+			    AppVersion.class,
 				_buildObjEqualsChecker(AppVersion.class));
 		// collection
 		_doTest(Lists.<AppVersion>newArrayList(appVersion1,appVersion2),
 				AppVersion.class,
 				_buildObjEqualsChecker(AppVersion.class));
-		
+
 		// contained
 		TestAppVersionContainerBean appVersionContainer = new TestAppVersionContainerBean(appVersion1);
 		_doTest(appVersionContainer,
-			    TestAppVersionContainerBean.class, 
+			    TestAppVersionContainerBean.class,
 				new MarhallTestCheck<TestAppVersionContainerBean>() {
 						@Override
 						public void check(final TestAppVersionContainerBean original,final TestAppVersionContainerBean readed) {
@@ -138,7 +158,7 @@ public class TestBaseTypes
 				});
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//	LanguageTexts 
+//	LanguageTexts
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallType(as="testLangTextsContainerBean")
 	@Accessors(prefix="_")
@@ -155,7 +175,7 @@ public class TestBaseTypes
 											.add(Language.ENGLISH,"hello");
 		// alone
 		_doTest(langTexts,
-			    LanguageTexts.class, 
+			    LanguageTexts.class,
 				new MarhallTestCheck<LanguageTexts>() {
 						@Override
 						public void check(final LanguageTexts original,final LanguageTexts readed) {
@@ -166,7 +186,7 @@ public class TestBaseTypes
 		// contained
 		TestLangTextsContainerBean langTextsContainer = new TestLangTextsContainerBean(langTexts);
 		_doTest(langTextsContainer,
-			    TestLangTextsContainerBean.class, 
+			    TestLangTextsContainerBean.class,
 				new MarhallTestCheck<TestLangTextsContainerBean>() {
 						@Override
 						public void check(final TestLangTextsContainerBean original,final TestLangTextsContainerBean readed) {
@@ -185,17 +205,17 @@ public class TestBaseTypes
 		@MarshallField(as="theSummary")
 		@Getter @Setter private Summary _summary;
 	}
-	@Test 
+	@Test
 	public void testSummaryStringBacked() throws IOException {
 		SummaryStringBacked summ = new SummaryStringBacked("__summary text__");
 		// alone
 		_doTest(summ,
-			    SummaryStringBacked.class, 
+			    SummaryStringBacked.class,
 				_buildObjEqualsChecker(SummaryStringBacked.class));
 		// contained
 		TestSummariesContainerBean summaryContainer = new TestSummariesContainerBean(summ);
 		_doTest(summaryContainer,
-			    TestSummariesContainerBean.class, 
+			    TestSummariesContainerBean.class,
 				new MarhallTestCheck<TestSummariesContainerBean>() {
 						@Override
 						public void check(final TestSummariesContainerBean original,final TestSummariesContainerBean readed) {
@@ -203,19 +223,19 @@ public class TestBaseTypes
 						}
 				});
 	}
-	@Test 
+	@Test
 	public void testSummaryLanguageTextsBacked() throws IOException {
 		SummaryLanguageTextsBacked summ = new SummaryLanguageTextsBacked(new LanguageTextsMapBacked()
 																				.add(Language.SPANISH,"Hola")
 																				.add(Language.ENGLISH,"hello"));
 		// alone
 		_doTest(summ,
-			    SummaryLanguageTextsBacked.class, 
+			    SummaryLanguageTextsBacked.class,
 				_buildObjEqualsChecker(SummaryLanguageTextsBacked.class));
 		// contained
 		TestSummariesContainerBean summaryContainer = new TestSummariesContainerBean(summ);
 		_doTest(summaryContainer,
-			    TestSummariesContainerBean.class, 
+			    TestSummariesContainerBean.class,
 				new MarhallTestCheck<TestSummariesContainerBean>() {
 						@Override
 						public void check(final TestSummariesContainerBean original,final TestSummariesContainerBean readed) {
@@ -242,7 +262,7 @@ public class TestBaseTypes
 		// app component
 		AppComponent appComponent = AppComponent.forId("r01f");
 		_testOID(appComponent,
-				 AppComponent.class);		
+				 AppComponent.class);
 		// app and component
 		AppAndComponent appAndComponent = AppAndComponent.composedBy(AppCode.forId("r01f"),AppComponent.forId("test"));
 		_testOID(appAndComponent,
@@ -252,13 +272,13 @@ public class TestBaseTypes
 										  final Class<O> oidType) throws IOException  {
 		// test the oid object marshalling
 		_doTest(oid,
-				oidType, 
+				oidType,
 				_buildObjEqualsChecker(oidType));
-		
+
 		// test the oid contained in another object marshalling
 		TestGenericOIDContainerBean<O> contained = new TestGenericOIDContainerBean<O>(oid);
 		_doTest(contained,
-				new TypeToken<TestGenericOIDContainerBean<O>>() { /* nothing */ }, 
+				new TypeToken<TestGenericOIDContainerBean<O>>() { /* nothing */ },
 				_buildObjChecker(new TypeToken<TestGenericOIDContainerBean<O>>() { /* nothing */ },
 								 new Function<TestGenericOIDContainerBean<O>,Object>() {
 										@Override
@@ -277,15 +297,15 @@ public class TestBaseTypes
 	@Test
 	public void testOid() throws IOException {
 		AppCode appCode = AppCode.forId("r01f");
-		
+
 		// alone
 		_doTest(appCode,
-				AppCode.class, 
+				AppCode.class,
 				_buildObjEqualsChecker(AppCode.class));
 		// contained
 		TestOIDContainerBean contained = new TestOIDContainerBean(appCode);
 		_doTest(contained,
-				TestOIDContainerBean.class, 
+				TestOIDContainerBean.class,
 				new MarhallTestCheck<TestOIDContainerBean>() {
 						@Override
 						public void check(final TestOIDContainerBean original,final TestOIDContainerBean readed) {
@@ -304,7 +324,7 @@ public class TestBaseTypes
 					   whenXml=@MarshallFieldAsXml(attr=true))
 		@Getter @Setter private Range<T> _range;
 	}
-	@Test 
+	@Test
 	public void testRange() throws IOException {
 		// alone
 		Range<Integer> intRange = Range.closed(2,5);
@@ -328,7 +348,7 @@ public class TestBaseTypes
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //	FILE NAME
-/////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Test
 	public void testFileName() throws IOException {
 		FileName fileName = FileName.of("d:/data/a.txt");
@@ -338,9 +358,9 @@ public class TestBaseTypes
 																	public Object apply(final FileName fn) {
 																		return fn.getFileName();
 																	}
-															});  
+															});
 		_doTest(fileName,
-				FileName.class, 
+				FileName.class,
 				check);
 	}
 	@Test
@@ -352,16 +372,16 @@ public class TestBaseTypes
 																				public Object apply(final FileNameAndExtension fn) {
 																					return fn.getNameWithExtension();
 																				}
-																		}); 
+																		});
 		_doTest(fileNameAndExtension,
-				FileNameAndExtension.class, 
+				FileNameAndExtension.class,
 				check);
 	}
 	@Test
 	public void testFilePermissions() throws IOException  {
 		FilePermission filePermissions = FilePermission.createFromUNIXPermissionString("rw-rw-rwx");
 		_doTest(filePermissions,
-				FilePermission.class, 
+				FilePermission.class,
 				_buildObjEqualsChecker(FilePermission.class));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -371,7 +391,7 @@ public class TestBaseTypes
 	public void testUserAndPassword() throws IOException  {
 		UserAndPassword usrAndPwd = new UserAndPassword(UserCode.forId("anUser"),Password.forId("mypass"));
 		_doTest(usrAndPwd,
-				UserAndPassword.class, 
+				UserAndPassword.class,
 				new MarhallTestCheck<UserAndPassword>() {
 						@Override
 						public void check(final UserAndPassword original,final UserAndPassword readed) {
@@ -393,15 +413,15 @@ public class TestBaseTypes
 	@Test
 	public void testUrl() throws IOException  {
 		Url url = Url.from("http://www.google.com");
-		
+
 		// alone
 		_doTest(url,
-			    Url.class, 
+			    Url.class,
 				_buildObjEqualsChecker(Url.class));
 		// contained
 		TestUrlContainerBean urlContainer = new TestUrlContainerBean(url);
 		_doTest(urlContainer,
-			    TestUrlContainerBean.class, 
+			    TestUrlContainerBean.class,
 				new MarhallTestCheck<TestUrlContainerBean>() {
 						@Override
 						public void check(final TestUrlContainerBean original,final TestUrlContainerBean readed) {
@@ -412,10 +432,10 @@ public class TestBaseTypes
 	@Test
 	public void testUrlQueryStringParam() throws IOException  {
 		UrlQueryStringParam urlQueryStringParam = UrlQueryStringParam.of("paramName","paramValue");
-		
+
 		// alone
 		_doTest(urlQueryStringParam,
-			    UrlQueryStringParam.class, 
+			    UrlQueryStringParam.class,
 				_buildObjEqualsChecker(UrlQueryStringParam.class));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -431,15 +451,15 @@ public class TestBaseTypes
 	@Test
 	public void testPath() throws IOException  {
 		Path path = Path.from("d:/a/b/c");
-		
+
 		// alone
 		_doTest(path,
-			    Path.class, 
+			    Path.class,
 				_buildObjEqualsChecker(Path.class));
 		// contained
 		TestPathContainerBean pathContainer = new TestPathContainerBean(path);
 		_doTest(pathContainer,
-			    TestPathContainerBean.class, 
+			    TestPathContainerBean.class,
 				new MarhallTestCheck<TestPathContainerBean>() {
 						@Override
 						public void check(final TestPathContainerBean original,final TestPathContainerBean readed) {
@@ -461,20 +481,20 @@ public class TestBaseTypes
 	public void testColor() throws IOException  {
 		Color color1 = Color.from("red");
 		Color color2 = Color.from("blue");
-		
+
 		// alone
 		_doTest(color1,
-			    Color.class, 
+			    Color.class,
 				_buildObjEqualsChecker(Color.class));
 		// collection
 		_doTest(Lists.<Color>newArrayList(color1,color2),
 				Color.class,
 				_buildObjEqualsChecker(Color.class));
-		
+
 		// contained
 		TestColorContainerBean colorContainer = new TestColorContainerBean(color1);
 		_doTest(colorContainer,
-			    TestColorContainerBean.class, 
+			    TestColorContainerBean.class,
 				new MarhallTestCheck<TestColorContainerBean>() {
 						@Override
 						public void check(final TestColorContainerBean original,final TestColorContainerBean readed) {
@@ -491,7 +511,7 @@ public class TestBaseTypes
 												.aspectMaxRatio("10")
 												.bitsPerColorMax(20);
 		_doTest(mediaQuery,
-			    MediaQuery.class, 
+			    MediaQuery.class,
 				new MarhallTestCheck<MediaQuery>() {
 						@Override
 						public void check(final MediaQuery original,final MediaQuery readed) {
@@ -499,7 +519,7 @@ public class TestBaseTypes
 							Assert.assertEquals(original.getValues().size(),readed.getValues().size());
 						}
 				});
-	}		
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	MIMETYPE
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -507,7 +527,7 @@ public class TestBaseTypes
 	public void testMimeType() throws IOException  {
 		MimeType mime = new MimeType("text/xml");
 		_doTest(mime,
-				MimeType.class, 
+				MimeType.class,
 				_buildObjChecker(MimeType.class,
 								 new Function<MimeType,Object>() {
 											@Override
@@ -533,11 +553,11 @@ public class TestBaseTypes
 		_doTest(timeLapse,
 			    TimeLapse.class,
 			    _buildObjEqualsChecker(TimeLapse.class));
-		
+
 		// contained
 		TestTimeLapseContainerBean timeLapseContainer = new TestTimeLapseContainerBean(timeLapse);
 		_doTest(timeLapseContainer,
-			    TestTimeLapseContainerBean.class, 
+			    TestTimeLapseContainerBean.class,
 				new MarhallTestCheck<TestTimeLapseContainerBean>() {
 						@Override
 						public void check(final TestTimeLapseContainerBean original,final TestTimeLapseContainerBean readed) {
@@ -580,7 +600,7 @@ public class TestBaseTypes
 				new TypeToken<TestDateTimeContainerBean<DayOfWeek>>() {/* nothing */},
 				_buildDateTimeContainerBeanCheck(new TypeToken<TestDateTimeContainerBean<DayOfWeek>>() {/* nothing */}));
 		// time
-		Time time = new Time(12,59);
+		Time time = new Time(12,59,0);
 		_doTest(time,
 				Time.class,
 				_buildObjEqualsChecker(Time.class));
@@ -618,7 +638,7 @@ public class TestBaseTypes
 	public static class TestDateTimeContainerBean<T> {
 		@MarshallField(as="theDataTimeField")
 		@Getter @Setter private T _dateTime;
-	}	
+	}
 	private static <T> MarhallTestCheck<TestDateTimeContainerBean<T>> _buildDateTimeContainerBeanCheck(final TypeToken<TestDateTimeContainerBean<T>> typeRef) {
 		return _buildObjChecker(typeRef,
 								new Function<TestDateTimeContainerBean<T>,Object>() {
@@ -641,15 +661,15 @@ public class TestBaseTypes
 	@Test
 	public void testNIF() throws IOException  {
 		NIFPersonID personId = NIFPersonID.forId("11111111H");
-		
+
 		// alone
 		_doTest(personId,
-			    NIFPersonID.class, 
+			    NIFPersonID.class,
 			    _buildObjEqualsChecker(NIFPersonID.class));
 		// contained
 		TestPersonIdContainerBean personIdContainer = new TestPersonIdContainerBean(personId);
 		_doTest(personIdContainer,
-			    TestPersonIdContainerBean.class, 
+			    TestPersonIdContainerBean.class,
 				new MarhallTestCheck<TestPersonIdContainerBean>() {
 						@Override
 						public void check(final TestPersonIdContainerBean original,final TestPersonIdContainerBean readed) {
@@ -657,8 +677,8 @@ public class TestBaseTypes
 						}
 				});
 	}
-	
-	
+
+
 	@MarshallType(as="testPersonContainerBean")
 	@Accessors(prefix="_")
 	@NoArgsConstructor @AllArgsConstructor
@@ -675,15 +695,15 @@ public class TestBaseTypes
 													 .preferredLanguage(Language.SPANISH)
 													 .withDetails("a test person <>")
 													 .build();
-		
+
 		// alone
 		_doTest(person,
-			    new TypeToken<Person<NIFPersonID>>() { /* nothing */ }, 
+			    new TypeToken<Person<NIFPersonID>>() { /* nothing */ },
 			    _buildObjEqualsChecker(new TypeToken<Person<NIFPersonID>>() { /* nothing */ }));
 		// contained
 		TestPersonContainerBean personContainer = new TestPersonContainerBean(person);
 		_doTest(personContainer,
-			    TestPersonContainerBean.class, 
+			    TestPersonContainerBean.class,
 				new MarhallTestCheck<TestPersonContainerBean>() {
 						@Override
 						public void check(final TestPersonContainerBean original,final TestPersonContainerBean readed) {
@@ -705,14 +725,14 @@ public class TestBaseTypes
 																					  .user(UserCode.forId("myfacebookuser")))
 												.contactIn(Language.ENGLISH)
 												.build();
-		
+
 		// alone
 		_doTest(contact,
-			    ContactInfo.class, 
+			    ContactInfo.class,
 			    new MarhallTestCheck<ContactInfo>() {
 						@Override
 						public void check(final ContactInfo original,final ContactInfo readed) {
 						}
 				});
-	}	
+	}
 }

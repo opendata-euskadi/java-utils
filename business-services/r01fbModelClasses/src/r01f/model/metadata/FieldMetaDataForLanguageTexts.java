@@ -23,7 +23,7 @@ public class FieldMetaDataForLanguageTexts
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForLanguageTexts(final IndexableFieldID fieldId,
+	public FieldMetaDataForLanguageTexts(final FieldID fieldId,
 								   		 final LanguageTexts name,final LanguageTexts description,
 								   		 final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

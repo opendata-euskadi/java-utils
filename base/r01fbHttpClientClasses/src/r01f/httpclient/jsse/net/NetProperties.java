@@ -127,7 +127,7 @@ public class NetProperties {
             } catch (NumberFormatException ex) {
             }
         }
-        return new Integer(defval);
+        return Integer.valueOf(defval);
     }
 
     /**

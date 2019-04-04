@@ -11,8 +11,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
-import r01f.ejie.xlnets.login.XLNetsGuiceModule;
+import r01f.ejie.xlnets.XLNetsGuiceModule;
+import r01f.ejie.xlnets.api.XLNetsAPI;
+import r01f.ejie.xlnets.api.XLNetsAPIBuilder;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.guids.CommonOIDs.AppComponent;
 import r01f.io.util.StringPersistenceUtils;
@@ -41,14 +42,13 @@ public class PifServiceTest {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
 																 .notUsingCache()
 																 .forComponent(AppComponent.forId("test"));
-		XLNetsAuthTokenProvider xlnetsAuthTokenProvider = new XLNetsAuthTokenProvider(props,
-																					  "test");
+		XLNetsAPI xlNetsApi = XLNetsAPIBuilder.createAsDefinedAt(props,"test");
 		PifServiceAPIData pifApiData = new PifServiceAPIData(props,
 															 "test");
 		
 		// Using the pif service api data create the PifService object
 		PifService pifService = new PifService(pifApiData,
-											   xlnetsAuthTokenProvider);
+											   xlNetsApi);
 		_testPif(pifService);
 	}
 	@Test

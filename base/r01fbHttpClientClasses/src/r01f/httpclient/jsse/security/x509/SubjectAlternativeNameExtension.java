@@ -147,10 +147,10 @@ implements CertAttrSet<String> {
     public String toString() {
 
         String result = super.toString() + "SubjectAlternativeName [\n";
-        if(names == null) {
+        if (names == null) {
             result += "  null\n";
         } else {
-            for(GeneralName name: names.names()) {
+            for (GeneralName name: names.names()) {
                 result += "  "+name+"\n";
             }
         }

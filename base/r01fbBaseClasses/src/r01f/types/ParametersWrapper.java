@@ -49,7 +49,7 @@ public class ParametersWrapper
 	 */
 	public static ParametersWrapper fromParamsString(final String paramsStr) {
 		return ParametersWrapper.fromParamsString(paramsStr,
-											  	  new DefaultParametersParser());	// not gwt-compatible
+											  	  new ParametersParserRegexBased());	// not gwt-compatible
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

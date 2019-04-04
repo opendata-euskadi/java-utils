@@ -17,7 +17,7 @@ public class LoggedMethodCallsParamsDefaultFormatter
 			StringBuffer sb = new StringBuffer(params.length * 10);
 			sb.append("> ").append(params.length).append(" params: ");
 			int i=0;
-			for(Object o : params) {
+			for (Object o : params) {
 				if (o != null) {
 					sb.append(o.getClass().getName());
 				} else {

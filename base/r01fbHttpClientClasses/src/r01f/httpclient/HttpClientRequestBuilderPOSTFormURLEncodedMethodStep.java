@@ -102,7 +102,7 @@ public class HttpClientRequestBuilderPOSTFormURLEncodedMethodStep
 						if (CollectionUtils.hasData(binaryParams)) throw new IOException("An form-url-encoded POST method cannot be used when posting a binary param!");
 						
 						// Encode params in its url-encoded form
-						for(Iterator<HttpRequestFormParameter> paramIt = _formParameters.iterator(); paramIt.hasNext(); ) {
+						for (Iterator<HttpRequestFormParameter> paramIt = _formParameters.iterator(); paramIt.hasNext(); ) {
 							HttpRequestFormParameter param = paramIt.next();
 							byte[] paramBytes = param._serializeFormParam(_targetServerCharset,
 																		  false);

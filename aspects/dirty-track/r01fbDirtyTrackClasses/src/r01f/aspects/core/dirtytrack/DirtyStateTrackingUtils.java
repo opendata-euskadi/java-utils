@@ -44,7 +44,7 @@ class DirtyStateTrackingUtils {
     	//		b.- It's NOT a ChangesTrackableMap
     	// change the object for a trackable one
 		Object outMap = null;
-		if (trckContainer.getTrackingStatus() == null){
+		if (trckContainer.getTrackingStatus() == null) {
 			log.error("The Map tracking status is null");
 			outMap = map;
 		} else if (trckContainer.getTrackingStatus().isThisDirtyTracking() && !(map instanceof ChangesTrackableMap)) {

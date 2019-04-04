@@ -1,6 +1,6 @@
 package r01f.persistence.search.db;
 
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.search.SearchFilter;
 
 /**
@@ -15,6 +15,6 @@ public interface TranslatesIndexableFieldIDToDBEntityField<F extends SearchFilte
 	 * @param filter
 	 * @return
 	 */
-	public String dbEntityFieldNameFor(final IndexableFieldID fieldId,
+	public String dbEntityFieldNameFor(final FieldID fieldId,
 									   final F filter);
 }

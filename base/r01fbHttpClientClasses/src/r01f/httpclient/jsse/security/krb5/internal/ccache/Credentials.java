@@ -176,7 +176,7 @@ public class Credentials {
                 if (endtime.getTime() < System.currentTimeMillis()) {
                         valid = false;
                 }
-                else if ((starttime.getTime() > System.currentTimeMillis())
+                else if ((starttime != null && starttime.getTime() > System.currentTimeMillis())
                         || ((starttime == null) && (authtime.getTime() > System.currentTimeMillis())))
                  {
                   valid = false;

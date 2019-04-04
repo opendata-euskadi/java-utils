@@ -9,6 +9,7 @@ import com.google.common.annotations.GwtIncompatible;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
+import r01f.annotations.Immutable;
 import r01f.locale.Language;
 import r01f.locale.LanguageTexts;
 import r01f.objectstreamer.annotations.MarshallIgnoredField;
@@ -95,11 +96,12 @@ public abstract class SummaryBases {
 			super(fullText);
 		}
 	}
-	public static abstract class ImmutableLangDependentSummaryBase 
+	@Immutable
+	public static abstract class ImmutableLangDependentSummary 
 					     extends MutableLangDependentSummary {
 
 		private static final long serialVersionUID = 2932174854238079765L;
-		protected ImmutableLangDependentSummaryBase(final boolean fullText) {
+		protected ImmutableLangDependentSummary(final boolean fullText) {
 			super(fullText);
 		}
 		@Override
@@ -147,6 +149,7 @@ public abstract class SummaryBases {
 			super(fullText);
 		}
 	}
+	@Immutable
 	public static abstract class ImmutableLangIndependentSummary 
 				         extends MutableLangIndependentSummary {
 

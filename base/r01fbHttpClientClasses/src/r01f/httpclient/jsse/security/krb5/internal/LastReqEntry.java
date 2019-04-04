@@ -41,7 +41,7 @@ public class LastReqEntry {
     private LastReqEntry() {
     }
 
-    public LastReqEntry(int Type, KerberosTime time){
+    public LastReqEntry(int Type, KerberosTime time) {
         lrType = Type;
         lrValue = time;
         // XXX check the type and time.
@@ -59,7 +59,7 @@ public class LastReqEntry {
         }
         DerValue der;
         der = encoding.getData().getDerValue();
-        if ((der.getTag() & 0x1F) == 0x00){
+        if ((der.getTag() & 0x1F) == 0x00) {
             lrType = der.getData().getBigInteger().intValue();
         }
         else

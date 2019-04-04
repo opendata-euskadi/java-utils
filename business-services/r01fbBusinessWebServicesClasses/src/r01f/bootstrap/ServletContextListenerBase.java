@@ -13,6 +13,7 @@ import com.google.inject.servlet.GuiceServletContextListener;
 import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.ServicesBootstrapUtil;
 import r01f.bootstrap.services.config.ServicesBootstrapConfig;
+import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
 import r01f.util.types.collections.CollectionUtils;
 import r01f.util.types.collections.Lists;
 
@@ -41,6 +42,7 @@ public abstract class ServletContextListenerBase
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final Collection<ServicesBootstrapConfig> _servicesBootstrapConfig;
 	private final Collection<Module> _commonGuiceModules;
+	private final ServicesCoreModuleEventsConfig _commonEventsConfig;
 
 	protected Injector _injector;
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -56,16 +58,32 @@ public abstract class ServletContextListenerBase
 			 CollectionUtils.hasData(commonModules) ? Lists.<Module>newArrayList(commonModules) : Lists.<Module>newArrayList());
 	}
 	protected ServletContextListenerBase(final Collection<ServicesBootstrapConfig> bootstrapCfgs,
+										 final ServicesCoreModuleEventsConfig buildCommonModuleEventsConfig,
+										 final Module... commonModules) {
+		this(bootstrapCfgs,buildCommonModuleEventsConfig,
+			 CollectionUtils.hasData(commonModules) ? Lists.<Module>newArrayList(commonModules) : Lists.<Module>newArrayList());
+	}	
+	
+	protected ServletContextListenerBase(final Collection<ServicesBootstrapConfig> bootstrapCfgs,
 										 final Module... commonModules) {
 		this(bootstrapCfgs,
 			 CollectionUtils.hasData(commonModules) ? Lists.<Module>newArrayList(commonModules) : Lists.<Module>newArrayList());
+	}	
+	
+	protected ServletContextListenerBase(final Collection<ServicesBootstrapConfig> bootstrapCfg,										
+										 final Collection<Module> commonGuiceModules) {
+		this(bootstrapCfg,null,commonGuiceModules);
 	}
+	
 	protected ServletContextListenerBase(final Collection<ServicesBootstrapConfig> bootstrapCfg,
+										 final ServicesCoreModuleEventsConfig commonEventsConfig,
 										 final Collection<Module> commonGuiceModules) {
 		if (CollectionUtils.isNullOrEmpty(bootstrapCfg)) throw new IllegalArgumentException();
 		_servicesBootstrapConfig = bootstrapCfg;
 		_commonGuiceModules = commonGuiceModules;
+		_commonEventsConfig = commonEventsConfig;
 	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //  Overridden methods of GuiceServletContextListener
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +91,8 @@ public abstract class ServletContextListenerBase
 	protected Injector getInjector() {
 		if (_injector == null) {
 			_injector = Guice.createInjector(ServicesBootstrapUtil.getBootstrapGuiceModules(_servicesBootstrapConfig)
-											 					  .withCommonBindingModules(_commonGuiceModules));
+											 					                          .withCommonEventsExecutor(_commonEventsConfig)
+																						  .withCommonBindingModules(_commonGuiceModules));
 		} else {
 			log.warn("The Guice Injector is already created!!!");
 		}

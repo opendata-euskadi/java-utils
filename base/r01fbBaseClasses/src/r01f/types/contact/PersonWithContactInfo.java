@@ -10,7 +10,7 @@ import lombok.experimental.Accessors;
 import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
 import r01f.facets.Summarizable;
 import r01f.facets.Summarizable.HasSummaryFacet;
-import r01f.facets.Summarizable.ImmutableSummarizable;
+import r01f.facets.builders.SummarizableBuilder;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallType;
 import r01f.types.summary.Summary;
@@ -21,8 +21,8 @@ import r01f.types.summary.Summary;
 @NoArgsConstructor @AllArgsConstructor
 public class PersonWithContactInfo
   implements Serializable,
-		     HasSummaryFacet {
-	
+  			 HasSummaryFacet {
+
 	private static final long serialVersionUID = 1530908840360246971L;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
@@ -42,14 +42,9 @@ public class PersonWithContactInfo
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public Summarizable asSummarizable() {
-		return new ImmutableSummarizable(this.getClass()) {
-						@Override
-						public Summary getSummary() {
-							// delegate to person's summary
-							return _person != null ? _person.asSummarizable()
+		Summary summary = _person != null ? _person.asSummarizable()
 															.getSummary()
-												   : null;
-						}
-			   };
+										  : null;
+		return SummarizableBuilder.summarizableFrom(summary);
 	}
 }

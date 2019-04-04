@@ -5,7 +5,7 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import r01f.services.ServiceMatcher;
+import r01f.bootstrap.services.ServiceMatcher;
 
 /**
  * Sometimes the service interfaces extends some base service interfaces that are NOT exposed:

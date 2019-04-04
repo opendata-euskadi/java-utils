@@ -13,26 +13,19 @@ public class CRUDOK<T>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public CRUDOK() {
-		/* nothing */
+		super(PersistenceRequestedOperation.OTHER,PersistencePerformedOperation.OTHER);
 	}
-	CRUDOK(final Class<T> entityType,
-		   final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp) {
-		super(entityType,
-			  reqOp,performedOp);
+	CRUDOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation perfOp,
+		   final Class<T> entityType) {
+		super(reqOp,perfOp,
+			  entityType);
 	}
-	CRUDOK(final Class<T> entityType,
-		   final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp,
+	CRUDOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation perfOp,
+		   final Class<T> entityType,
 		   final T entity) {
-		this(entityType,
-			 reqOp,performedOp);
+		this(reqOp,perfOp,
+			 entityType);
 		_operationExecResult = entity;
-	}
-	CRUDOK(final Class<T> entityType,
-		   final PersistenceRequestedOperation reqOp,
-		   final T entity) {
-		this(entityType,
-			 reqOp,PersistencePerformedOperation.from(reqOp),
-			 entity);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  METHODS

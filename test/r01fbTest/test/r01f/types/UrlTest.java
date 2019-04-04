@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlValue;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.appengine.repackaged.com.google.common.collect.Maps;
+import com.google.common.collect.Maps;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

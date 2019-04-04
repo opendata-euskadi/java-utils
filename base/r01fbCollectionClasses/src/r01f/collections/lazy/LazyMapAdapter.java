@@ -25,7 +25,6 @@ public class LazyMapAdapter {
 	 * @param theMap 
 	 * @return a {@link LazyMap} interface view of the {@link Map}
 	 */
-	@SuppressWarnings("unchecked")
 	public static <K,V> LazyMap<K,V> adapt(final Map<K,V> theMap) {
 		return (LazyMap<K,V>)theMap;
 	}

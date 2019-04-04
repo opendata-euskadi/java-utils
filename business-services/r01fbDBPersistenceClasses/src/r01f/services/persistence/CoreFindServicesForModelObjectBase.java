@@ -10,9 +10,9 @@ import javax.persistence.EntityManagerFactory;
 import com.google.common.eventbus.EventBus;
 
 import lombok.experimental.Accessors;
-import r01f.guids.CommonOIDs.UserCode;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.CommonOIDs.UserCode;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.FindOIDsResult;
 import r01f.objectstreamer.Marshaller;
@@ -55,7 +55,7 @@ import r01f.types.Range;
  * @param <FD>
  */
 @Accessors(prefix="_")
-public abstract class CoreFindServicesForModelObjectBase<O extends OID,M extends PersistableModelObject<O>>
+public abstract class CoreFindServicesForModelObjectBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 			  extends CorePersistenceServicesBase 
 		   implements FindServicesForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////

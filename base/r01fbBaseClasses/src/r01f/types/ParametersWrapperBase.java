@@ -5,15 +5,8 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
-
-import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Predicate;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
@@ -69,7 +62,7 @@ public abstract class ParametersWrapperBase<SELF_TYPE extends ParametersWrapperB
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTANTS
 /////////////////////////////////////////////////////////////////////////////////////////
-	protected static final char DEFAUL_PARAM_SPLIT_CHAR = '&';
+	public static final char DEFAULT_PARAM_SPLIT_CHAR = '&';
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FACTORY
@@ -79,78 +72,6 @@ public abstract class ParametersWrapperBase<SELF_TYPE extends ParametersWrapperB
 	 */
 	public interface ParametersWrapperFactory<PW extends ParametersWrapperBase<?>> {
 		public PW createParametersWrapperFrom(final Map<String,String> params);
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-// 	PARAMETER STRING PARSE
-/////////////////////////////////////////////////////////////////////////////////////////
-	public interface ParametersParser {
-		public ParamValueEncoderDecoder getParamValueEncoderDecoder();
-		public Map<String,String> parse(final String paramsStr,
-										final boolean decodeParamValues);
-	}
-	protected interface ParamValueEncoderDecoder {
-		public String encodeValue(final String value);
-		public String decodeValue(final String value);
-	}
-	@GwtIncompatible	// see [r01fGWTClasses] > emulated package
-	public static class DefaultParametersParser
-	         implements ParametersParser {
-		static final Pattern DEFAULT_PARAM_VALUE_SPLIT_PATTERN = Pattern.compile("([^=]+)=(.+)");
-		
-		public ParamValueEncoderDecoder getParamValueEncoderDecoder() {
-			return new ParamValueEncoderDecoder() {
-						@Override
-						public String encodeValue(final String value) {
-							return _urlEncodeNoThrow(value).toString();
-						}
-						@Override
-						public String decodeValue(final String value) {
-							return _urlEncodeNoThrow(value).toString();
-						}
-				   };
-		}
-		/**
-		 * Encodes in a www-form-urlencoded format using the default charset
-		 * it does NOT throw any exception if the encoding cannot be done
-		 * @param str
-		 * @return
-		 */
-		private CharSequence _urlEncodeNoThrow(final CharSequence str) {
-			if (str == null) return null;
-			try {
-				URLCodec codec = new URLCodec();
-				return codec.encode(str.toString());
-			} catch (EncoderException encEx) {
-				encEx.printStackTrace(System.out);
-			}
-			return str;		// at least return the original string			
-		}
-		@Override
-		public Map<String,String> parse(final String paramsStr,
-										final boolean decodeParamValues) {
-			if (Strings.isNullOrEmpty(paramsStr)) return null;
-			
-			Map<String,String> paramMap = Maps.newHashMap();
-			Iterable<String> params = Splitter.on(DEFAUL_PARAM_SPLIT_CHAR)
-											  .split(paramsStr.trim());
-			Iterator<String> paramsIt = params.iterator();
-			while(paramsIt.hasNext()) {
-				String param = paramsIt.next();
-				Matcher m = DEFAULT_PARAM_VALUE_SPLIT_PATTERN.matcher(param);
-				if (m.find()) {
-					String paramName = m.group(1).trim();
-					String paramValue = m.group(2).trim();
-					String theParamValue = decodeParamValues ? this.getParamValueEncoderDecoder().decodeValue(paramValue)
-															 : paramValue;
-					paramMap.put(paramName,theParamValue);
-				} else {
-					String paramName = param;
-					String theParamValue = "";
-					paramMap.put(paramName,theParamValue);
-				}
-			}
-			return paramMap;
-		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -205,8 +126,8 @@ public abstract class ParametersWrapperBase<SELF_TYPE extends ParametersWrapperB
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	public ParametersWrapperBase(final Map<String,String> params) {
-		_paramSplitChar = DEFAUL_PARAM_SPLIT_CHAR;
-		_paramsParser = new DefaultParametersParser();
+		_paramSplitChar = DEFAULT_PARAM_SPLIT_CHAR;
+		_paramsParser = new ParametersParserRegexBased();
 		if (CollectionUtils.hasData(params)) {
 			_params = ImmutableMap.<String,String>copyOf(FluentIterable.from(params.entrySet())
 																	   .filter(new Predicate<Map.Entry<String,String>>() {
@@ -224,7 +145,7 @@ public abstract class ParametersWrapperBase<SELF_TYPE extends ParametersWrapperB
 	}
 	public ParametersWrapperBase(final Map<String,String> params,
 								 final ParametersParser paramsParser) {
-		_paramSplitChar = DEFAUL_PARAM_SPLIT_CHAR;
+		_paramSplitChar = DEFAULT_PARAM_SPLIT_CHAR;
 		_paramsParser = paramsParser;
 		_params = params != null ? ImmutableMap.<String,String>copyOf(params)
 								 : ImmutableMap.<String,String>of();
@@ -275,7 +196,8 @@ public abstract class ParametersWrapperBase<SELF_TYPE extends ParametersWrapperB
 		Map<String,String> otherParams = otherParamWrapper.getParams();
 		Map<String,String> allParams = Maps.newHashMapWithExpectedSize(params.size() + (otherParams != null ? otherParams.size() : 0));
 		allParams.putAll(params);
-		allParams.putAll(otherParams);
+		if (otherParams != null && !otherParams.isEmpty()) allParams.putAll(otherParams);
+		
 		return pwFactory.createParametersWrapperFrom(allParams);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

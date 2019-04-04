@@ -183,10 +183,10 @@ public class JavaMailSenderThridPartyHTTPImpl
 		} catch (MalformedURLException e) {
 			e.printStackTrace();
 			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-		} catch (IOException e){
+		} catch (IOException e) {
 			e.printStackTrace();
 			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-		} catch (Throwable e){
+		} catch (Throwable e) {
 			e.printStackTrace();
 			throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
 		}
@@ -235,10 +235,10 @@ public class JavaMailSenderThridPartyHTTPImpl
 			} catch (MalformedURLException e) {
 				e.printStackTrace();
 				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-			} catch (IOException e){
+			} catch (IOException e) {
 				e.printStackTrace();
 				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
-			} catch (Throwable e){
+			} catch (Throwable e) {
 					e.printStackTrace();
 				throw new JavaMailSenderThridPartyHTTPImplException(e.getLocalizedMessage());
 			}
@@ -263,9 +263,9 @@ public class JavaMailSenderThridPartyHTTPImpl
 		}
 	}
 	
-//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // INNER CLASSES
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	public static class JavaMailSenderThridPartyHTTPImplException extends MailException {
 		private static final long serialVersionUID = -8313498571229772866L;
 		public JavaMailSenderThridPartyHTTPImplException(final String msg) {

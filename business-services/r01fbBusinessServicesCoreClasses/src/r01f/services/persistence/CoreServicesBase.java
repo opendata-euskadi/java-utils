@@ -1,6 +1,7 @@
 package r01f.services.persistence;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.reflect.TypeToken;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.events.HasEventBus;
+import r01f.generics.TypeRef;
 import r01f.objectstreamer.Marshaller;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.core.CoreService;
@@ -79,7 +81,16 @@ public abstract class CoreServicesBase
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * Override this method to check the SecurityContext
+	 * @param securityContext
+	 * @return
+	 */
 	public CoreServiceBaseCreateDelegateForSecurityContextStep forSecurityContext(final SecurityContext securityContext) {
+		// [1] - check the security context
+		// ... put any SecurityContext checking here
+		
+		// [2] - next step
 		return new CoreServiceBaseCreateDelegateForSecurityContextStep(securityContext);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
@@ -88,6 +99,14 @@ public abstract class CoreServicesBase
 
 		@SuppressWarnings({ "unchecked" })
 		public <S extends ServiceInterface> S createDelegateAs(final Class<S> servicesType) {
+			return (S)CoreServicesBase.this.getDelegateProvider().createDelegate(_securityContext);
+		}
+		@SuppressWarnings({ "unchecked" })
+		public <S extends ServiceInterface> S createDelegateAs(final TypeToken<S> servicesType) {
+			return (S)CoreServicesBase.this.getDelegateProvider().createDelegate(_securityContext);
+		}
+		@SuppressWarnings({ "unchecked" })
+		public <S extends ServiceInterface> S createDelegateAs(final TypeRef<S> servicesType) {
 			return (S)CoreServicesBase.this.getDelegateProvider().createDelegate(_securityContext);
 		}
 	}

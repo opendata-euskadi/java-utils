@@ -8,7 +8,7 @@ import r01f.persistence.index.document.IndexDocumentFieldConfigSet;
 import r01f.persistence.search.Searcher;
 
 /**
- * Encapsulates the type of all components of a model object-related search
+ * Encapsulates search config data, for example:
  * <ul>
  * 		<li>The indexed document definition: the document's fields: {@link IndexDocumentFieldConfigSet}</li>
  * 		<li>The indexer: the type that stores data at the index: {@link Indexer}</li>

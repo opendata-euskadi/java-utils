@@ -9,24 +9,25 @@ import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanEx
 import r01f.guids.OID;
 import r01f.guids.OIDIsGenerated;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
-import r01f.model.facets.Validates;
 import r01f.model.persistence.CRUDResult;
 import r01f.model.persistence.CRUDResultBuilder;
 import r01f.model.persistence.PersistenceOperationError;
 import r01f.model.persistence.PersistenceRequestedOperation;
 import r01f.persistence.callback.spec.PersistenceOperationCallbackSpec;
-import r01f.persistence.db.DBCRUDForModelObject;
 import r01f.reflection.ReflectionUtils;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.interfaces.CRUDServicesForModelObject;
 import r01f.validation.ObjectValidationResult;
+import r01f.validation.SelfValidates;
+import r01f.validation.Validates;
 
 /**
  * Service layer delegated type for CRUD (Create/Read/Update/Delete) operations
  */
 @Slf4j
-public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M extends PersistableModelObject<O>>
+public abstract class CRUDServicesForModelObjectDelegateBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 		      extends PersistenceServicesForModelObjectDelegateBase<O,M>
 		   implements CRUDServicesForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -41,20 +42,20 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 /////////////////////////////////////////////////////////////////////////////////////////
 	public CRUDServicesForModelObjectDelegateBase(final ServicesCoreBootstrapConfigWhenBeanExposed coreCfg,
 												  final Class<M> modelObjectType,
-											 	  final DBCRUDForModelObject<O,M> dbCrud,
+											 	  final CRUDServicesForModelObject<O,M> crud,
 											 	  final EventBus eventBus) {
 		super(coreCfg,
 			  modelObjectType,
-			  dbCrud,
+			  crud,
 			  eventBus);
 		_readOnly = false;
 	}
 	public CRUDServicesForModelObjectDelegateBase(final ServicesCoreBootstrapConfigWhenBeanExposed coreCfg,
 												  final Class<M> modelObjectType,
-											 	  final DBCRUDForModelObject<O,M> dbCrud) {
+											 	  final CRUDServicesForModelObject<O,M> crud) {
 		this(coreCfg,
 			 modelObjectType,
-		     dbCrud,
+		     crud,
 		     null);		// no event bus
 	}
 ////////////////////////////////////////////////////////////////////////////////////////
@@ -230,6 +231,7 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 							 oid,
 							 callbackSpec);		
 	}
+	@SuppressWarnings({ "unchecked" })
 	protected CRUDResult<M> doDelete(final SecurityContext securityContext,
 								 	 final O oid,
 								 	 final PersistenceOperationCallbackSpec callbackSpec) {
@@ -238,7 +240,7 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 			return CRUDResultBuilder.using(securityContext)
 									   .on(_modelObjectType)
 									   .badClientRequestData(PersistenceRequestedOperation.DELETE,
-									    		 			 "The {} entity's oid cannot be null in order to be created",_modelObjectType)
+									    		 			 "The {} entity's oid cannot be null in order to be deleted",_modelObjectType)
 									    		.build();
 		}
 		// [1] check that it's NOT in read only status
@@ -255,6 +257,7 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 		_fireEvent(securityContext,
 				   outOpResult,
 				   callbackSpec);
+		
 		// [4] return
 		return outOpResult;
 	}
@@ -317,11 +320,16 @@ public abstract class CRUDServicesForModelObjectDelegateBase<O extends OID,M ext
 		ObjectValidationResult<M> valid = null;
 
 		// model object self validation
-		if (ReflectionUtils.isImplementing(_modelObjectType,Validates.class)) {
+		if (modelObj instanceof Validates) {
 			valid = ((Validates<M>)modelObj).validate(modelObj);
 		}
+		if (valid == null
+		 && modelObj instanceof SelfValidates) {
+			valid = ((SelfValidates<M>)modelObj).validate();
+		}
 		// service logic validation
-		if (valid != null && valid.isValid() || valid == null) {
+		if (valid != null && valid.isValid()
+		 || valid == null) {
 			if (this instanceof ValidatesModelObjectBeforeCreateOrUpdate) {
 				// Validation is being used
 				ValidatesModelObjectBeforeCreateOrUpdate<M> validates = (ValidatesModelObjectBeforeCreateOrUpdate<M>)this;

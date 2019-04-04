@@ -9,14 +9,18 @@ import r01f.model.mock.MyTestModelObject;
 public class TestModelObjectMetaData {
 	@Test
 	public void testTypeMetaDataInspector() {
+		// Inspect metadata
 		TypeMetaDataInspector inspector = new TypeMetaDataInspector();
 		inspector.inspect(MyTestModelObject.class);
 		
-		TypeMetaData myObjMetaData = inspector.getTypeMetaDataFor(MyTestModelObject.class);
+		// get the metadata for the parent object
+		TypeMetaData<?> myObjMetaData = inspector.getTypeMetaDataFor(MyTestModelObject.class);
 		System.out.println(myObjMetaData.debugShortInfo());
 		System.out.println("=====================================================");
-		TypeMetaData myDepObjMetaData = myObjMetaData.findFieldByIdOrThrow(MetaDataForMyTestModelObject.SEARCHABLE_METADATA.SUB)
-													 .getFieldTypeMetaData();
+		
+		// get the metadata for the dependent object
+		TypeMetaData<?> myDepObjMetaData = myObjMetaData.findFieldByIdOrThrow(MetaDataForMyTestModelObject.SEARCHABLE_METADATA.SUB)
+														.getFieldTypeMetaData();
 		System.out.println(myDepObjMetaData.debugShortInfo());
 		
 		
@@ -28,12 +32,13 @@ public class TestModelObjectMetaData {
 		
 		// check nested
 		TypeFieldMetaData myDepObjSubNameFieldMetaData = myObjMetaData.findFieldByIdOrThrow(MetaDataForMyTestModelObject.SEARCHABLE_METADATA.SUB,
-																					 MetaDataForMyTestDependentModelObject.SEARCHABLE_METADATA.YEAR);
+																					 		MetaDataForMyTestDependentModelObject.SEARCHABLE_METADATA.YEAR);
 		Assert.assertNotNull(myDepObjSubNameFieldMetaData);
 		Assert.assertTrue(myDepObjSubNameFieldMetaData.asFieldMetaData() instanceof FieldMetaDataForYear);
 		
 	}
-	private static void _checkTestModelObjectFields(final TypeMetaData typeMetaData) {
+	private static void _checkTestModelObjectFields(final TypeMetaData<?> typeMetaData) {
+		// get fields
 		TypeFieldMetaData idField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasIDModelObject.SEARCHABLE_METADATA.ID);
 		TypeFieldMetaData nameField = typeMetaData.findFieldByIdOrThrow(MetaDataForMyTestModelObject.SEARCHABLE_METADATA.NAME);
 		TypeFieldMetaData langField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasLanguageModelObject.SEARCHABLE_METADATA.LANGUAGE);
@@ -78,11 +83,12 @@ public class TestModelObjectMetaData {
 		Assert.assertTrue(langTextsFieldMetaData instanceof FieldMetaDataForLanguageTexts);
 		Assert.assertTrue(colFieldMetaData instanceof FieldMetaDataForCollection && colFieldMetaData.as(FieldMetaDataForCollection.class).getComponentsType() == String.class);
 		Assert.assertTrue(mapFieldMetaData instanceof FieldMetaDataForMap && mapFieldMetaData.as(FieldMetaDataForMap.class).getKeyComponentsType() == Integer.class 
-																		  && mapFieldMetaData.as(FieldMetaDataForMap.class).getValueComponentsType() == String.class);	
+																		  && mapFieldMetaData.as(FieldMetaDataForMap.class).getValueComponentsType() == String.class);
+
 		Assert.assertTrue(subFieldMetaData instanceof FieldMetaDataForDependentObject 
-				       && subFieldMetaData.as(FieldMetaDataForDependentObject.class).getChildMetaData().size() == 7);
+				       && subFieldMetaData.as(FieldMetaDataForDependentObject.class).getChildMetaData().size() == 6); // 4 fields of TypeMetaDataForModelObjectBase + 2 fields of FieldMetaDataForDependentObject
 	}
-	private static void _checkPersistableTypesFields(final TypeMetaData typeMetaData) {
+	private static void _checkPersistableTypesFields(final TypeMetaData<?> typeMetaData) {
 		TypeFieldMetaData oidField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID);
 		TypeFieldMetaData entityVersionField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasEntityVersionModelObject.SEARCHABLE_METADATA.ENTITY_VERSION);
 		TypeFieldMetaData createDateField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATE_DATE);

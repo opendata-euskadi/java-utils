@@ -20,29 +20,15 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.exceptions.Throwables;
-import r01f.facets.HasLanguage;
-import r01f.facets.HasName;
-import r01f.facets.HasOID;
-import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
-import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
-import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.guids.OID;
-import r01f.locale.Language;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.IndexableModelObject;
-import r01f.model.facets.HasEntityVersion;
-import r01f.model.facets.HasNumericID;
 import r01f.model.metadata.FieldMetaData;
-import r01f.model.metadata.HasMetaDataForHasEntityVersionModelObject;
-import r01f.model.metadata.HasMetaDataForHasLanguageModelObject;
-import r01f.model.metadata.HasMetaDataForHasOIDModelObject;
-import r01f.model.metadata.HasMetaDataForHasSummaryModelObject;
-import r01f.model.metadata.IndexableFieldID;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.metadata.TypeMetaDataForModelObjectBase;
 import r01f.model.metadata.TypeMetaDataInspector;
-import r01f.model.metadata.annotations.ModelObjectData;
 import r01f.model.search.SearchFilterForModelObject;
-import r01f.model.search.SearchResultItemContainsModelObject;
+import r01f.model.search.SearchResultItemContainsPersistableObject;
 import r01f.model.search.SearchResultItemForModelObject;
 import r01f.model.search.SearchResults;
 import r01f.model.search.query.SearchResultsOrdering;
@@ -56,9 +42,6 @@ import r01f.persistence.search.SearcherExternallyLoadsModelObject;
 import r01f.persistence.search.SearcherMapsIndexedFieldsToSearchResultItemFields;
 import r01f.reflection.ReflectionUtils;
 import r01f.securitycontext.SecurityContext;
-import r01f.types.summary.LangDependentSummary;
-import r01f.types.summary.LangIndependentSummary;
-import r01f.types.summary.Summary;
 import r01f.util.types.collections.CollectionUtils;
 
 /**
@@ -118,8 +101,8 @@ public abstract class LuceneSearcherBase<F extends SearchFilterForModelObject,
 	 * @param filter
 	 * @return
 	 */
-	public <O extends OID> Collection<O> filterRecordsOids(final SecurityContext securityContext,	
-														   final F filter) {
+	public <O extends PersistableObjectOID> Collection<O> filterRecordsOids(final SecurityContext securityContext,	
+														   					final F filter) {
 		throw new UnsupportedOperationException("Not yet implemented!");
 	}
 	@Override
@@ -186,7 +169,8 @@ public abstract class LuceneSearcherBase<F extends SearchFilterForModelObject,
 				outItems.add(item);						 // ... put it on the list
 			}
 		}
-		log.info("Lucene documents transformed to search result items (elapsed time: {} milis)",NumberFormat.getNumberInstance(Locale.getDefault()).format(stopWatch.elapsed(TimeUnit.MILLISECONDS)));
+		log.info("Lucene documents transformed to search result items (elapsed time: {} milis)",
+				 NumberFormat.getNumberInstance(Locale.getDefault()).format(stopWatch.elapsed(TimeUnit.MILLISECONDS)));
 		stopWatch.stop();
 		
 		return outItems;
@@ -252,9 +236,8 @@ public abstract class LuceneSearcherBase<F extends SearchFilterForModelObject,
 				  indexedDoc.<Long>getFieldValueOrThrow(typeFieldMetaData.getFieldId()));
 		
 		// [2] - Create the item 
-		// ... common fields
-		_setResultItemCommonFields(item,
-							 	   indexedDoc);
+		// ... set search result item fields from the indexed doc
+		LuceneIndexDocToSearchResultItemTransfer.setResultItemFieldsFromIndexedDoc(indexedDoc,item);
 				
 		// [3] - Set the search result item fields from the indexed fields
 		if (this instanceof SearcherMapsIndexedFieldsToSearchResultItemFields) {
@@ -269,13 +252,13 @@ public abstract class LuceneSearcherBase<F extends SearchFilterForModelObject,
 		//			b) by the searcher creating it from the search index stored info (the document)
 		//			c) here from the model object type info; only the common fields can be set
 		//PersistableModelObject<? extends OID> modelObject = null;
-		if (item instanceof SearchResultItemContainsModelObject) {
+		if (item instanceof SearchResultItemContainsPersistableObject) {
+			SearchResultItemContainsPersistableObject<?,?> itemContainsPersistableObj = (SearchResultItemContainsPersistableObject<?,?>)item;
 			Object modelObject = null;
 			if (this instanceof SearcherExternallyLoadsModelObject) {
-				
 				modelObject = _loadModelObjectInstance(this,
 													   securityContext,
-													   item.getOid());			
+													   itemContainsPersistableObj.getOid());			
 			} else if (this instanceof SearcherCreatesResultItemFromIndexData) {
 				modelObject = _createModelObject(this,
 												 securityContext,
@@ -290,109 +273,18 @@ public abstract class LuceneSearcherBase<F extends SearchFilterForModelObject,
 			
 			IndexableModelObject indexableModelObject = (IndexableModelObject)modelObject;
 			
-			// Copy item common fields to the model object
-			_setModelObjectCommonFields(item,indexableModelObject,
-										indexedDoc);
+			// set the contained model object fields from indexed document
+			LuceneIndexDocToSearchResultItemTransfer.setContainedObjectFieldValuesFromSearchResultDoc(indexedDoc,indexableModelObject);
+			
+			// Copy search result item fields to the contained model object
+			LuceneIndexDocToSearchResultItemTransfer.copyFieldValuesFomSearchResultItemToContainedObject(item,indexableModelObject);
 			
 			// set the object at the item
-			((SearchResultItemContainsModelObject<?>)item).unsafeSetModelObject(indexableModelObject);
+			itemContainsPersistableObj.unsafeSetModelObject(indexableModelObject);
 		}
 	
 		// [5] - Return
 		return item;
-	}
-	/**
-	 * Sets the model object's common fields from the search results
-	 * @param item
-	 * @param modelObject
-	 * @param doc
-	 */
-	protected void _setModelObjectCommonFields(final I item,final IndexableModelObject modelObject,
-											   final LuceneSearchResultDocument<? extends IndexableModelObject> doc) {
-		// oid
-		if (modelObject.hasFacet(HasOID.class)) {
-			OID oid = item.getOid();
-			((HasOID<?>)modelObject).unsafeSetOid(oid);
-		}
-		// NumericId
-		if (modelObject.hasFacet(HasNumericID.class)) {
-			long numericId = item.getNumericId();
-			((HasNumericID)modelObject).setNumericId(numericId);
-		}
-		// language
-		if (modelObject.hasFacet(HasLanguage.class)) {
-			IndexableFieldID fieldId = HasMetaDataForHasLanguageModelObject.SEARCHABLE_METADATA.LANGUAGE.getFieldId();
-			Language lang = doc.getFieldValue(fieldId);
-			if (lang != null) {
-				((HasLanguage)modelObject).setLanguage(lang);
-			}
-		}
-		// Name from summary
-		if (modelObject.hasFacet(HasName.class)) {
-			if (modelObject.hasFacet(HasLangDependentNamedFacet.class)) {
-				// Lang dependent name
-				LangDependentSummary summary = item.asSummarizable()
-							  						 	.getSummary()
-							  						 	.asLangDependent();
-				
-				((HasLangDependentNamedFacet)modelObject).setNamesByLanguage(summary.asLanguageTexts());
-			} else {
-				// Lang independent name
-				LangIndependentSummary summary = item.asSummarizable()
-							  						   .getSummary()
-							  						   .asLangIndependent();
-				
-				((HasLangInDependentNamedFacet)modelObject).setName(summary.asString());
-			}
-		}
-	}
-	/**
-	 * Sets the item common fields 
-	 * @param item
-	 * @param doc
-	 * @param filter
-	 */
-	protected void _setResultItemCommonFields(final I item,
-									          final LuceneSearchResultDocument<? extends IndexableModelObject> doc) {
-		TypeMetaData<? extends IndexableModelObject> typeMetaData = doc.getModelObjectMetaData();
-		
-		// Model object type
-		item.unsafeSetModelObjectType((Class<? extends IndexableModelObject>)typeMetaData.getRawType());
-		item.setModelObjectTypeCode(typeMetaData.getTypeMetaData().modelObjTypeCode());
-		
-		// OID
-		if (typeMetaData.hasFacet(HasOID.class)) {
-			IndexableFieldID fieldId = HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID.getFieldId();
-			OID oid = doc.<OID>getFieldValueOrThrow(fieldId);
-			item.unsafeSetOid(oid);
-		}
-		// numeric id
-		if (typeMetaData.hasFacet(HasNumericID.class)) {
-			IndexableFieldID fieldId = TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA.NUMERIC_ID.getFieldId();
-			Long numericId = doc.getFieldValueOrThrow(fieldId);
-			if (numericId != null && numericId > 0) item.setNumericId(numericId);
-		}
-		// EntityVersion 
-		if (typeMetaData.hasFacet(HasEntityVersion.class)) {
-			IndexableFieldID fieldId = HasMetaDataForHasEntityVersionModelObject.SEARCHABLE_METADATA.ENTITY_VERSION.getFieldId();
-			long entityVersion = doc.<Long>getFieldValueOrThrow(fieldId);
-			item.setEntityVersion(entityVersion);
-		}
-		
-		// Summary
-		// - Language dependent summary (stored as summary.{} -a field for every lang-)
-		// - Language independent summary stored in a single lucene field
-		if (typeMetaData.hasFacet(HasSummaryFacet.class)) {			
-			IndexableFieldID fieldId = HasMetaDataForHasSummaryModelObject.SEARCHABLE_METADATA.SUMMARY.getFieldId();
-			Summary summary = doc.getFieldValue(fieldId);
-			if (summary != null) {
-				item.asSummarizable()
-					.setSummary(summary);
-			} else {
-				log.warn("There're no summary fields stored in a lucene document for a result of type {}",
-						 typeMetaData.getRawType(),typeMetaData.getRawType(),ModelObjectData.class);
-			}
-		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  SOME GENERICS TRICKERY (parameter type capture)

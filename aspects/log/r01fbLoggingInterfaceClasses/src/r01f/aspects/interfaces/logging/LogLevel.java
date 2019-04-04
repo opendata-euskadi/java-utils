@@ -1,8 +1,7 @@
 package r01f.aspects.interfaces.logging;
 
 /**
- * sl4fj NO dispone de un enum para los niveles de traza.
- * es necesario (ej: anotación LoggedMethodCalls)
+ * sl4fj does not have an enum of log levels.
  */
 public enum LogLevel {
 	OFF,

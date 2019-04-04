@@ -25,7 +25,6 @@ public class LazyCollectionpAdapter {
 	 * @param theCol 
 	 * @return a {@link LazyCollection} view of the {@link Collection}
 	 */
-	@SuppressWarnings("unchecked")
 	public static <V> LazyCollection<V> adapt(final Collection<V> theCol) {
 		return (LazyCollection<V>)theCol;
 	}

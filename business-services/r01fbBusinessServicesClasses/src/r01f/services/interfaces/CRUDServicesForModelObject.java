@@ -1,6 +1,6 @@
 package r01f.services.interfaces;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable;
 import r01f.model.persistence.CRUDResult;
@@ -12,7 +12,7 @@ import r01f.securitycontext.SecurityContext;
  * @param <O>
  * @param <M>
  */
-public interface CRUDServicesForModelObject<O extends OID,M extends PersistableModelObject<O>> 
+public interface CRUDServicesForModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 		 extends ServiceInterfaceForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

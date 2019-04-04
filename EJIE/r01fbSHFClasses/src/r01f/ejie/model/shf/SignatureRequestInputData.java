@@ -26,10 +26,10 @@ public class SignatureRequestInputData
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	 public void setInput(final String text){
+	 public void setInput(final String text) {
 		 _dataToBeSigned  = new ByteArrayInputStream(text.getBytes());
 	 }	 
-	 public void setInput(final InputStream input){
+	 public void setInput(final InputStream input) {
 		 _dataToBeSigned = input;
 	 }
 

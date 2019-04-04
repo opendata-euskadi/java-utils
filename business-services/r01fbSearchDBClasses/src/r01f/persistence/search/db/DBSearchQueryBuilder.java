@@ -22,7 +22,7 @@ public abstract class DBSearchQueryBuilder
 					.new DBSearchQueryBuilderDBModuleConfigStep<DB>(dbEntityType);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class DBSearchQueryBuilderDBModuleConfigStep<DB extends DBEntity> {
+	public final class DBSearchQueryBuilderDBModuleConfigStep<DB extends DBEntity> {
 		private final Class<DB> _dbEntityType;
 		public DBSearchQueryBuilderEntityManagerStep<DB> usingDBModuleConfig(final DBModuleConfig dbModuleConfig) {
 			return new DBSearchQueryBuilderEntityManagerStep<DB>(_dbEntityType,					
@@ -30,7 +30,7 @@ public abstract class DBSearchQueryBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class DBSearchQueryBuilderEntityManagerStep<DB extends DBEntity> {
+	public final class DBSearchQueryBuilderEntityManagerStep<DB extends DBEntity> {
 		private final Class<DB> _dbEntityType;
 		private final DBModuleConfig _dbModuleConfig;
 		public DBSearchBuilderQueryUILanguageStep<DB> with(final EntityManager entityManager) {
@@ -40,7 +40,7 @@ public abstract class DBSearchQueryBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class DBSearchBuilderQueryUILanguageStep<DB extends DBEntity> {
+	public final class DBSearchBuilderQueryUILanguageStep<DB extends DBEntity> {
 		private final Class<DB> _dbEntityType;
 		private final DBModuleConfig _dbModuleConfig;
 		private final EntityManager _entityManager;	
@@ -59,7 +59,7 @@ public abstract class DBSearchQueryBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class DBSearchQueryBuilderPredicatesStep<DB extends DBEntity> {
+	public final class DBSearchQueryBuilderPredicatesStep<DB extends DBEntity> {
 		private final Class<DB> _dbEntityType;
 		private final DBModuleConfig _dbModuleConfig;
 		private final EntityManager _entityManager;

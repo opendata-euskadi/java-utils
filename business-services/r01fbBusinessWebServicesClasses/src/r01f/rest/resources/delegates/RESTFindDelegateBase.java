@@ -7,7 +7,7 @@ import javax.ws.rs.core.Response;
 
 import lombok.experimental.Accessors;
 import r01f.guids.CommonOIDs.UserCode;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable;
 import r01f.model.persistence.FindOIDsResult;
@@ -21,7 +21,7 @@ import r01f.types.Range;
  * Base type for REST services that encapsulates the common CRUD ops>
  */
 @Accessors(prefix="_")
-public abstract class RESTFindDelegateBase<O extends OID,M extends PersistableModelObject<O>> 
+public abstract class RESTFindDelegateBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 	          extends RESTDelegateForModelObjectBase<M> { 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  NOT INJECTED STATUS

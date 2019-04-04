@@ -43,6 +43,10 @@
 <!-- Retrieve vaadin deps and set classpath vars                        -->
 <!-- ================================================================== -->
     <target name="resolve_vaadin">
+    	
+    	
+    	<setproxy nonproxyhosts="repository.ejiedes.net" proxyhost="proxyejgv.ejgvdns" proxyport="8080" proxyuser="jgonzacr" proxypassword="72723590Ej" />
+    	
     	<!-- Vaadin/gwt classpath dependencies: resolve and put every config in a cachepath -->
 		<ivy:resolve file="../../../projects_r01fb/r01fb/r01fbGWTClasses/build_scripts/ivy_vaadin7.xml" 
 					 log="quiet" />

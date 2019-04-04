@@ -1,6 +1,7 @@
 package r01f.model;
 
-public interface ExtensibleModelObject<E extends ModelObjectExtension<?>> {
+public interface ExtensibleModelObject<E extends ModelObjectExtension<?>> 
+		 extends ModelObject {
 	/**
 	 * Returns the content model object's extension
 	 * This method is usually used at an aspect to get access to the extension and 

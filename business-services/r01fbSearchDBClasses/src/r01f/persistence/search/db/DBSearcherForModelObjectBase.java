@@ -10,20 +10,21 @@ import com.google.common.collect.Collections2;
 
 import r01f.guids.OID;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.locale.Language;
 import r01f.model.IndexableModelObject;
 import r01f.model.ModelObject;
-import r01f.model.PersistableModelObject;
 import r01f.model.metadata.HasMetaDataForHasOIDModelObject;
 import r01f.model.metadata.TypeFieldMetaData;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.metadata.TypeMetaDataInspector;
 import r01f.model.search.SearchFilterForModelObject;
-import r01f.model.search.SearchResultItemContainsModelObject;
+import r01f.model.search.SearchResultItemContainsPersistableObject;
 import r01f.model.search.SearchResultItemForModelObject;
 import r01f.patterns.Factory;
 import r01f.persistence.db.DBEntity;
 import r01f.persistence.db.TransformsDBEntityIntoModelObject;
+import r01f.persistence.search.PersistableObjectToSearchResultItem;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.interfaces.SearchServicesForModelObject;
 import r01f.util.types.collections.CollectionUtils;
@@ -65,10 +66,12 @@ public abstract class DBSearcherForModelObjectBase<F extends SearchFilterForMode
 			  searchQueryFactory,
 			  transformsDBEntityToSearchResultItem);
 	}
-	protected <S extends DBSearchQuery<F,DB>> DBSearcherForModelObjectBase(final Class<DB> dbEntityType,
+	@SuppressWarnings("unchecked")
+	protected <M extends IndexableModelObject,J extends SearchResultItemForModelObject<M>,
+			   S extends DBSearchQuery<F,DB>> DBSearcherForModelObjectBase(final Class<M> modelObjType,final Class<DB> dbEntityType,
 							 			   								   final EntityManager entityManager,
 							 			   								   final Factory<S> searchQueryFactory,
-							 			   								   final TransformsDBEntityIntoModelObject<DB,PersistableModelObject<? extends OID>> dbEntityToModelObjectTransformer,
+							 			   								   final TransformsDBEntityIntoModelObject<DB,M> dbEntityToModelObjectTransformer,
 							 			   								   final Factory<I> searchResultItemsFactory) {
 		this(dbEntityType,
 			 entityManager,
@@ -77,21 +80,23 @@ public abstract class DBSearcherForModelObjectBase<F extends SearchFilterForMode
 							@Override
 							public I dbEntityToSearchResultItem(final SecurityContext securityContext,
 																final DB dbEntity,
-																final Language uiLang) {
+																final Language lang) {
 								// [0] - Get the model object from the dbEntity
-								IndexableModelObject modelObj = (IndexableModelObject)dbEntityToModelObjectTransformer.dbEntityToModelObject(securityContext,
-																																			 dbEntity);
+								M modelObj = dbEntityToModelObjectTransformer.dbEntityToModelObject(securityContext,
+																									dbEntity);
 								
 								// [1] - Use the search result item factory to create an item
-								I item = searchResultItemsFactory.create();	
-								
-								// [2] - Create the item 
-								// ... common fields
-								_setResultItemCommonFieldsFromModelObject(modelObj,item);
+								//		 (with a bit of dirty type tricks)
+								PersistableObjectToSearchResultItem<M,J> modelObjToSearchResultItem = new PersistableObjectToSearchResultItem<M,J>(TypeMetaDataInspector.singleton()
+																																							.getTypeMetaDataFor(modelObjType),
+																																				   (Factory<J>)searchResultItemsFactory);
+								I item = (I)modelObjToSearchResultItem.objToSearchResultItem(securityContext,
+																						  	 modelObj,lang);
 								
 								// [3] - Set the model object
-								if (item instanceof SearchResultItemContainsModelObject) {
-									((SearchResultItemContainsModelObject<?>)item).unsafeSetModelObject(modelObj);
+								if (item instanceof SearchResultItemContainsPersistableObject) {
+									SearchResultItemContainsPersistableObject<?,?> itemContainsPersistable = (SearchResultItemContainsPersistableObject<?,?>)item;
+									itemContainsPersistable.unsafeSetModelObject(modelObj);
 								}
 								
 								// [99] - Return
@@ -109,8 +114,8 @@ public abstract class DBSearcherForModelObjectBase<F extends SearchFilterForMode
 	 * @return
 	 */
 	@Override @SuppressWarnings("unchecked")
-	public <O extends OID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
-														   final F filter) {
+	public <O extends PersistableObjectOID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
+														   					final F filter) {
 		// [0]: guess the model object type
 		Class<? extends ModelObject> modelObjType = CollectionUtils.pickOneAndOnlyElement(filter.getFilteredModelObjectTypes(),
 																						  "This type is only suitable for filters with a single model object type");

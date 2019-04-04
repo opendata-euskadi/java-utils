@@ -35,7 +35,7 @@ import r01f.model.metadata.FieldMetaDataForCollection;
 import r01f.model.metadata.FieldMetaDataForJavaType;
 import r01f.model.metadata.FieldMetaDataForPolymorphicType;
 import r01f.model.metadata.HasTypesMetaData;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.MetaDataDescribable;
 import r01f.model.metadata.TypeFieldMetaData;
 import r01f.model.metadata.TypeMetaData;
@@ -91,13 +91,10 @@ public class LuceneSearchResultDocument<M extends IndexableModelObject>
 	@Override
 	public TypeMetaData<M> getModelObjectMetaData() {
 		// [1] - Get the lucene's indexed field
-		IndexableField field = _luceneDoc.getField(TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA
-																		   .TYPE_CODE
-																				.getFieldId().asString());
+		FieldID fieldId = FieldID.from(TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA.TYPE_CODE);
+		IndexableField field = _luceneDoc.getField(fieldId.asString());
 		if (field == null) throw new IllegalStateException(Throwables.message("The lucene document is NOT valid: it does NOT have the type field (id={})",
-																			  TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA
-																											.TYPE_CODE
-																												.getFieldId()));
+																			  fieldId));
 		// [2] - Get the type code value
 		long typeCode = field.numericValue()
 							 .longValue();
@@ -109,16 +106,16 @@ public class LuceneSearchResultDocument<M extends IndexableModelObject>
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public Map<IndexableFieldID,IndexDocumentFieldValue<?>> getFields() {
+	public Map<FieldID,IndexDocumentFieldValue<?>> getFields() {
 		// [0] - Get the model object metadata
 		TypeMetaData<M> modelObjMetaData = this.getModelObjectMetaData();
 		
 		// [1] - Map the lucene document fields to metadata
-		Map<IndexableFieldID,Collection<IndexableField>> luceneFieldsByMetaData = Maps.newHashMap();
+		Map<FieldID,Collection<IndexableField>> luceneFieldsByMetaData = Maps.newHashMap();
 		for (IndexableField luceneField : _luceneDoc.getFields()) {
 			// 1.a - Find the metadata id from the stored indexFieldId
 			IndexDocumentFieldID fieldId = IndexDocumentFieldID.forId(luceneField.name());	
-			IndexableFieldID metaDataId = IndexDocumentFieldID.findMetaDataId(modelObjMetaData,
+			FieldID metaDataId = IndexDocumentFieldID.findMetaDataId(modelObjMetaData,
 																			  fieldId);
 			if (metaDataId == null) throw new IllegalStateException(Throwables.message("The index-stored metadata with id={} is NOT configured on model object with type={}",
 																					   fieldId,modelObjMetaData.getRawType()));
@@ -132,15 +129,15 @@ public class LuceneSearchResultDocument<M extends IndexableModelObject>
 		}
 		
 		// [2] - Convert every metadata to a IndexDocumentFieldValue
-		Map<IndexableFieldID,IndexDocumentFieldValue<?>> outFields = Maps.newLinkedHashMap();
-		for (Map.Entry<IndexableFieldID,Collection<IndexableField>> me : luceneFieldsByMetaData.entrySet()) {
-			IndexableFieldID metaDataId = me.getKey();
+		Map<FieldID,IndexDocumentFieldValue<?>> outFields = Maps.newLinkedHashMap();
+		for (Map.Entry<FieldID,Collection<IndexableField>> me : luceneFieldsByMetaData.entrySet()) {
+			FieldID metaDataId = me.getKey();
 			TypeFieldMetaData typeFieldMetaData = modelObjMetaData.findFieldByIdOrThrow(metaDataId);
 			FieldMetaData fieldMetaData = typeFieldMetaData.asFieldMetaData();
 			Collection<IndexableField> luceneFields = me.getValue();
 			
 			// Security checks
-			if (!(fieldMetaData.isCollectionField() || fieldMetaData.isSummaryField()) 
+			if (!(fieldMetaData.isCollectionField() || fieldMetaData.isSummaryField() || fieldMetaData.isLanguageTextsField()) 
 			 && luceneFields.size() > 1) throw new IllegalStateException(Throwables.message("The field with id={} is NOT supposed to be multi-valued BUT multiple values are indexed",
 																							fieldMetaData.getIndexableFieldId()));
 			if (fieldMetaData.isBooleanField() && luceneFields.size() > 1) throw new IllegalStateException(Throwables.message("The field with id={} is a boolean field and this type of fields cannot be multi-valued",
@@ -482,10 +479,10 @@ public class LuceneSearchResultDocument<M extends IndexableModelObject>
 	}
 	/**
 	 * Filters the document's fields whose name matches the provided pattern
-	 * This method is needed for {@link IndexableFieldID} that are stored in multiple document fields
+	 * This method is needed for {@link FieldID} that are stored in multiple document fields
 	 * with different {@link IndexDocumentFieldID} because the field have multiple values depending
 	 * on a dimension (ie language)
-	 * For example, a multi-language {@link Summary} field with {@link IndexableFieldID}=r01.summary
+	 * For example, a multi-language {@link Summary} field with {@link FieldID}=r01.summary
 	 * is stored in multiple lucene fields, one for each document: r01.summary.es, r01.summary.eu, etc
 	 * @param pattern the pattern to match against the field name
 	 * @return the fields that matches

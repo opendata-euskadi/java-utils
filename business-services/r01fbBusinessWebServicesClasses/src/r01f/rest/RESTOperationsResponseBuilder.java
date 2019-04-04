@@ -7,9 +7,10 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import r01f.exceptions.Throwables;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.CRUDError;
 import r01f.model.persistence.CRUDOK;
@@ -26,7 +27,6 @@ import r01f.model.persistence.PersistenceOperationExecOK;
 import r01f.model.persistence.PersistenceOperationExecResult;
 import r01f.model.search.SearchResults;
 import r01f.patterns.IsBuilder;
-import r01f.services.client.servicesproxy.rest.RESTServicesProxyBase;
 import r01f.types.jobs.EnqueuedJob;
 import r01f.util.types.collections.CollectionUtils;
 
@@ -38,29 +38,34 @@ import r01f.util.types.collections.CollectionUtils;
  * 
  * </pre>
  */
-public class RESTOperationsResponseBuilder 
+@NoArgsConstructor(access=AccessLevel.PRIVATE)
+public abstract class RESTOperationsResponseBuilder 
   implements IsBuilder {
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static <M> RESTCRUDOperationResponseBuilderForModelObjectURIStep<M> crudOn(final Class<M> modelObjectType) {
-		return new RESTCRUDOperationResponseBuilderForModelObjectURIStep<M>(modelObjectType);
+		return new RESTOperationsResponseBuilder() { /* nothing */ }
+						.new RESTCRUDOperationResponseBuilderForModelObjectURIStep<M>(modelObjectType);
 	}
-	public static <O extends OID,M extends PersistableModelObject<O>> RESTFindOperationResponseBuilderForModelObjectURIStep<O,M> findOn(final Class<M> modelObjectType) {
-		return new RESTFindOperationResponseBuilderForModelObjectURIStep<O,M>(modelObjectType);
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> RESTFindOperationResponseBuilderForModelObjectURIStep<O,M> findOn(final Class<M> modelObjectType) {
+		return new RESTOperationsResponseBuilder() { /* nothing */ }
+						.new RESTFindOperationResponseBuilderForModelObjectURIStep<O,M>(modelObjectType);
 	}
 	public static RESTExecOperationResponseBuilderForModelObjectURIStep executed() {
-		return new RESTExecOperationResponseBuilderForModelObjectURIStep();
+		return new RESTOperationsResponseBuilder() { /* nothing */ }
+						.new RESTExecOperationResponseBuilderForModelObjectURIStep();
 	}
 	public static RESTSearchIndexOperationResponseBuilderForModelObjectURIStep searchIndex() {
-		return new RESTSearchIndexOperationResponseBuilderForModelObjectURIStep();
+		return new RESTOperationsResponseBuilder() { /* nothing */ }
+						.new RESTSearchIndexOperationResponseBuilderForModelObjectURIStep();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTCRUDOperationResponseBuilderForModelObjectURIStep<M> {
+	public final class RESTCRUDOperationResponseBuilderForModelObjectURIStep<M> {
 		private final Class<M> _modelObjectType;
 		
 		public RESTCRUDOperationResponseBuilderForModelObjectResultStep<M> at(final URI resourceURI) {
@@ -69,7 +74,7 @@ public class RESTOperationsResponseBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTFindOperationResponseBuilderForModelObjectURIStep<O extends OID,M extends PersistableModelObject<O>> {
+	public final class RESTFindOperationResponseBuilderForModelObjectURIStep<O extends PersistableObjectOID,M extends PersistableModelObject<O>> {
 		private final Class<M> _modelObjectType;
 		
 		public RESTFindOperationResponseBuilderForModelObjectResultStep<O,M> at(final URI resourceURI) {
@@ -78,16 +83,14 @@ public class RESTOperationsResponseBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTExecOperationResponseBuilderForModelObjectURIStep {
-		
+	public final class RESTExecOperationResponseBuilderForModelObjectURIStep {
 		@SuppressWarnings("static-method")
 		public RESTEXECOperationResponseBuilderResultStep at(final URI resourceURI) {
 			return new RESTEXECOperationResponseBuilderResultStep(resourceURI);
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTSearchIndexOperationResponseBuilderForModelObjectURIStep {
-		
+	public final class RESTSearchIndexOperationResponseBuilderForModelObjectURIStep {
 		@SuppressWarnings("static-method")
 		public RESTSearchIndexOperationResponseBuilderResultStep at(final URI resourceURI) {
 			return new RESTSearchIndexOperationResponseBuilderResultStep(resourceURI);
@@ -97,7 +100,7 @@ public class RESTOperationsResponseBuilder
 //  CRUD
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTCRUDOperationResponseBuilderForModelObjectResultStep<M> {
+	public final class RESTCRUDOperationResponseBuilderForModelObjectResultStep<M> {
 		private final Class<M> _modelObjectType;
 		private final URI _resourceURI;
 		/**
@@ -191,7 +194,7 @@ public class RESTOperationsResponseBuilder
 //  FIND
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTFindOperationResponseBuilderForModelObjectResultStep<O extends OID,M extends PersistableModelObject<O>> {
+	public final class RESTFindOperationResponseBuilderForModelObjectResultStep<O extends PersistableObjectOID,M extends PersistableModelObject<O>> {
 		private final Class<M> _modelObjectType;
 		private final URI _resourceURI;
 		/**
@@ -271,7 +274,7 @@ public class RESTOperationsResponseBuilder
 //  EXEC
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTEXECOperationResponseBuilderResultStep {
+	public final class RESTEXECOperationResponseBuilderResultStep {
 		private final URI _resourceURI;
 		/**
 		 * Returns a REST {@link Response} for a core-layer executed persistence operation
@@ -319,7 +322,7 @@ public class RESTOperationsResponseBuilder
 //  SEARCH
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class RESTSearchIndexOperationResponseBuilderResultStep {
+	public final class RESTSearchIndexOperationResponseBuilderResultStep {
 		private final URI _resourceURI;
 		
 		/**

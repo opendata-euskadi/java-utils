@@ -3,6 +3,7 @@ package r01f.types.datetime;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Preconditions;
@@ -18,27 +19,26 @@ import r01f.util.types.Strings;
 @MarshallType(as="dayOfWeek")
 @GwtIncompatible
 @Accessors(prefix="_")
-public class DayOfWeek 
+public class DayOfWeek
   implements Serializable,
   			 CanBeRepresentedAsString,
   			 Comparable<DayOfWeek> {
 
 	private static final long serialVersionUID = 7658275370612790932L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter private int _dayOfWeek;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
    public static boolean canBe(final String str) {
-         return Strings.isNOTNullOrEmpty(str) 
+         return Strings.isNOTNullOrEmpty(str)
              && Numbers.isInteger(str)
              && Integer.parseInt(str) >= 1 && Integer.parseInt(str) <= 7;
    }
-
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public DayOfWeek(final int dayOfWeek) {
 		_set(dayOfWeek);
@@ -46,7 +46,7 @@ public class DayOfWeek
 	public DayOfWeek(final Integer dayOfWeek) {
 		_set(dayOfWeek);
 	}
-	public DayOfWeek(final String month) { 
+	public DayOfWeek(final String month) {
 		int m = Integer.parseInt(month);
 		_set(m);
 	}
@@ -66,22 +66,22 @@ public class DayOfWeek
 		return new DayOfWeek(dayOfWeek);
 	}
 	public DayOfWeek nextMonth() {
-		return _dayOfWeek < 7 ? DayOfWeek.of(_dayOfWeek+1) 
+		return _dayOfWeek < 7 ? DayOfWeek.of(_dayOfWeek+1)
 							  : DayOfWeek.of(1);
 	}
 	public DayOfWeek prevMonth() {
-		return _dayOfWeek > 1 ? DayOfWeek.of(_dayOfWeek-1) 
+		return _dayOfWeek > 1 ? DayOfWeek.of(_dayOfWeek-1)
 							  : DayOfWeek.of(7);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	private void _set(final int dayOfWeek) {
 		Preconditions.checkArgument(dayOfWeek <= 7 || dayOfWeek > 0,"Not a valid day of week");
-		_dayOfWeek = dayOfWeek;		
+		_dayOfWeek = dayOfWeek;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String toString() {
@@ -102,7 +102,7 @@ public class DayOfWeek
 		return _dayOfWeek;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public boolean is(final DayOfWeek other) {
 		return _dayOfWeek == other.asInteger();
@@ -123,6 +123,35 @@ public class DayOfWeek
 		return _dayOfWeek >= other.asInteger();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
+//	ITERABLE
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static Iterable<DayOfWeek> weekDaysIterable() {
+		return new Iterable<DayOfWeek>() {
+						@Override
+						public Iterator<DayOfWeek> iterator() {
+							return new Iterator<DayOfWeek>() {
+											private int _curr = -1;
+
+											@Override
+											public boolean hasNext() {
+												return _curr < 7;
+											}
+											@Override
+											public DayOfWeek next() {
+												if (!this.hasNext()) throw new IllegalStateException();
+												_curr = _curr == -1 ? 0
+																	: _curr + 1;
+												return DayOfWeek.of(_curr);
+											}
+											@Override
+											public void remove() {
+												throw new UnsupportedOperationException();
+											}
+								   };
+						}
+			   };
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
 //  EQUALS & HASHCODE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
@@ -134,15 +163,15 @@ public class DayOfWeek
 	}
 	@Override
 	public int hashCode() {
-		return new Integer(_dayOfWeek).hashCode();
+		return Integer.valueOf(_dayOfWeek).hashCode();
 	}
 	@Override
 	public int compareTo(final DayOfWeek other) {
-		return new Integer(this.asInteger())
-						.compareTo(new Integer(other.asInteger()));
+		return Integer.valueOf(this.asInteger())
+						.compareTo(Integer.valueOf(other.asInteger()));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static final DayOfWeek SUNDAY = new DayOfWeek(1);
 	public static final DayOfWeek MONDAY = new DayOfWeek(2);

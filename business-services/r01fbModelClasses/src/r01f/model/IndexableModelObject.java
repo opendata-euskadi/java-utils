@@ -1,7 +1,6 @@
 package r01f.model;
 
 import r01f.facets.Facetable;
-import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.model.facets.HasEntityVersion;
 import r01f.model.facets.HasNumericID;
 import r01f.model.metadata.MetaDataDescribable;
@@ -32,7 +31,6 @@ public interface IndexableModelObject
 		 		 MetaDataDescribable,
 		 		 Facetable,
 		 		 HasEntityVersion,
-		 		 HasNumericID,
-		 		 HasSummaryFacet {
+		 		 HasNumericID {
 	/* just extend */
 }

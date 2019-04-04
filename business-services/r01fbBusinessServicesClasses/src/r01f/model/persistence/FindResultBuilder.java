@@ -62,7 +62,7 @@ public class FindResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindResultBuilderEntityStep {
+	public final class FindResultBuilderEntityStep {
 		private final SecurityContext _securityContext;
 		
 		public <T> FindResultBuilderOperationStep<T> on(final Class<T> entityType) {
@@ -74,7 +74,7 @@ public class FindResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindResultBuilderOperationStep<T> {
+	public final class FindResultBuilderOperationStep<T> {
 		protected final SecurityContext _securityContext;
 		protected final Class<T> _entityType;
 		
@@ -104,7 +104,7 @@ public class FindResultBuilder
 		}
 	}	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindResultBuilderDBEntityTransformerStep<DB extends DBEntity,
+	public final class FindResultBuilderDBEntityTransformerStep<DB extends DBEntity,
 														  T> {
 		protected final SecurityContext _securityContext;
 		protected final Class<T> _entityType;
@@ -145,7 +145,7 @@ public class FindResultBuilder
 //  ERROR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindResultBuilderForError<T> {
+	public final class FindResultBuilderForError<T> {
 		protected final SecurityContext _securityContext;
 		protected final Class<T> _entityType;
 		

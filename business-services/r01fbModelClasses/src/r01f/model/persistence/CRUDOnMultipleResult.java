@@ -28,12 +28,6 @@ public class CRUDOnMultipleResult<M>
 //  SERIALIZABLE DATA
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * The requested operation
-	 */
-	@MarshallField(as="requestedOperation",
-				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter protected PersistenceRequestedOperation _requestedOperation;
-	/**
 	 * The model object type
 	 * (beware that {@link PersistenceOperationOnObjectOK} wraps a {@link Collection} 
 	 *  of this objects)
@@ -49,22 +43,16 @@ public class CRUDOnMultipleResult<M>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	public CRUDOnMultipleResult() {
-		/* nothing */
+	public CRUDOnMultipleResult(final PersistenceRequestedOperation reqOp) {
+		super(reqOp);
 	}
-	public CRUDOnMultipleResult(final Class<M> modelObjectType,
-			  			   		final PersistenceRequestedOperation reqOp) {
+	public CRUDOnMultipleResult(final PersistenceRequestedOperation reqOp,
+								final Class<M> modelObjectType) {
+		super(reqOp);
 		_modelObjectType = modelObjectType;
 		_requestedOperation = reqOp;
 		_requestedOperationName = reqOp.name();
 		_operationExecResult = Sets.newHashSet();
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  METHODS
-/////////////////////////////////////////////////////////////////////////////////////////
-	public String getRequestedOperationName() {
-		return _requestedOperation != null ? _requestedOperation.name() 
-										   : "unknown persistence operation";
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  ADD
@@ -101,8 +89,8 @@ public class CRUDOnMultipleResult<M>
 								final PersistenceRequestedOperation reqOp) {
 		if (CollectionUtils.hasData(okEntities)) {
 			for (M okEntity : okEntities) {
-				CRUDOK<M> ok = new CRUDOK<M>((Class<M>)_modelObjectType,
-										     reqOp,
+				CRUDOK<M> ok = new CRUDOK<M>(reqOp,PersistencePerformedOperation.from(reqOp),
+											 _modelObjectType,
 										     okEntity);
 				this.addOperationOK(ok);
 			}

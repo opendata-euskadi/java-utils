@@ -52,15 +52,15 @@ public class InsertionOrderedMap<K,V>
 // 	METHODS
 ///////////////////////////////////////////////////////////////////////////////
 	public K firstKey() {	
-		K firstKey = (K)FluentIterable.from(_delegate.keySet())
-									  .first()
-									  .orNull();
+		K firstKey = FluentIterable.from(_delegate.keySet())
+								  .first()
+								  .orNull();
 		return firstKey;
 	}
 	public K lastKey() {
-		K lastKey = (K)FluentIterable.from(_delegate.keySet())
-									  .last()
-									  .orNull();
+		K lastKey = FluentIterable.from(_delegate.keySet())
+								  .last()
+								  .orNull();
 		return lastKey;
 	}
 	public K nextKey(final K ofKey) {

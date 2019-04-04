@@ -317,9 +317,8 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 		 || CollectionUtils.isNullOrEmpty(_pathElements)) return index;
 		
 		int position = 0;
-		for( final String pathElem : this.getPathElements() ) {
-			
-			if(pathElem.equals(pathElement)) {
+		for (final String pathElem : this.getPathElements() ) {
+			if (pathElem.equals(pathElement)) {
 				index = position;
 				break;
 			}	
@@ -573,6 +572,10 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 
 		// trim spaces
 		String outNormalizedElement = element.trim();
+		
+		// replace windows slash
+		outNormalizedElement = _replaceWinSlash(outNormalizedElement);
+		
 		// remove leading / 
 		if (outNormalizedElement.startsWith("/")) {
 			outNormalizedElement = _removeLeadingSlashes(outNormalizedElement);		// remove the leading /
@@ -580,9 +583,9 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 		// remove trailing /
 		if (outNormalizedElement.endsWith("/")) {
 			outNormalizedElement = _removeTrailingSlashes(outNormalizedElement);	// remove the trailing / 
-		} 	
+		}
 		// remove duplicates /
-		outNormalizedElement = _removeDuplicateSparators(outNormalizedElement); 
+		outNormalizedElement = _removeDuplicateSparators(outNormalizedElement);
 		
 		return outNormalizedElement;
 	}
@@ -598,6 +601,9 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 	}
 	private static String _removeDuplicateSparators(final String path) {
 		return path.replaceAll("/{1,}","/");		// replaces multiple / with a single / 
+	}
+	private static String _replaceWinSlash(final String path) {
+		return path.replaceAll("\\\\","/");
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 // 	
@@ -1082,10 +1088,8 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
 	public <O extends OID> boolean is(final O other) {
-		if (other instanceof PathBase) {
-			return ((PathBase<?>)this).equals(other);
-		}
-		return false;
+		return other instanceof PathBase ? ((PathBase<?>)this).equals(other)
+										 : false;
 	}
 	@Override
 	public <O extends OID> boolean isNOT(final O other) {
@@ -1148,7 +1152,7 @@ public abstract class PathBase<SELF_TYPE extends PathBase<SELF_TYPE>>
 		if (this.getClass() != obj.getClass()) return false;
 		PathBase<?> other = (PathBase<?>)obj;
 		String thisPath = this.asAbsoluteString();
-		String otherPath = other.asAbsoluteString();
+		String otherPath = other.asAbsoluteString();		
 		return thisPath.equals(otherPath);
 	}
 }

@@ -78,6 +78,36 @@ public abstract class CorePersistenceServicesBase
 /////////////////////////////////////////////////////////////////////////////////////////
 	private EntityManager _getFreshNewEntityManager(final TenantID tenantId,
 													final boolean tenantIdShouldNOTBeNull) {
+		return CorePersistenceServicesBase.freshNewEntityManager(_entityManagerProvider,
+																 tenantId,
+																 tenantIdShouldNOTBeNull,
+																 this.getClass());
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  
+/////////////////////////////////////////////////////////////////////////////////////////	
+	public static EntityManager freshNewEntityManager(final Provider<EntityManager> entityManagerProvider,
+													  final Class<?> callerType) {
+		return CorePersistenceServicesBase.freshNewEntityManager(entityManagerProvider,
+																 null,false,	// null tenantId
+																 callerType);	
+	}
+	public static EntityManager freshNewEntityManager(final Provider<EntityManager> entityManagerProvider) {
+		return CorePersistenceServicesBase.freshNewEntityManager(entityManagerProvider,
+																 null,false,	// null tenantId
+																 CorePersistenceServicesBase.class);	
+	}
+	public static EntityManager freshNewEntityManager(final Provider<EntityManager> entityManagerProvider,
+													  final TenantID tenantId,
+													  final boolean tenantIdShouldNOTBeNull) {
+		return CorePersistenceServicesBase.freshNewEntityManager(entityManagerProvider,
+																 tenantId,tenantIdShouldNOTBeNull,	
+																 CorePersistenceServicesBase.class);
+	}
+	public static EntityManager freshNewEntityManager(final Provider<EntityManager> entityManagerProvider,
+													  final TenantID tenantId,
+													  final boolean tenantIdShouldNOTBeNull,
+													  final Class<?> callerType) {
 		EntityManager outEntityManager = null;
 		
 		// tenant
@@ -118,19 +148,60 @@ public abstract class CorePersistenceServicesBase
 //			outEntityManager = _entityManagerFactoryProvider.get().createEntityManager(emfProperties);
 			
 			// ... so fallback to the option [1]
-			outEntityManager = _entityManagerProvider.get();
+			outEntityManager = entityManagerProvider.get();
 		} else {
 			if (tenantIdShouldNOTBeNull) log.warn("A call to get an entity manager for a tenant BUT no tenant id was provided; if no tenancy is used, do NOT call {}.getFreshNewEntityManager(tenantId) method, call {}.getFreshNewEntityManager() instead!",
-					 							  this.getClass().getName(),this.getClass().getName());
-			outEntityManager = _entityManagerProvider.get();
+					 							  callerType.getName(),callerType.getName());
+			outEntityManager = entityManagerProvider.get();
 		}
 		 
 		
-		// TODO needs some research... really must have to call clear?? (see http://stackoverflow.com/questions/9146239/auto-cleared-sessions-with-guice-persist)
-		outEntityManager.clear();	// BEWARE that the EntityManagerProvider reuses EntityManager instances and those instances
-									// could have cached entity instances... discard them all
-		outEntityManager.setFlushMode(FlushModeType.COMMIT);		
-		
+		// TODO needs some research... really must have to call clear??
+		//		(see http://stackoverflow.com/questions/9146239/auto-cleared-sessions-with-guice-persist)
+		//
+		// If em.clear() is called, the following DOES NOT works
+		//		public class MyTransactionalService {
+		//			private final Provider<EntityManager> _emProvider;
+		//			private final MyOTHERTransactionalService _otherTransactionalService;
+		//			
+		//			@Inject 
+		//			public MyTransactionalService(final Provider<EntityManager> emProvider
+		//										  final MyOTHERTransactionalService otherTransactionalService) {
+		//				_emProvider = emProvider;
+		//				_otherTransactionalService = otherTransactionalService;
+		//			}
+		//
+		//			@Transactional
+		//			public void anyTransactionalMethod() {
+		//				MyDAO dao = new MyDAO(_emProvider.get());
+		//				dao.doSomeDBStuff();
+		//
+		//				_otherTransactionalService.doSomeDBStuff();		<!-- if this does NOT exists, everything works fine 
+		//			}														 ... BUT it just fails because that:   
+		//		}																 1:  _otherTransactionalService calls _emProvider.get() that returns the SAME EntityMangager
+		//		public class MyOTHERTransactionalService {						     since everything is run in the SAME THREAD (it'll work if _otherTransactionalService.doSomeDBStuff() was run in other thread)
+		//			private final Provider<EntityManager> _emProvider;			 2: em.clear() is called
+		//			
+		//			@Inject 
+		//			public MyOTHERTransactionalService(final Provider<EntityManager> emProvider) {
+		//				_emProvider = emProvider;
+		//			}
+		//
+		//			@Transactional
+		//			public void anyTransactionalMethod() {
+		//				MyOTHERDAO dao = new MyOTHERDAO(_emProvider.get());		<-- as the guice's JpaPersistService EntityManager provider returns a ThreadLocal-stored EntityManager
+		//				dao.doSomeDBStuff();										and the service is called in the SAME thread, the SAME EntityManager as for MyTransactionalService 
+		//			}																is returned
+		//		}																	... so if em.clear() is called, ALL PREVIOUS DB work is DISCARDED!!
+		//
+		//																			NOTE that everything would have work if run in ANOTHER Thread since guice's JpaPersistService EntityManager provider 
+		//																			returns a ThreadLocal-stored EntityManager 
+		//
+		if (!outEntityManager.isJoinedToTransaction()) {
+			outEntityManager.clear();	// BEWARE that in the SAME thread the EntityManagerProvider reuses EntityManager storing it at a ThreadLocal store
+										// since the EntityManager could have cached entity instances... discard them all
+			outEntityManager.setFlushMode(FlushModeType.COMMIT);
+		}		
 		return outEntityManager;
 	}
 }

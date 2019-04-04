@@ -8,6 +8,7 @@ import javax.ws.rs.core.Response;
 import lombok.experimental.Accessors;
 import r01f.guids.OIDForVersionableModelObject;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.guids.VersionOID;
 import r01f.model.PersistableModelObject;
@@ -27,7 +28,7 @@ import r01f.services.interfaces.CRUDServicesForVersionableModelObject;
  * @param <I>
  */
 @Accessors(prefix="_")
-public class RESTVersionableCRUDDelegateBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet> 
+public class RESTVersionableCRUDDelegateBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet> 
      extends RESTCRUDDelegateBase<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR

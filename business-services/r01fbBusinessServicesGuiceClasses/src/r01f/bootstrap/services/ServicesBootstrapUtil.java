@@ -9,12 +9,12 @@ import javax.inject.Singleton;
 
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.common.eventbus.EventBus;
 import com.google.inject.Binder;
 import com.google.inject.Binding;
 import com.google.inject.Injector;
 import com.google.inject.Key;
 import com.google.inject.Module;
-import com.google.inject.PrivateBinder;
 import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
@@ -22,20 +22,18 @@ import com.google.inject.name.Names;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import r01f.bootstrap.services.client.ServicesClientBootstrapGuiceModule;
 import r01f.bootstrap.services.config.ServicesBootstrapConfig;
-import r01f.bootstrap.services.config.ServicesImpl;
-import r01f.bootstrap.services.config.client.ServicesClientGuiceBootstrapConfig;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenRESTExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenServletExposed;
-import r01f.bootstrap.services.config.core.ServicesCoreGuiceBootstrapConfig;
-import r01f.bootstrap.services.core.ServicesCoreBootstrapGuiceModule;
+import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
+import r01f.concurrent.ExecutorServiceManager;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.guids.CommonOIDs.AppComponent;
-import r01f.reflection.ReflectionException;
-import r01f.reflection.ReflectionUtils;
+import r01f.persistence.jobs.AsyncEventBusProvider;
+import r01f.persistence.jobs.ExecutorServiceManagerProvider;
+import r01f.persistence.jobs.SyncEventBusProvider;
 import r01f.service.ServiceHandler;
+import r01f.services.ids.ServiceIDs.ClientApiAppCode;
+import r01f.types.ExecutionMode;
+import r01f.util.types.Strings;
 import r01f.util.types.collections.CollectionUtils;
 import r01f.xmlproperties.XMLProperties;
 import r01f.xmlproperties.XMLPropertiesComponentImpl;
@@ -74,78 +72,92 @@ public class ServicesBootstrapUtil {
 	 * @return
 	 */
 	public static ServicesMainGuiceBootstrapCommonBindingModules getBootstrapGuiceModules(final Collection<ServicesBootstrapConfig> servicesBootstrapCfg) {
-		Collection<Module> bootstrapModules = new ServicesBootstrap(servicesBootstrapCfg)
-																		.loadBootstrapModuleInstances();
-		return new ServicesMainGuiceBootstrapCommonBindingModules(bootstrapModules);
+		return new ServicesMainGuiceBootstrapCommonBindingModules(servicesBootstrapCfg);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ServicesMainGuiceBootstrapCommonBindingModules {
-		private final Collection<Module> _bootstrapModules;
+		final Collection<ServicesBootstrapConfig> _servicesBootstrapCfg;
+		private Module _commonEventsExecutorModule;
 
-		public Collection<Module> withoutCommonBindingModules() {
-			return _bootstrapModules;
+		public ServicesMainGuiceBootstrapCommonBindingModules withoutCommonEventsExecutor() {
+			return this.withCommonEventsExecutor(null);
+		}
+		public ServicesMainGuiceBootstrapCommonBindingModules withCommonEventsExecutor(final ServicesCoreModuleEventsConfig coreEventsCfg) {
+			if (coreEventsCfg == null) return this;
+
+			// all bootsrap modules shares the same client api app code
+			ClientApiAppCode clientApiAppCode = null;
+			for (ServicesBootstrapConfig bootCfg : _servicesBootstrapCfg) {
+				if (clientApiAppCode == null) {
+					clientApiAppCode = bootCfg.getClientApiAppCode();
+				} else if (clientApiAppCode.isNOT(bootCfg.getClientApiAppCode())) {
+					throw new IllegalArgumentException("In order to use a common events executor, all services bootstrap MUST belong to the SAME clienta api appCode!");
+				}
+			}
+			_commonEventsExecutorModule = ServicesBootstrapUtil.createCoreEventBusBindingModule(clientApiAppCode,
+																								coreEventsCfg);
+			return this;
+		}
+		public Iterable<Module> withoutCommonBindingModules() {
+			Collection<Module> bootstrapModules = new ServicesBootstrap(_servicesBootstrapCfg)
+														.loadBootstrapModuleInstances();
+			return _commonEventsExecutorModule != null ? Iterables.concat(bootstrapModules,
+																		  Lists.<Module>newArrayList(_commonEventsExecutorModule))
+													   : bootstrapModules;
 		}
 		public Iterable<Module> withCommonBindingModules(final Module... modules) {
 			return CollectionUtils.hasData(modules) ? this.withCommonBindingModules(Arrays.asList(modules))
 													: this.withoutCommonBindingModules();
 		}
 		public Iterable<Module> withCommonBindingModules(final Collection<Module> modules) {
-			Iterable<Module> allBootstrapModuleInstances = CollectionUtils.hasData(modules) ? Iterables.concat(_bootstrapModules,
+			Iterable<Module> bootstrapAndEventMods = this.withoutCommonBindingModules();
+			Iterable<Module> allBootstrapModuleInstances = CollectionUtils.hasData(modules) ? Iterables.concat(bootstrapAndEventMods,
 																											   modules)
-																						    : _bootstrapModules;
+																						    : bootstrapAndEventMods;
 			return allBootstrapModuleInstances;
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  BOOTSTRAP GUICE MODULES CREATION
+//
 /////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Creates a client bootstrap guice module instance
-	 * @param servicesClientBootstrapCfg
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static <G extends ServicesClientBootstrapGuiceModule> G createClientGuiceModuleInstance(final ServicesClientGuiceBootstrapConfig servicesClientBootstrapCfg) {
-		try {
-			G outMod =  ReflectionUtils.createInstanceOf((Class<G>)servicesClientBootstrapCfg.getClientBootstrapGuiceModuleType(),
-												    	 new Class<?>[] { ServicesClientGuiceBootstrapConfig.class },
-												    	 new Object[] { servicesClientBootstrapCfg });
-			return outMod;
-		} catch (ReflectionException refEx) {
-			log.error("Could NOT create an instance of {} bootstrap guice module. The module MUST have {}-based constructor",
-					  servicesClientBootstrapCfg.getClientBootstrapGuiceModuleType(),
-					  ServicesClientGuiceBootstrapConfig.class);
-			throw refEx;
-		}
-	}
-	/**
-	 * Creates a core bootstrap guice module instance
-	 * @param servicesCoreBootstrapCfg
-	 * @return
-	 */
-	@SuppressWarnings("unchecked")
-	public static <G extends ServicesCoreBootstrapGuiceModule> G createCoreGuiceModuleInstance(final ServicesCoreGuiceBootstrapConfig<?,?> servicesCoreBootstrapCfg) {
-		try {
-			// find the constructor arg type
-			Class<?> cfgType = null;
-			if (servicesCoreBootstrapCfg.getImplType() == ServicesImpl.Bean) {
-				cfgType = ServicesCoreBootstrapConfigWhenBeanExposed.class;
-			} else if (servicesCoreBootstrapCfg.getImplType() == ServicesImpl.REST) {
-				cfgType = ServicesCoreBootstrapConfigWhenRESTExposed.class;
-			} else if (servicesCoreBootstrapCfg.getImplType() == ServicesImpl.Servlet) {
-				cfgType = ServicesCoreBootstrapConfigWhenServletExposed.class;
-			}
-			// create the module
-			G outMod =  ReflectionUtils.createInstanceOf((Class<G>)servicesCoreBootstrapCfg.getCoreBootstrapGuiceModuleType(),
-												    	 new Class<?>[] { cfgType },
-												    	 new Object[] { servicesCoreBootstrapCfg });
-			return outMod;
-		} catch (ReflectionException refEx) {
-			log.error("Could NOT create an instance of {} bootstrap guice module. The module MUST have a {}-based constructor",
-					  servicesCoreBootstrapCfg.getCoreBootstrapGuiceModuleType(),
-					  ServicesCoreGuiceBootstrapConfig.class);
-			throw refEx;
-		}
+	public static Module createCoreEventBusBindingModule(final ClientApiAppCode clientApiAppCode,
+														 final ServicesCoreModuleEventsConfig coreModuleEventsConfig) {
+		return new Module() {
+						@Override
+						public void configure(final Binder binder) {
+							if (coreModuleEventsConfig != null) {
+								log.warn("EVENT HANDLING: {}",coreModuleEventsConfig.debugInfo());
+								
+								// The EventBus needs an ExecutorService (a thread pool) to manage events in the background
+								if (coreModuleEventsConfig.getExecutionMode() == ExecutionMode.ASYNC) {
+									ExecutorServiceManagerProvider execServiceManagerProvider = new ExecutorServiceManagerProvider(coreModuleEventsConfig.getNumberOfBackgroundThreads());
+									binder.bind(ExecutorServiceManager.class)
+										  .toProvider(execServiceManagerProvider)
+										  .in(Singleton.class);
+									// Expose the ServiceHandler to stop the exec manager threads
+									String bindingName = Strings.customized("{}.backgroundTasksExecService",
+																			clientApiAppCode);
+									// do NO forget!!
+									ServicesBootstrapUtil.bindServiceHandler(binder,
+																			 ExecutorServiceManager.class,bindingName);
+	
+									// create the event bus provider
+									binder.bind(EventBus.class)
+										  .toProvider(AsyncEventBusProvider.class)	// AsyncEventBusProvider needs an ExecutorServiceManager that MUST be binded
+										  .in(Singleton.class);
+								} else {
+									binder.bind(EventBus.class)
+											 .toProvider(SyncEventBusProvider.class)
+											 .in(Singleton.class);
+								}
+							} else {
+								log.warn("NO [EventBus] is configured: if you're using events, review the [core] bootstrapping code > a default SYNC event bus is binded by default!!");
+								binder.bind(EventBus.class)
+										 .toProvider(SyncEventBusProvider.class)
+										 .in(Singleton.class);
+							}
+						}
+			   };
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -213,11 +225,6 @@ public class ServicesBootstrapUtil {
 			  .annotatedWith(Names.named(name))
 			  .to(serviceHandlerType)
 			  .in(Singleton.class);
-		if (binder instanceof PrivateBinder) {
-			PrivateBinder privateBinder = (PrivateBinder)binder;
-			privateBinder.expose(Key.get(ServiceHandler.class,
-										 Names.named(name)));	// expose the binding
-		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //

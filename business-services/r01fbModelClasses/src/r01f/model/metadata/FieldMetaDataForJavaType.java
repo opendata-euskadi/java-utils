@@ -24,7 +24,7 @@ public class FieldMetaDataForJavaType
 			 other.getSearchEngineIndexingConfig(),
 			 other.getDataType());
 	}
-	public FieldMetaDataForJavaType(final IndexableFieldID fieldId,
+	public FieldMetaDataForJavaType(final FieldID fieldId,
 							   		final LanguageTexts name,final LanguageTexts description,
 							   		final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 							   		final Class<?> type) {

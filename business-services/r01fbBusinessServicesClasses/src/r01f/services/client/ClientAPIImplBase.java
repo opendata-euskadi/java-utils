@@ -1,10 +1,13 @@
 package r01f.services.client;
 
+import java.util.Map;
+
 import javax.inject.Provider;
 
 import lombok.experimental.Accessors;
 import r01f.objectstreamer.Marshaller;
 import r01f.securitycontext.SecurityContext;
+import r01f.services.interfaces.ServiceInterface;
 
 
 
@@ -12,7 +15,7 @@ import r01f.securitycontext.SecurityContext;
  * Base type for every API implementation 
  */
 @Accessors(prefix="_")
-public abstract class ClientAPIImplBase<S extends ServiceProxiesAggregator> 
+public abstract class ClientAPIImplBase 
            implements ClientAPI {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR INJECTED
@@ -26,33 +29,38 @@ public abstract class ClientAPIImplBase<S extends ServiceProxiesAggregator>
 	 */
 	protected final Provider<SecurityContext> _securityContextProvider;
 	/**
-	 * Service proxies aggregator 
+	 * A guice's Map binder that provides a {@link ServiceInterface}'s core impl or proxy to the core impl
 	 */
-	protected final S _serviceProxiesAggregator;
-	
+	@SuppressWarnings("rawtypes")
+	protected final Map<Class,ServiceInterface> _srvcIfaceMappings;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-//	public ClientAPIImplBase(final securityContext securityContext,
-//						 	 final S servicesProxiesAggregator) {
-//		this(securityContext,
-//			 null,
-//			 servicesProxiesAggregator);
-//	}	
+	@SuppressWarnings("rawtypes") 
 	public ClientAPIImplBase(final Provider<SecurityContext> securityContextProvider,
 							 final Marshaller modelObjectsMarshaller,
-						 	 final S servicesProxiesAggregator) {
+							 final Map<Class,ServiceInterface> srvcIfaceMappings) {
 		_securityContextProvider = securityContextProvider;
 		_modelObjectsMarshaller = modelObjectsMarshaller;
-		_serviceProxiesAggregator = servicesProxiesAggregator;
+		_srvcIfaceMappings = srvcIfaceMappings;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  CAST
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override @SuppressWarnings("unchecked")
+	public <A extends ClientAPI> A as(final Class<A> type) {
+		return (A)this;
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  MARSHALLER
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public Marshaller getModelObjectsMarshaller() {
 		return _modelObjectsMarshaller;
 	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SECURITY CONTEXT
+/////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
 	public Provider<SecurityContext> getSecurityContextProvider() {
 		return _securityContextProvider;
@@ -61,19 +69,17 @@ public abstract class ClientAPIImplBase<S extends ServiceProxiesAggregator>
 	public <U extends SecurityContext> U getSecurityContext() {
 		return (U)_securityContextProvider.get();
 	}
-	@Override @SuppressWarnings("unchecked")
-	public <T extends ServiceProxiesAggregator> T getServiceProxiesAggregator() {
-		return (T)_serviceProxiesAggregator;
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SERVICE INTERFACE
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override @SuppressWarnings("rawtypes")
+	public Map<Class,ServiceInterface> getServiceInterfaceMappings() {
+		return _srvcIfaceMappings;
 	}
 	@Override @SuppressWarnings("unchecked")
-	public <T extends ServiceProxiesAggregator> T getServiceProxiesAggregatorAs(final Class<T> aggregatorType) {
-		return (T)_serviceProxiesAggregator;
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  
-/////////////////////////////////////////////////////////////////////////////////////////
-	@Override @SuppressWarnings("unchecked")
-	public <A extends ClientAPI> A as(final Class<A> type) {
-		return (A)this;
+	public <S extends ServiceInterface> S getServiceInterfaceCoreImplOrProxy(final Class<S> serviceInterfaceType) {
+		S outSrvcIfaceCoreImplOrProxy = _srvcIfaceMappings != null ? (S)_srvcIfaceMappings.get(serviceInterfaceType)
+										  						   : null;
+		return outSrvcIfaceCoreImplOrProxy;
 	}
 }

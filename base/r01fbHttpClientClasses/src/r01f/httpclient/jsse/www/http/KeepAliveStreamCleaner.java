@@ -67,7 +67,7 @@ public class KeepAliveStreamCleaner extends LinkedBlockingQueue<KeepAliveCleaner
         int maxData = ((Integer) AccessController.doPrivileged(
             new PrivilegedAction() {
                 public Object run() {
-                    return new Integer(NetProperties.getInteger(maxDataKey, MAX_DATA_REMAINING));
+                    return Integer.valueOf(NetProperties.getInteger(maxDataKey, MAX_DATA_REMAINING));
                 }})).intValue() * 1024;
         MAX_DATA_REMAINING = maxData;
 
@@ -75,7 +75,7 @@ public class KeepAliveStreamCleaner extends LinkedBlockingQueue<KeepAliveCleaner
         int maxCapacity = ((Integer) AccessController.doPrivileged(
             new PrivilegedAction() {
                 public Object run() {
-                    return new Integer(NetProperties.getInteger(maxCapacityKey, MAX_CAPACITY));
+                    return Integer.valueOf(NetProperties.getInteger(maxCapacityKey, MAX_CAPACITY));
                 }})).intValue();
         MAX_CAPACITY = maxCapacity;
 
@@ -96,7 +96,7 @@ public class KeepAliveStreamCleaner extends LinkedBlockingQueue<KeepAliveCleaner
         do {
             try {
                 kace = poll((long)TIMEOUT, TimeUnit.MILLISECONDS);
-                if(kace == null)
+                if (kace == null)
                     break;
 
                 KeepAliveStream kas = kace.getKeepAliveStream();

@@ -28,9 +28,9 @@ public class ModelObjectTracking
   implements Serializable {
 	
 	private static final long serialVersionUID = 2286660970580116262L;
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //	FIELDS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Object create date
      */
@@ -159,7 +159,7 @@ public class ModelObjectTracking
 		ModelObjectTracking other = (ModelObjectTracking)obj;
 		return Objects.equal(this.getCreateDate(),other.getCreateDate())
 			&& Objects.equal(this.getCreatorUserCode(),other.getCreatorUserCode())
-			&& Objects.equal(this.getLastUpdateDate(),other.getCreatorUserCode())
+			&& Objects.equal(this.getLastUpdateDate(),other.getLastUpdateDate())
 			&& Objects.equal(this.getLastUpdatorUserCode(),other.getLastUpdatorUserCode());
 		
 	}

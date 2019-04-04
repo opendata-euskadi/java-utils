@@ -707,7 +707,7 @@ class ChunkedInputStream extends InputStream implements Hurryable {
         ensureOpen();
 
         int avail = chunkCount - chunkPos;
-        if(avail > 0) {
+        if (avail > 0) {
             return avail;
         }
 

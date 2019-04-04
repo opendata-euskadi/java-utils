@@ -5,6 +5,7 @@ import com.google.common.eventbus.EventBus;
 
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
 import r01f.model.persistence.FindResult;
@@ -15,7 +16,7 @@ import r01f.services.interfaces.FindServicesForVersionableModelObject;
 /**
  * Service layer delegated type for CRUD find operations
  */
-public abstract class FindServicesForVersionableModelObjectDelegateBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+public abstract class FindServicesForVersionableModelObjectDelegateBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 		      extends FindServicesForModelObjectDelegateBase<O,M> 
 		   implements FindServicesForVersionableModelObject<O,M> {
 

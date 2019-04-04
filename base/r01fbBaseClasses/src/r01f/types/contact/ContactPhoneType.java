@@ -2,7 +2,7 @@ package r01f.types.contact;
 
 
 /**
- * Tipo de teléfono (fijo/normal, fax, móvil)
+ * Phone type (work, personal, etc)
  */
 public enum ContactPhoneType {
 	FAX,

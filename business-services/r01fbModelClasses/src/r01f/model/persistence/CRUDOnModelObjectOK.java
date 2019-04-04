@@ -17,24 +17,17 @@ public class CRUDOnModelObjectOK<M extends PersistableModelObject<? extends OID>
 	public CRUDOnModelObjectOK() {
 		/* nothing */
 	}
-	CRUDOnModelObjectOK(final Class<M> entityType,
-						final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp) {
-		super(entityType,
-			  reqOp,performedOp);
+	CRUDOnModelObjectOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp,
+						final Class<M> entityType) {
+		super(reqOp,performedOp,
+			  entityType);
 	}
-	CRUDOnModelObjectOK(final Class<M> entityType,
-						final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp,
+	CRUDOnModelObjectOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp,
+						final Class<M> entityType,
 						final M entity) {
-		super(entityType,
-			  reqOp,performedOp);
+		super(reqOp,performedOp,
+			  entityType);
 		_operationExecResult = entity;
-	}
-	CRUDOnModelObjectOK(final Class<M> entityType,
-						final PersistenceRequestedOperation reqOp,
-						final M entity) {
-		this(entityType,
-			 reqOp,PersistencePerformedOperation.from(reqOp),
-			 entity);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

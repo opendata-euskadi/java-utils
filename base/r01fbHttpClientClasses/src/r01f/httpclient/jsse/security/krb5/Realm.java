@@ -83,14 +83,13 @@ public class Realm implements Cloneable {
             return (this.realm == null && that.realm == null);
         }
     }
-
-    public int hashCode() {
+    @Override
+	public int hashCode() {
         int result = 17 ;
 
-        if( realm != null ) {
+        if (realm != null ) {
             result = 37 * result + realm.hashCode();
         }
-
         return result;
     }
 
@@ -112,8 +111,8 @@ public class Realm implements Cloneable {
         if (!isValidRealmString(realm))
             throw new RealmException(Krb5.REALM_ILLCHAR);
     }
-
-    public String toString() {
+    @Override
+	public String toString() {
         return realm;
     }
 
@@ -218,7 +217,7 @@ public class Realm implements Cloneable {
      */
     private static String[] doInitialParse(String cRealm, String sRealm)
         throws KrbException {
-            if (cRealm == null || sRealm == null){
+            if (cRealm == null || sRealm == null) {
                 throw new KrbException(Krb5.API_INVALID_ARG);
             }
             if (DEBUG) {

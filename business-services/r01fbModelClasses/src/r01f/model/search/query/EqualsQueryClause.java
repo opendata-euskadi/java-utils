@@ -13,8 +13,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.enums.EnumWithCode;
 import r01f.guids.OID;
-import r01f.model.metadata.IndexableFieldID;
-import r01f.model.metadata.SearchableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallType;
 import r01f.util.types.Dates;
@@ -46,15 +45,12 @@ public class EqualsQueryClause<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	EqualsQueryClause(final IndexableFieldID fieldId,
+	EqualsQueryClause(final FieldID fieldId,
 					  final T value) {
 		super(fieldId);
 		_eqValue = value;
 	}
-	public static <ID extends SearchableFieldID> EqualsQueryClauseBuilder forField(final ID id) {
-		return EqualsQueryClause.forField(id.getFieldId());
-	}
-	public static EqualsQueryClauseBuilder forField(final IndexableFieldID fieldId) {
+	public static EqualsQueryClauseBuilder forField(final FieldID fieldId) {
 		return new EqualsQueryClauseBuilder(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -136,8 +132,9 @@ public class EqualsQueryClause<T>
 		if (obj == this) return true;
 		if (!(obj instanceof EqualsQueryClause)) return false;
 		
+		if (!super.equals(obj)) return false;	// checks fieldId
+		
 		EqualsQueryClause<?> otherEq = (EqualsQueryClause<?>)obj;
-		if (!super.equals(obj)) return false;
 		return _eqValue != null ? otherEq.getEqValue() != null ? _eqValue.equals(otherEq.getEqValue())
 							    							   : false
 							    : true;		// both null
@@ -151,7 +148,7 @@ public class EqualsQueryClause<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class EqualsQueryClauseBuilder {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		
 		public <T> EqualsQueryClause<T> of(final T value) {
 			return new EqualsQueryClause<T>(_fieldId,

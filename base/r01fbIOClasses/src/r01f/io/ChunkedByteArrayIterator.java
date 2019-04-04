@@ -63,7 +63,7 @@ public class ChunkedByteArrayIterator
 	private void _computeBlockSize() {
 		// Calcular dinámicamente el tamaño del bloque: 
 		//		- si el tamaño del fichero es mayor de 1Mb, se sube por bloques
-		if (_bytes.length > 999 * 1024){
+		if (_bytes.length > 999 * 1024) {
 			_blockSize = 100*1024;		// tamaño de bloque 100 Kb
 		} else {
 			_blockSize = _bytes.length;	// tamaño del bloque igual el fichero, subida unica

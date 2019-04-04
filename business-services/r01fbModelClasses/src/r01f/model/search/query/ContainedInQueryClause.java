@@ -1,5 +1,6 @@
 package r01f.model.search.query;
 
+import java.lang.reflect.Array;
 import java.util.Collection;
 
 import com.google.common.annotations.GwtIncompatible;
@@ -11,8 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import r01f.model.metadata.IndexableFieldID;
-import r01f.model.metadata.SearchableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 import r01f.objectstreamer.annotations.MarshallType;
@@ -43,15 +43,12 @@ public class ContainedInQueryClause<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	ContainedInQueryClause(final IndexableFieldID fieldId,
+	ContainedInQueryClause(final FieldID fieldId,
 						   final T[] spectrum) {
 		super(fieldId);
 		_spectrum = spectrum;
 	}	
-	public static <ID extends SearchableFieldID,T> ContainedInQueryClauseStep1Builder<T> forField(final ID id) {
-		return ContainedInQueryClause.forField(id.getFieldId());
-	}	
-	public static <T> ContainedInQueryClauseStep1Builder<T> forField(final IndexableFieldID fieldId) {
+	public static <T> ContainedInQueryClauseStep1Builder<T> forField(final FieldID fieldId) {
 		return new ContainedInQueryClauseStep1Builder<T>(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -73,8 +70,19 @@ public class ContainedInQueryClause<T>
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@SuppressWarnings("unchecked")
-	public void setSpectrumFrom(final Collection<T> spectrum) {
+	public void setSpectrumFrom(final Collection<T> spectrum) {	// this is needed in order to store the value type
+		if (spectrum == null) throw new IllegalArgumentException();
 		_spectrum = (T[])spectrum.toArray();
+	}
+	@SuppressWarnings("unchecked")
+	public void setSpectrumFrom(final Collection<T> spectrum,
+								final Class<T> spectrumElementType) {	// this is needed in order to store the value type
+		if (spectrum == null) throw new IllegalArgumentException();
+		T[] array = (T[])Array.newInstance(spectrumElementType,spectrum.size());
+		_spectrum = spectrum.toArray(array);
+	}
+	public void setSpectrumFrom(final T[] spectrum) {
+		_spectrum = spectrum;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	EQUALS & HASHCODE
@@ -85,7 +93,7 @@ public class ContainedInQueryClause<T>
 		if (obj == this) return true;
 		if (!(obj instanceof ContainedInQueryClause)) return false;
 		
-		if (!super.equals(obj)) return false;
+		if (!super.equals(obj)) return false;	// checks field id
 		
 		ContainedInQueryClause<?> otherContained = (ContainedInQueryClause<?>)obj;
 		return _spectrum != null ? otherContained.getSpectrum() != null ? _arrayEqs(_spectrum,otherContained.getSpectrum())
@@ -115,7 +123,7 @@ public class ContainedInQueryClause<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainedInQueryClauseStep1Builder<T> {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		
 		public ContainedInQueryClause<T> within(final T[] spectrum) {
 			return new ContainedInQueryClause<T>(_fieldId,

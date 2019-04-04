@@ -11,19 +11,24 @@ import org.w3c.dom.Document;
 
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.XLNetsFuncion;
-import r01f.ejie.xlnets.XLNetsItemSeguridad;
-import r01f.ejie.xlnets.XLNetsSession;
-import r01f.ejie.xlnets.XLNetsSession.XLNetsSessionType;
-import r01f.ejie.xlnets.XLNetsTipoObjeto;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
-import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceCfg;
-import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceItemType;
+import r01f.ejie.xlnets.api.XLNetsAPI;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg.ResourceCfg;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg.ResourceItemType;
+import r01f.ejie.xlnets.context.XLNetsAuthCtx;
+import r01f.ejie.xlnets.context.XLNetsResourceCtx;
+import r01f.ejie.xlnets.context.XLNetsTargetCtx;
+import r01f.ejie.xlnets.model.XLNetsFuncion;
+import r01f.ejie.xlnets.model.XLNetsItemSeguridad;
+import r01f.ejie.xlnets.model.XLNetsOrganizationType;
+import r01f.ejie.xlnets.model.XLNetsSession;
+import r01f.ejie.xlnets.model.XLNetsSession.XLNetsSessionType;
+import r01f.ejie.xlnets.model.XLNetsTipoObjeto;
 import r01f.types.url.Url;
 import r01f.util.types.collections.CollectionUtils;
-import r01f.xmlproperties.XMLPropertiesForAppComponent;
 /**
- * Clase base para el provider de autenticación. Actualmente implementan esta interface tres clases que definen los distintos
+ * Clase base para el provider de autenticación. 
+ * Actualmente implementan esta interface tres clases que definen los distintos
  * sistemas de seguridad:
  * <pre>
  * 1) XLNetsFileAuthProvider : Seguridad implementada a través de ficheros físicos, se usa para simular el acceso a XL-Nets en entornos locales.
@@ -34,24 +39,23 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
  */
 @Accessors(prefix="_")
 @Slf4j
-public class XLNetsAuthProvider
-	 extends XLNetsAuthTokenProvider {
+public class XLNetsAuthProvider {
 // /////////////////////////////////////////////////////////////////////////////////////////
 // CONSTANTES
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Clave de la propiedad que aloja el código de aplicación en el login de aplicación.
      */
     public static final String APP_CODE_PROPERTY = "appCode";
 /////////////////////////////////////////////////////////////////////////////////////////
+//	FIELDS
+/////////////////////////////////////////////////////////////////////////////////////////
+    private final XLNetsAPI _xlNetsApi;
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-    public XLNetsAuthProvider(final XMLPropertiesForAppComponent props) {
-    	super(props);
-    }
-    public XLNetsAuthProvider(final XMLPropertiesForAppComponent props,
-							  final String propsRootNode) {
-    	super(props,propsRootNode);
+    public XLNetsAuthProvider(final XLNetsAPI xlNetsApi) {
+    	_xlNetsApi = xlNetsApi;
     }
 /////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS
@@ -69,7 +73,8 @@ public class XLNetsAuthProvider
 	public XLNetsAuthCtx getAuthContext(final HttpServletRequest req) {
         try {
         	// Use the xlnets api to get a session xml document
-        	Document xlnetsSessionTokenDoc = this.getXLNetsSessionTokenDoc(req);
+        	Document xlnetsSessionTokenDoc = _xlNetsApi.getXLNetsSessionTokenDoc();
+        	
         	// Check that the returned document is a valid XLNets session
         	XLNetsSessionType sessionType = XLNetsSession.xlnetsSessionTypeFrom(xlnetsSessionTokenDoc);
         	if (xlnetsSessionTokenDoc != null
@@ -78,24 +83,41 @@ public class XLNetsAuthProvider
 	        	XLNetsSession xlnetsSessionToken = new XLNetsSession(xlnetsSessionTokenDoc);
 	        	// add the user name: issues another n38 api call to get the user info
 	        	log.debug( "....getAuthContext (add the user name: issues another n38 api call to get the user info");
-	        	Document xlnetsUserInfoDoc = this.getXLNetsUserDoc(req,
-	        													   xlnetsSessionTokenDoc);
-	        	Document xlnetsOrganizationDoc = this.getXLNetsItemOrg(req,
-	        														   XLNetsOrganizationType.ORGANIZATION,
-	        														   xlnetsSessionToken.getOrganizacion().getOid());
-	         	Document xlnetsGroupDoc = this.getXLNetsItemOrg(req,
-															    XLNetsOrganizationType.GROUP,
-															    xlnetsSessionToken.getGrupo().getOid());
-	        	Document xlnetsCenterDoc = this.getXLNetsItemOrg(req,
-															    XLNetsOrganizationType.CENTER,
-															    xlnetsSessionToken.getUnidad().getOid());
-	        	//Complete data!
+	        	
+	        	Document xlnetsUserInfoDoc = null;
+	        	try {
+	        		xlnetsUserInfoDoc= _xlNetsApi.getXLNetsUserDoc(xlnetsSessionTokenDoc);
+	        	} catch (Throwable th) {
+	        		log.error("Error retrieving user info: {}",th.getMessage(),th);
+	        	}
 	        	if (xlnetsUserInfoDoc != null) {
 	        		xlnetsSessionToken.setUserInfo(xlnetsUserInfoDoc.getDocumentElement());
 	        	} else {
 	        		log.warn("NO user info was retrieved from xlnets!!");
 	        	}
-
+	        	
+	        	Document xlnetsOrganizationDoc = null;
+	        	try {
+	        		xlnetsOrganizationDoc = _xlNetsApi.getXLNetsItemOrgDoc(XLNetsOrganizationType.ORGANIZATION,
+	        														   	   xlnetsSessionToken.getOrganizacion().getOid());
+	        	} catch (Throwable th) {
+	        		log.error("Error retrieving org info: {}",th.getMessage(),th);
+	        	}
+	         	Document xlnetsGroupDoc = null;
+	         	try {
+	         		xlnetsGroupDoc = _xlNetsApi.getXLNetsItemOrgDoc(XLNetsOrganizationType.GROUP,
+															   	   	xlnetsSessionToken.getGrupo().getOid());
+	         	} catch (Throwable th) {
+	        		log.error("Error retrieving org info: {}",th.getMessage(),th);	         		
+	         	}
+	        	Document xlnetsCenterDoc = null;
+	        	try {
+	        		xlnetsCenterDoc = _xlNetsApi.getXLNetsItemOrgDoc(XLNetsOrganizationType.CENTER,
+															     	 xlnetsSessionToken.getUnidad().getOid());
+	        	} catch (Throwable th) {
+	        		log.error("Error retrieving org info: {}",th.getMessage(),th);
+	        	}
+	        	
 	        	if (xlnetsOrganizationDoc != null || xlnetsGroupDoc !=null || xlnetsCenterDoc != null) {
 	        		xlnetsSessionToken.setOrganizationInfo((xlnetsOrganizationDoc != null )? xlnetsOrganizationDoc.getDocumentElement() : null,
 	        											   (xlnetsGroupDoc != null ) ? xlnetsGroupDoc.getDocumentElement() : null,
@@ -103,6 +125,21 @@ public class XLNetsAuthProvider
 	        	} else {
 	        		log.warn("NO user info was retrieved from xlnets about organizations !!");
 	        	}
+	        	
+
+	        	Document xlnetsWorkplaceDoc = null;
+	        	try {
+	        		xlnetsWorkplaceDoc = _xlNetsApi.getXLNetsWorkplaceDoc(xlnetsSessionTokenDoc);
+	        	} catch (Throwable th) {
+	        		log.error("Error retrieving workplace info: {}",th.getMessage(),th);
+	        	}
+	        	if (xlnetsWorkplaceDoc != null ) {
+	        		xlnetsSessionToken.setWorkplaceInfo(xlnetsWorkplaceDoc);
+	        	} else {
+	        		log.warn("NO user info was retrieved from xlnets about workplace !!");
+	        	}
+	        	
+	        
 		        // Comprobar si la sesión es válida y en tal caso devolver el contexto.
 		        if ( xlnetsSessionToken.getSessionUID() != null ) {
 		        	XLNetsAuthCtx  xLNetsAuthCtx = new XLNetsAuthCtx(xlnetsSessionToken);
@@ -160,8 +197,6 @@ public class XLNetsAuthProvider
         Map<String,XLNetsResourceCtx> authorizedResources = null;	// Recursos autorizados en el destino
 
         try {
-//		    N38API n38Api = new N38API(req);
-
 	        for (ResourceCfg currResCfg : targetCfg.getResources()) {
 	        	XLNetsResourceCtx resourceCtx = null;				// Recurso actual
 
@@ -172,13 +207,12 @@ public class XLNetsAuthProvider
 	            			 currResCfg.getType(),currResCfg.getOid());
 		            if (currResCfg.getType() == ResourceItemType.FUNCTION) {
 		            	log.warn("Resource type function with oid {}",currResCfg.getOid() );
-		                doc = this.getAuthorization(req,
-		                							currResCfg.getOid(),ResourceItemType.FUNCTION);
+		                doc = _xlNetsApi.getAuthorizationDoc(currResCfg.getOid(),ResourceItemType.FUNCTION);
 		                if (doc != null ) {
 			                XLNetsFuncion func = new XLNetsFuncion(doc.getDocumentElement());
-			                if (func.getItemSeguridad()!= null &&
-			                		func.getItemSeguridad().getUID() != null &&
-			                		 func.getItemSeguridad().getUID().equalsIgnoreCase(currResCfg.getOid())){
+			                if (func.getItemSeguridad() != null 
+			                 && func.getItemSeguridad().getUID() != null
+			                 && func.getItemSeguridad().getUID().equalsIgnoreCase(currResCfg.getOid())) {
 				                log.warn(" This is the authorized function: ", func.toString());
 				                // Contexto del recurso
 				                resourceCtx = new XLNetsResourceCtx(func);				// autorizaciones
@@ -187,16 +221,16 @@ public class XLNetsAuthProvider
 					            authorizedResources.put(resourceCtx.getOid(),
 					            						resourceCtx);
 			                } else {
-			                	log.warn("Has no permission function with oid {} .\n\n"
-			                			+ " WARNING ! Check if n38ItemObtenerAutorizacion returns a valid n38ItemSeguridad object with same oid/id",currResCfg.getOid() );
+			                	log.warn("Has no permission function with oid {} .\n\n" +
+			                			 "WARNING ! Check if n38ItemObtenerAutorizacion returns a valid n38ItemSeguridad object with same oid/id",
+			                			 currResCfg.getOid() );
 			                }
 		                } else {
 		                	log.warn("Has no permission function with oid {}",currResCfg.getOid() );
 		                }
 
 		            } else if (currResCfg.getType() == ResourceItemType.OBJECT) {
-		            	doc = this.getAuthorization(req,
-		            								currResCfg.getOid(),ResourceItemType.OBJECT);
+		            	doc = _xlNetsApi.getAuthorizationDoc(currResCfg.getOid(),ResourceItemType.OBJECT);
 
 		                XLNetsTipoObjeto tipoObj = new XLNetsTipoObjeto(doc.getDocumentElement());
 

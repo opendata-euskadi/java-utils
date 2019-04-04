@@ -76,7 +76,7 @@ public class CCacheInputStream extends KrbDataInputStream implements FileCCacheC
 
     private static boolean DEBUG = Krb5.DEBUG;
 
-    public CCacheInputStream(InputStream is){
+    public CCacheInputStream(InputStream is) {
         super(is);
     }
 
@@ -105,8 +105,8 @@ public class CCacheInputStream extends KrbDataInputStream implements FileCCacheC
             taglen = read(2);
             switch (tag) {
             case FCC_TAG_DELTATIME:
-                time_offset = new Integer(read(4));
-                usec_offset = new Integer(read(4));
+                time_offset = Integer.valueOf(read(4));
+                usec_offset = Integer.valueOf(read(4));
                 break;
             default:
             }
@@ -200,7 +200,7 @@ public class CCacheInputStream extends KrbDataInputStream implements FileCCacheC
         for (int i = 0; i < keyLen; i++) {
             bytes[i] = (byte)read();
         }
-        return new EncryptionKey(bytes, keyType, new Integer(version));
+        return new EncryptionKey(bytes, keyType, Integer.valueOf(version));
     }
 
     long[] readTimes() throws IOException {

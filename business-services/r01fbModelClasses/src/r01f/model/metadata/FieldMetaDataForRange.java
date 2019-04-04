@@ -38,7 +38,7 @@ public class FieldMetaDataForRange
 			 other.getSearchEngineIndexingConfig(),
 			 (Class<? extends Comparable<?>>)other.getDataType());
 	}
-	public FieldMetaDataForRange(final IndexableFieldID fieldId,
+	public FieldMetaDataForRange(final FieldID fieldId,
 								 final LanguageTexts name,final LanguageTexts description,
 								 final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								 final Class<? extends Comparable<?>> rangeDataType) {

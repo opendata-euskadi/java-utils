@@ -20,8 +20,8 @@ public class XLNetsAuthServletFilter
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	protected void _attachBusinessModelObjectToLocalThreadIfNeeed(final HttpServletRequest request) {
-	  // Do nothing. The default XLNetsAuthServletFilter has no businness model object to attach into a local thread.
-	  // If needed to attach a businness model  into a local thread, extend XLNetsAuthServletFilterBase and implement this method
+	  // Do nothing. The default XLNetsAuthServletFilter has no business model object to attach into a local thread.
+	  // If needed to attach a business model  into a local thread, extend XLNetsAuthServletFilterBase and implement this method
 	}
 	@Override
 	protected void _doFinallyAfterFilter() {

@@ -23,7 +23,7 @@ public class FieldMetaDataForFloat
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForFloat(final IndexableFieldID fieldId,
+	public FieldMetaDataForFloat(final FieldID fieldId,
 								 final LanguageTexts name,final LanguageTexts description,
 								 final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

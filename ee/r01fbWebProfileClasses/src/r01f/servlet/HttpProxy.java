@@ -664,8 +664,10 @@ public class HttpProxy {
             targetUrlPath = requestedUrlPath;
         } 
         else if (requestedUrlPath.startsWith(_config.getPathTrim())) {
-        	// remove the pathTrim part
+        	// remove the pathTrim part        	
         	targetUrlPath = requestedUrlPath.urlPathAfter(_config.getPathTrim());
+        	log.warn("path trim '{}' from url: resulting url > {}",
+        			 _config.getPathTrim(),targetUrlPath);
         }
         else {
         	// nothing to remove

@@ -1,10 +1,12 @@
 package r01f.services.client.api.delegates;
 
+import java.util.Map;
+
 import r01f.securitycontext.HasSecurityContext;
 import r01f.securitycontext.SecurityContext;
-import r01f.services.client.ServiceProxiesAggregator;
+import r01f.services.interfaces.ServiceInterface;
 
-public abstract class ClientAPIDelegateBase<P extends ServiceProxiesAggregator> 
+public abstract class ClientAPIDelegateBase 
 		   implements HasSecurityContext {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
@@ -14,17 +16,19 @@ public abstract class ClientAPIDelegateBase<P extends ServiceProxiesAggregator>
 	 */
 	protected final SecurityContext _securityContext;
 	/**
-	 * a type that aggregates fine-grained proxies 
+	 * A guice's Map binder that provides a {@link ServiceInterface}'s core impl or proxy to the core impl
 	 */
-	protected final P _serviceProxiesAggregator;
+	@SuppressWarnings("rawtypes")
+	protected final Map<Class,ServiceInterface> _srvcIfaceMappings;
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
+	@SuppressWarnings("rawtypes") 
 	protected ClientAPIDelegateBase(final SecurityContext securityContext,
-								 	final P servicesProxy) {
+								 	final Map<Class,ServiceInterface> srvcIfaceMappings) {
 		_securityContext = securityContext;
-		_serviceProxiesAggregator = servicesProxy;
+		_srvcIfaceMappings = srvcIfaceMappings;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -33,7 +37,13 @@ public abstract class ClientAPIDelegateBase<P extends ServiceProxiesAggregator>
 	public <U extends SecurityContext> U getSecurityContext() {
 		return (U)_securityContext;
 	}
-	public P getServiceProxiesAggregator() {
-		return _serviceProxiesAggregator;
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SERVICE INTERFACE
+/////////////////////////////////////////////////////////////////////////////////////////
+	@SuppressWarnings("unchecked")
+	public <S extends ServiceInterface> S getServiceInterfaceCoreImplOrProxy(final Class<S> serviceInterfaceType) {
+		S outSrvcIfaceCoreImplOrProxy = _srvcIfaceMappings != null ? (S)_srvcIfaceMappings.get(serviceInterfaceType)
+										  						   : null;
+		return outSrvcIfaceCoreImplOrProxy;
 	}
 }

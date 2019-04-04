@@ -1,21 +1,22 @@
 package r01f.services.client;
 
+import java.util.Map;
+
 import javax.inject.Provider;
 
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
-import r01f.model.ModelObject;
 import r01f.objectstreamer.HasMarshaller;
 import r01f.objectstreamer.Marshaller;
 import r01f.securitycontext.SecurityContext;
+import r01f.services.interfaces.ServiceInterface;
 
 /**
  * Base for every sub-api
  */
 @Accessors(prefix="_")
 @RequiredArgsConstructor
-public abstract class ClientSubAPIBase<S extends ClientAPI,
-									   P extends ServiceProxiesAggregator> 
+public abstract class ClientSubAPIBase
 		   implements HasMarshaller {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  STATUS (injected by constructor)
@@ -29,26 +30,13 @@ public abstract class ClientSubAPIBase<S extends ClientAPI,
 	 */
 	protected final Marshaller _modelObjectsMarshaller;
 	/**
-	 * Reference to the client-apis
-	 * it's normal that another sub-api must be used from a sub-api
+	 * A guice's Map binder that provides a {@link ServiceInterface}'s core impl or proxy to the core impl
 	 */
-	protected final S _clientAPIs;
+	@SuppressWarnings("rawtypes")
+	protected final Map<Class,ServiceInterface> _srvcIfaceMappings;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  METHODS
-/////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * @return other sub-apis
-	 */
-	public S getClientAPIs() {
-		return _clientAPIs;
-	}
-	/**
-	 * @return  an aggregator of proxies for the services real services impl
-	 */
-	public P getServicesProxiesAggregator() {
-		P clientProxy = _clientAPIs.<P>getServiceProxiesAggregator();
-		return clientProxy;
-	}
+//  SECURITY CONTEXT
+/////////////////////////////////////////////////////////////////////////////////////////	
 	/**
 	 * @return a provider of the security context
 	 */
@@ -62,10 +50,20 @@ public abstract class ClientSubAPIBase<S extends ClientAPI,
 	public <U extends SecurityContext> U getSecurityContext() {
 		return (U)_securityContextProvider.get();
 	}
-	/**
-	 * @return the {@link ModelObject}s {@link Marshaller}
-	 */
+/////////////////////////////////////////////////////////////////////////////////////////
+//  MARSHALLER
+/////////////////////////////////////////////////////////////////////////////////////////	
+	@Override
 	public Marshaller getModelObjectsMarshaller() {
 		return _modelObjectsMarshaller;
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SERVICE INTERFACE
+/////////////////////////////////////////////////////////////////////////////////////////
+	@SuppressWarnings("unchecked")
+	public <S extends ServiceInterface> S getServiceInterfaceCoreImplOrProxy(final Class<S> serviceInterfaceType) {
+		S outSrvcIfaceCoreImplOrProxy = _srvcIfaceMappings != null ? (S)_srvcIfaceMappings.get(serviceInterfaceType)
+										  						   : null;
+		return outSrvcIfaceCoreImplOrProxy;
 	}
 }

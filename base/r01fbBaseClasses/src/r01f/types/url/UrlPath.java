@@ -28,7 +28,7 @@ import r01f.util.types.collections.CollectionUtils;
 @Immutable
 @MarshallType(as="urlPath")
 public class UrlPath
-	 extends Path 
+	 extends Path
   implements IsUrlPath {
 	private static final long serialVersionUID = -4132364966392988245L;
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +40,7 @@ public class UrlPath
 	 */
 	private final boolean _preserveTrailingSlash;
 	/**
-	 * true if the path ends with a trailing slash (ie: /foo/bar/) 
+	 * true if the path ends with a trailing slash (ie: /foo/bar/)
 	 * -this is usually important in url paths-
 	 */
 	private final boolean _trailingSlash;
@@ -52,7 +52,7 @@ public class UrlPath
 	}
 	public UrlPath(final boolean preserveTrailingSlash) {
 		super(Lists.newArrayList());
-		_trailingSlash = false;		
+		_trailingSlash = false;
 		_preserveTrailingSlash = preserveTrailingSlash;
 	}
 	public UrlPath(final Collection<String> pathEls) {
@@ -63,11 +63,11 @@ public class UrlPath
 				   final Collection<String> pathEls) {
 		super(pathEls);
 		_preserveTrailingSlash = preserveTrailingSlash;
-		_trailingSlash = CollectionUtils.hasData(pathEls) 
+		_trailingSlash = CollectionUtils.hasData(pathEls)
 								? Iterables.getLast(pathEls).endsWith("/")
 								: false;
 	}
-	public  UrlPath(final String... elements) { 
+	public  UrlPath(final String... elements) {
 		this(false,		// do not preserve trailing slash
 			 elements);
 	}
@@ -75,7 +75,7 @@ public class UrlPath
 				   final String... elements) {
 		super(elements);
 		_preserveTrailingSlash = preserveTrailingSlash;
-		_trailingSlash = CollectionUtils.hasData(elements) 
+		_trailingSlash = CollectionUtils.hasData(elements)
 								? elements[elements.length-1].toString().endsWith("/")
 								: false;
 	}
@@ -87,7 +87,7 @@ public class UrlPath
 				   final Object... objs) {
 		super(objs);
 		_preserveTrailingSlash = preserveTrailingSlash;
-		_trailingSlash = CollectionUtils.hasData(objs) 
+		_trailingSlash = CollectionUtils.hasData(objs)
 								? objs[objs.length-1].toString().endsWith("/")
 								: false;
 	}
@@ -109,7 +109,7 @@ public class UrlPath
 									  final P otherPath) {
 		super(otherPath);
 		_preserveTrailingSlash = preserveTrailingSlash;
-		_trailingSlash = otherPath != null ? otherPath.asString().endsWith("/") 
+		_trailingSlash = otherPath != null ? otherPath.asString().endsWith("/")
 										   : false;
 	}
 	public static final PathFactory<UrlPath> URL_PATH_FACTORY = _createUrlPathFactory(false);
@@ -145,7 +145,7 @@ public class UrlPath
 	@RequiredArgsConstructor
 	public static class UrlPathBuilderPreserveTrailingSlash {
 		private final boolean _preserveTrailingSlash;
-		
+
 		public UrlPath from(final String... elements) {
 			if (CollectionUtils.isNullOrEmpty(elements)) return null;
 			return new UrlPath(_preserveTrailingSlash,
@@ -179,7 +179,7 @@ public class UrlPath
 	}
 	/**
 	 * Factory from path components
-	 * @param elements 
+	 * @param elements
 	 * @return the {@link Path} object
 	 */
 	public static UrlPath from(final String... elements) {
@@ -188,7 +188,7 @@ public class UrlPath
 	}
 	/**
 	 * Factory from other {@link Path} object
-	 * @param other 
+	 * @param other
 	 * @return the new {@link Path} object
 	 */
 	public static <P extends IsPath> UrlPath from(final P other) {
@@ -198,7 +198,7 @@ public class UrlPath
 	}
 	/**
 	 * Factory from an {@link Object} (the path is composed translating the {@link Object} to {@link String})
-	 * @param obj 
+	 * @param obj
 	 * @return the {@link Path} object
 	 */
 	public static UrlPath from(final Object... obj) {
@@ -206,7 +206,7 @@ public class UrlPath
 		return new UrlPath(obj);
 	}
 	/**
-	 * Factory from a {@link URL} object 
+	 * Factory from a {@link URL} object
 	 * @param url
 	 * @return
 	 */
@@ -221,35 +221,35 @@ public class UrlPath
 	@Override
 	public String asString() {
 		if (!_preserveTrailingSlash) return super.asString();
-		return _trailingSlash ? super.asString() + "/" 
+		return _trailingSlash ? super.asString() + "/"
 							  : super.asString();
 	}
 	@Override
 	public String asRelativeString() {
 		if (!_preserveTrailingSlash) return super.asRelativeString();
-		return _trailingSlash ? super.asRelativeString() + "/" 
+		return _trailingSlash ? super.asRelativeString() + "/"
 							  : super.asRelativeString();
 	}
 	@Override
 	public String asAbsoluteString() {
 		if (!_preserveTrailingSlash) return super.asAbsoluteString();
-		return _trailingSlash ? super.asAbsoluteString() + "/" 
+		return _trailingSlash ? super.asAbsoluteString() + "/"
 							  : super.asAbsoluteString();
 	}
 	@Override
 	public <P extends IsPath> String asAbsoluteStringFrom(final P parentPath) {
 		if (!_preserveTrailingSlash) return super.asAbsoluteStringFrom(parentPath);
-		return _trailingSlash ? super.<P>asAbsoluteStringFrom(parentPath) + "/" 
+		return _trailingSlash ? super.<P>asAbsoluteStringFrom(parentPath) + "/"
 							  : super.<P>asAbsoluteStringFrom(parentPath);
 	}
 	@Override
 	public <P extends IsPath> String asRelativeStringFrom(final P parentPath) {
 		if (!_preserveTrailingSlash) return super.asRelativeStringFrom(parentPath);
-		return _trailingSlash ? super.<P>asRelativeStringFrom(parentPath) + "/" 
+		return _trailingSlash ? super.<P>asRelativeStringFrom(parentPath) + "/"
 							  : super.<P>asRelativeStringFrom(parentPath);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String asAbsoluteStringIncludingQueryStringEncoded(final UrlQueryString queryString) {
@@ -259,7 +259,7 @@ public class UrlPath
 	@Override
 	public String asAbsoluteStringIncludingQueryString(final UrlQueryString queryString) {
 		return this.asAbsoluteStringIncludingQueryString(queryString,
-														 false);	
+														 false);
 	}
 	@Override
 	public String asAbsoluteStringIncludingQueryString(final UrlQueryString queryString,
@@ -286,7 +286,7 @@ public class UrlPath
 								   : this.asRelativeString();
 	}
 ///////////////////////////////////////////////////////////////////////////////
-// 	
+//
 ///////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
 	public UrlPath joinedWith(final Object... elements) {
@@ -300,18 +300,24 @@ public class UrlPath
 		if (CollectionUtils.isNullOrEmpty(elements)) return this;
 		UrlPath outUrlPath = (UrlPath)PathBase.prepend(this.getPathFactory(),
 								   	  	 			   this,_sanitize(elements));
-		return outUrlPath;		
+		return outUrlPath;
 	}
 	private Collection<Object> _sanitize(final Object... elements) {
 		if (CollectionUtils.isNullOrEmpty(elements)) throw new IllegalArgumentException();
 		return FluentIterable.from(elements)
+					.filter(new Predicate<Object>() {
+									@Override
+									public boolean apply(final Object el) {
+										return el != null;
+									}
+					})
 					.transform(new Function<Object,Object>() {
 										@Override
 										public Object apply(final Object el) {
 											if (el instanceof String) {
 												String elStr = el.toString();
 												// remove query string or anchor if present
-												int pQ = elStr.indexOf('?');		
+												int pQ = elStr.indexOf('?');
 												if (pQ >= 0) elStr = elStr.substring(0,pQ);
 												int pA = elStr.indexOf('#');
 												if (pA >= 0) elStr = elStr.substring(0,pA);
@@ -323,16 +329,16 @@ public class UrlPath
 					.filter(new Predicate<Object>() {
 									@Override
 									public boolean apply(final Object el) {
-										return el instanceof String 
+										return el instanceof String
 													? ((String)el).length() > 0
 												    : true;
 									}
 							})
 					.toList();
-		
+
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//	
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Returns the remaining path fragment begining where the given

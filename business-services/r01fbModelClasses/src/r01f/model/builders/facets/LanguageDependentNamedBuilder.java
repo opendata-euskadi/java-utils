@@ -8,37 +8,32 @@ import r01f.locale.LanguageTexts;
 
 
 public class LanguageDependentNamedBuilder<CONTAINER_TYPE,
-										   SELF_TYPE extends HasLangDependentNamedFacet> 
-  	 extends FacetBuilderBase<CONTAINER_TYPE,SELF_TYPE> {
+										   T extends HasLangDependentNamedFacet> 
+  	 extends FacetBuilderBase<CONTAINER_TYPE,T> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	public LanguageDependentNamedBuilder(final CONTAINER_TYPE parentType,
-										 final SELF_TYPE hasLanguageDependentNamedFacet) {
+										 final T hasLanguageDependentNamedFacet) {
 		super(parentType,
 			  hasLanguageDependentNamedFacet);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	public LanguageDependentNamedBuilder<CONTAINER_TYPE,SELF_TYPE> withNameIn(final Language lang,final String name) {
-		if (_modelObject.getNamesByLanguage() == null) _modelObject.ensureNamesByLanguageContainerIsNOTNull();
-		_modelObject.getNamesByLanguage()
-					.add(lang,name);
+	public LanguageDependentNamedBuilder<CONTAINER_TYPE,T> withNameIn(final Language lang,final String name) {
+		_modelObject.getName().add(lang,name);
     	return this;
     }
     public CONTAINER_TYPE withNames(final LanguageTexts names) {
-    	if (_modelObject.getNamesByLanguage() == null) _modelObject.ensureNamesByLanguageContainerIsNOTNull();
     	for (Language lang : names.getDefinedLanguages()) {
-    		_modelObject.getNamesByLanguage()
-    					.add(lang,names.get(lang));
+    		_modelObject.getName().add(lang,names.get(lang));
     	}
     	return _nextBuilder;
     }
     public CONTAINER_TYPE withNames(final Map<Language,String> names) {
-    	if (_modelObject.getNamesByLanguage() == null) _modelObject.ensureNamesByLanguageContainerIsNOTNull();
     	for (Language lang : names.keySet()) {
-    		_modelObject.getNamesByLanguage()
+    		_modelObject.getName()
     					.add(lang,names.get(lang));
     	}
     	return _nextBuilder;

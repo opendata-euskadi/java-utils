@@ -5,9 +5,9 @@ import java.util.Date;
 
 import com.google.common.eventbus.EventBus;
 
-import r01f.guids.CommonOIDs.UserCode;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.CommonOIDs.UserCode;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.FindOIDsResult;
 import r01f.model.persistence.FindOIDsResultBuilder;
@@ -19,7 +19,7 @@ import r01f.types.Range;
 /**
  * Service layer delegated type for CRUD find operations
  */
-public abstract class FindServicesForModelObjectDelegateBase<O extends OID,M extends PersistableModelObject<O>>
+public abstract class FindServicesForModelObjectDelegateBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 			  extends PersistenceServicesForModelObjectDelegateBase<O,M>
 		   implements FindServicesForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////

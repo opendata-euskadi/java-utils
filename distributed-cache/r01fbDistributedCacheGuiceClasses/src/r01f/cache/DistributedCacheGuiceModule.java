@@ -1,13 +1,11 @@
 package r01f.cache;
 
-import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import com.google.inject.Binder;
 import com.google.inject.Module;
 import com.google.inject.Provides;
 import com.google.inject.name.Names;
-import com.hazelcast.core.HazelcastInstance;
 
 import lombok.extern.slf4j.Slf4j;
 import r01f.service.ServiceHandler;
@@ -64,10 +62,10 @@ public class DistributedCacheGuiceModule
 		binder.bind(ServiceHandler.class)
         	  .annotatedWith(Names.named(Strings.customized("{}.{}",
         			  										_config.getAppCode(),_config.getAppComponent())))
-        	  .to(DistributedCacheServiceControlHandler.class)
+        	  .to(DistributedCacheService.class)
         	  .in(Singleton.class);
 		log.debug("... binded {} to {} with name {}",
-				  ServiceHandler.class.getSimpleName(),DistributedCacheServiceControlHandler.class,
+				  ServiceHandler.class.getSimpleName(),DistributedCacheServiceHazelcastImpl.class,
 				  _config.getAppCode(),_config.getAppComponent());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -78,44 +76,50 @@ public class DistributedCacheGuiceModule
 	 * @param props
 	 * @return
 	 */
+//	@Provides @Singleton // beware the service is a singleton
+//	DistributedCacheService _provideDistributedCacheService(final HazelcastInstance hzInstance) {
+//		DistributedCacheService outService = new DistributedCacheServiceHazelcastImpl(hzInstance);
+//		return outService;
+//	}
+//	@Provides @Singleton // beware the service is a singleton
+//	HazelcastInstance _provideHazelcastInstance() {
+//		return HazelcastManager.getOrCreateeHazelcastInstance(_config);
+//	}
 	@Provides @Singleton // beware the service is a singleton
-	DistributedCacheService _provideDistributedCacheService(final HazelcastInstance hzInstance) {
-		DistributedCacheService outService = new DistributedCacheServiceHazelcastImpl(hzInstance);
+	DistributedCacheService _provideDistributedCacheService() {
+		DistributedCacheService outService = new DistributedCacheServiceHazelcastImpl(_config);
 		return outService;
 	}
-	@Provides @Singleton // beware the service is a singleton
-	HazelcastInstance _provideHazelcastInstance() {
-		return HazelcastManager.getOrCreateeHazelcastInstance(_config);
-	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 // SERVICE HANDLER control
 /////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * see https://github.com/google/guice/wiki/ModulesShouldBeFastAndSideEffectFree
-	 * The {@link ServiceHandler} interface is used to start & stop the JPA's PersistenceService
-	 * at ServletContextListenerBase type
-	 */
-	static class DistributedCacheServiceControlHandler
-	  implements ServiceHandler {
-
-		private final DistributedCacheService  _service;
-
-		@Inject
-		public DistributedCacheServiceControlHandler(final DistributedCacheService service) {
-			_service = service;
-		}
-		@Override
-		public void start() {
-			if (_service == null) throw new IllegalStateException("NO distributed cache service available!");
-				_service.start();
-			}
-		@Override
-		public void stop() {
-		   if (_service == null) throw new IllegalStateException("NO distributed cache service available!");
-			try {
-				 log.debug("...Stopping Hazelcast instance......");
-				_service.stop();
-			} catch (Throwable th) {/* just in the case where Service were NOT started */ }
-		}
-	}
+//	/**
+//	 * see https://github.com/google/guice/wiki/ModulesShouldBeFastAndSideEffectFree
+//	 * The {@link ServiceHandler} interface is used to start & stop the JPA's PersistenceService
+//	 * at ServletContextListenerBase type
+//	 */
+//	static class DistributedCacheServiceControlHandler
+//	  implements ServiceHandler {
+//
+//		private final DistributedCacheService  _service;
+//
+//		@Inject
+//		public DistributedCacheServiceControlHandler(final DistributedCacheService service) {
+//			_service = service;
+//		}
+//		@Override
+//		public void start() {
+//			if (_service == null) throw new IllegalStateException("NO distributed cache service available!");
+//				_service.start();
+//			}
+//		@Override
+//		public void stop() {
+//		   if (_service == null) throw new IllegalStateException("NO distributed cache service available!");
+//			try {
+//				 log.debug("...Stopping Hazelcast instance......");
+//				_service.stop();
+//			} catch (Throwable th) {/* just in the case where Service were NOT started */ }
+//		}
+//	}
 }

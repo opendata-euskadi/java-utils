@@ -1,21 +1,33 @@
 package r01f.services.client;
 
+import java.util.Map;
+
 import javax.inject.Provider;
 
 import r01f.model.API;
-import r01f.objectstreamer.Marshaller;
+import r01f.objectstreamer.HasMarshaller;
 import r01f.securitycontext.SecurityContext;
+import r01f.services.interfaces.ServiceInterface;
 
 
 /**
  * Client API 
  */
 public interface ClientAPI
-		 extends API {
+		 extends API,
+		 		 HasMarshaller {
+/////////////////////////////////////////////////////////////////////////////////////////
+//  CAST
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return the model objects marshaller
+	 * Returns the {@link ClientAPI} typed
+	 * @param type
+	 * @return
 	 */
-	public Marshaller getModelObjectsMarshaller();
+	public <A extends ClientAPI> A as(final Class<A> type);
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SECURITY CONTEXT
+/////////////////////////////////////////////////////////////////////////////////////////	
 	/**
 	 * @return the user context
 	 */
@@ -24,19 +36,18 @@ public interface ClientAPI
 	 * @return the user context provider
 	 */
 	public Provider<SecurityContext> getSecurityContextProvider();
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SERVICE INTERFACE
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return an aggregator of proxies for the services real services impl
+	 * @return the service interface to core impl or proxy matchings
 	 */
-	public <S extends ServiceProxiesAggregator> S getServiceProxiesAggregator();
+	@SuppressWarnings("rawtypes")
+	public Map<Class,ServiceInterface> getServiceInterfaceMappings();
 	/**
-	 * @param aggregatorType
-	 * @return an aggregator of proxies for the services real services impl
-	 */
-	public <S extends ServiceProxiesAggregator> S getServiceProxiesAggregatorAs(Class<S> aggregatorType);
-	/**
-	 * Returns the {@link ClientAPI} typed
-	 * @param type
+	 * Returns a {@link ServiceInterface}'s core impl or proxy to the core impl
+	 * @param serviceInterfaceType
 	 * @return
 	 */
-	public <A extends ClientAPI> A as(final Class<A> type);
+	public <S extends ServiceInterface> S getServiceInterfaceCoreImplOrProxy(final Class<S> serviceInterfaceType);
 }

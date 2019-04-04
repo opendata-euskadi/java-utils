@@ -49,7 +49,7 @@ public abstract class DOKUSIRetrievedDocumentBuilder
 						.new DOKUSIRetrievedDocumentLoadBuilderStep(docPath,docSize);
 	}
 	@RequiredArgsConstructor
-	public class DOKUSIRetrievedDocumentLoadBuilderStep {
+	public final class DOKUSIRetrievedDocumentLoadBuilderStep {
 		private final Path _path;
 		private final int _length;
 		
@@ -71,7 +71,7 @@ public abstract class DOKUSIRetrievedDocumentBuilder
 		Iterator<?> iterator = soapBodyElement.getChildElements();
 		while (iterator.hasNext()) {
 			Object obj = iterator.next();
-			if (obj instanceof SOAPElement){
+			if (obj instanceof SOAPElement) {
 				SOAPElement soapEl = (SOAPElement)obj;				
 				outBodyStr.append(soapEl.getValue());
 			}

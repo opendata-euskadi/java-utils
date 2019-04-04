@@ -15,18 +15,19 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.CommonOIDs.UserCode;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.SummarizedModelObject;
 import r01f.services.client.api.delegates.ClientAPIDelegateForDependentModelObjectFindServices;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectFindServices;
 import r01f.services.client.api.delegates.ClientAPIHasDelegateForDependentModelObjectFind;
+import r01f.test.api.TestAPIBase;
 import r01f.types.Range;
 import r01f.util.types.collections.CollectionUtils;
 
 @Slf4j
 @RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-public class TestPersistableModelObjectFind<O extends OID,M extends PersistableModelObject<O>> {
+public class TestPersistableModelObjectFind<O extends PersistableObjectOID,M extends PersistableModelObject<O>> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -36,8 +37,8 @@ public class TestPersistableModelObjectFind<O extends OID,M extends PersistableM
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectFind<O,M> create(final ClientAPIDelegateForModelObjectFindServices<O,M> findAPI,
-																												 final ManagesTestMockModelObjsLifeCycle<O,M> modelObjFactory) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectFind<O,M> create(final ClientAPIDelegateForModelObjectFindServices<O,M> findAPI,
+																												 				  final ManagesTestMockModelObjsLifeCycle<O,M> modelObjFactory) {
 		return new TestPersistableModelObjectFind<O,M>(findAPI,
 													   modelObjFactory);
 	}
@@ -79,7 +80,7 @@ public class TestPersistableModelObjectFind<O extends OID,M extends PersistableM
 		Assert.assertTrue(CollectionUtils.hasData(oidsByLastUpdatedDate));
 
 		// [3] - By creator
-		UserCode user = UserCode.forId("testUser");
+		UserCode user = TestAPIBase.TEST_USER;
 
 		log.warn("\tFIND ENTITY's OIDs BY CREATOR: {}",user);
 		Collection<O> oidsByCreator = _findAPI.findByCreator(user);

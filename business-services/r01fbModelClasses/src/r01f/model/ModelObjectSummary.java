@@ -2,12 +2,9 @@ package r01f.model;
 
 import java.io.Serializable;
 
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
+import lombok.RequiredArgsConstructor;
 import r01f.facets.HasOID;
 import r01f.facets.LangDependentNamed;
-import r01f.facets.Summarizable;
 import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
 import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
 import r01f.guids.OID;
@@ -22,12 +19,9 @@ import r01f.types.summary.SummaryStringBacked;
  * Models a resume about a model object that includes the oid and a summary
  * @param <O>
  */
-@Accessors(prefix="_")
-@NoArgsConstructor @AllArgsConstructor
+@RequiredArgsConstructor
 public class ModelObjectSummary
-  implements Summarizable,
-  			 Serializable {
-
+  implements Serializable {
 
 	private static final long serialVersionUID = 4320627553035814416L;
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -36,11 +30,11 @@ public class ModelObjectSummary
 	/**
 	 * The model object oid
 	 */
-	private OID _oid;	
+	private final OID _oid;	
 	/**
 	 * The model object summary 
 	 */
-	private Summary _summary;
+	private final Summary _summary;
 			
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
@@ -101,18 +95,7 @@ public class ModelObjectSummary
 	public <O extends OID> O getOid() {
 		return (O)_oid;
 	}
-	public <O extends OID> void setOid(final O oid) {
-		_oid = oid;
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  
-/////////////////////////////////////////////////////////////////////////////////////////
-	@Override
 	public Summary getSummary() {
 		return _summary;
-	}
-	@Override
-	public void setSummary(final Summary summary) {
-		_summary = summary;
 	}
 }

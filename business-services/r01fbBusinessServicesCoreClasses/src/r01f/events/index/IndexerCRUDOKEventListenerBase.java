@@ -13,7 +13,6 @@ import r01f.model.persistence.CRUDOK;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.interfaces.IndexServicesForModelObject;
 import r01f.types.jobs.EnqueuedJob;
-import r01f.util.types.Strings;
 
 /**
  * Listener to {@link PersistenceOperationOKEvent}s thrown by the persistence layer through the {@link EventBus}
@@ -44,44 +43,30 @@ abstract class IndexerCRUDOKEventListenerBase<O extends OID,M extends IndexableM
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Subscribe	// subscribes this event listener at the EventBus
 	@Override
-	public void onPersistenceOperationOK(final PersistenceOperationOKEvent opEvent) {
+	public void onPersistenceOperationOK(final PersistenceOperationOKEvent opOKEvent) {
 		// [1] - Check if the event has to be handled
 		// 				a) the event refers to the same model object type THIS event handler handles
 		//				b) the operation is an update, create or delete operation
-		CRUDOK<? extends M> opOK = opEvent.getResultAsCRUDOperationOK();
+		CRUDOK<? extends M> opOK = opOKEvent.getResultAsCRUDOperationOK();
 		boolean hasToBeHandled = opOK.getObjectType() == _type												// a)										
 						      && (opOK.hasBeenUpdated() || opOK.hasBeenCreated() || opOK.hasBeenDeleted());		// b)
 		
 		// [2] - Debug
-		if (log.isTraceEnabled()) {
-			log.trace(_debugEvent(opEvent,
-						  		  hasToBeHandled));
-		} else if (log.isDebugEnabled() && hasToBeHandled) {
-			log.debug(_debugEvent(opEvent,
-						  hasToBeHandled));
-		}
+		_debugEvent(log,
+					opOKEvent,hasToBeHandled);
 		
 		// [3] - Handle the event: update the index
 		if (hasToBeHandled) {
-			_updateIndex(opEvent.getSecurityContext(),
+			_updateIndex(opOKEvent.getSecurityContext(),
 					     opOK);
 		}			
-	}
-	private String _debugEvent(final PersistenceOperationOKEvent opEvent,
-							   final boolean hasToBeHandled) {
-		return Strings.customized("EventListener registered for events of [{}] entities\n" + 
-						  		  "{}\n" + 
-						  		  "Handle the event: {}",
-					  			  _type,
-							  	  opEvent.debugInfo(),
-							  	  hasToBeHandled);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  INDEX & UN_INDEX
 /////////////////////////////////////////////////////////////////////////////////////////	
     @SuppressWarnings("unchecked")
 	private void _updateIndex(final SecurityContext securityContext,
-							  final CRUDOK<? extends M> opOK){
+							  final CRUDOK<? extends M> opOK) {
 		M entity  = opOK.getOrThrow();		
 		if (_indexServices == null) log.warn("Cannot index an instance of {} because the indexer is null!!",entity.getClass());		
 		log.info("Updating index for record type {} with oid='{}'",entity.getClass(),entity.asFacet(HasOID.class).getOid());		
@@ -102,7 +87,7 @@ abstract class IndexerCRUDOKEventListenerBase<O extends OID,M extends IndexableM
 				job = _indexServices.removeFromIndex(securityContext,
 													 (O)entity.asFacet(HasOID.class).getOid());
 			}
-			if(job != null) {
+			if (job != null) {
 				log.info("{} operation OK for type {}: jobOid={}, status={}",
 						 indexOp,entity.getClass(),job.getOid(),job.getStatus());
 			} else {

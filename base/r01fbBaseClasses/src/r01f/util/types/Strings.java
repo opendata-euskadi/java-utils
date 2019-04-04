@@ -116,6 +116,7 @@ public class Strings {
      * @return
      * @see Matcher#quoteReplacement(String)
      */
+	@SuppressWarnings("unused")
 	private static String _matcherQuoteReplacement(final String s) {
         if ((s.indexOf('\\') == -1) && (s.indexOf('$') == -1)) return s;
         StringBuilder sb = new StringBuilder();
@@ -491,6 +492,14 @@ public class Strings {
 		 */
 		public boolean containsAny(final String... otherStrings) {
 			return this.containsAny(false,otherStrings);
+		}
+		/**
+		 * Checks if the wrapped string contains any of the given strings
+		 * @param otherStrings 
+		 * @return 
+		 */
+		public boolean containsAnyIgnoringCase(final String... otherStrings) {
+			return this.containsAny(true,otherStrings);
 		}
 		/**
 		 * Checks if the string contains any of the given strings 

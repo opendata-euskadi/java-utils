@@ -5,6 +5,9 @@ import java.util.Properties;
 import javax.inject.Inject;
 
 import com.google.inject.Binder;
+import com.google.inject.Key;
+import com.google.inject.PrivateBinder;
+import com.google.inject.name.Names;
 import com.google.inject.persist.PersistService;
 import com.google.inject.persist.jpa.JpaPersistModule;
 
@@ -69,6 +72,12 @@ public abstract class DBGuiceModuleBase
 		// do NO forget!!
 		ServicesBootstrapUtil.bindServiceHandler(theBinder,
 												 JPAPersistenceServiceControl.class,jpaServiceName);
+		// this is IMPORTANT (and cannot be moved to ServicesBootstrapUtil.bindServiceHandler)
+		if (binder instanceof PrivateBinder) {
+			PrivateBinder privateBinder = (PrivateBinder)binder;
+			privateBinder.expose(Key.get(ServiceHandler.class,
+										 Names.named(jpaServiceName)));	// expose the binding
+		}
 
 		log.warn("... binded jpa persistence unit {} whose entity manager is handled by ServiceHandler with name {}",
 				 jpaModuleName,jpaServiceName);
@@ -111,11 +120,17 @@ public abstract class DBGuiceModuleBase
 		@Override
 		public void start() {
 			if (_service == null) throw new IllegalStateException("NO persistence service available!");
+			log.warn("######################################################################################");
+			log.warn("Starting PersistService");
+			log.warn("######################################################################################");
 			_service.start();
 		}
 		@Override
 		public void stop() {
 			if (_service == null) throw new IllegalStateException("NO persistence service available!");
+		log.warn("######################################################################################");
+		log.warn("Stopping PersistService");
+		log.warn("######################################################################################");
 			try {
 				_service.stop();
 			} catch (Throwable th) {/* just in the case where PersistenceService were NOT started */ }

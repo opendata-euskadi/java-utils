@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import r01f.concurrent.Threads;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.IndexableModelObject;
 import r01f.model.PersistableModelObject;
 import r01f.model.search.SearchFilterForModelObject;
@@ -46,7 +47,7 @@ public class TestPersistableModelObjectSearch<F extends SearchFilterForModelObje
 	 * @param modelObject
 	 */
 	@SuppressWarnings("unchecked")
-	public <O extends OID,M extends PersistableModelObject<O>> void testSearch(final F filter) {
+	public <O extends PersistableObjectOID,M extends PersistableModelObject<O>> void testSearch(final F filter) {
 		System.out.println("[init][TEST BASIC SEARCH]-----------------------------------------------------------------------");
 
 		Stopwatch stopWatch = Stopwatch.createStarted();
@@ -75,7 +76,7 @@ public class TestPersistableModelObjectSearch<F extends SearchFilterForModelObje
 	 * @param emptyFilter
 	 */
 	@SuppressWarnings("unchecked")
-	public <O extends OID,M extends PersistableModelObject<O>> void testIndexAndUnIndex() {
+	public <O extends PersistableObjectOID,M extends PersistableModelObject<O>> void testIndexAndUnIndex() {
 		long totalItems = 0;
 
 		System.out.println("[init][TEST INDEX & UNINDEX]--------------------------------------------------------------------");

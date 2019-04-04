@@ -27,9 +27,9 @@ import r01f.types.Path;
 public class LocalFileStoreAPI 
 	 extends LocalFileStoreAPIBase
   implements FileStoreAPI {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	FILESYSTEM STATIC INIT
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	public LocalFileStoreAPI() throws IOException {
 		_check = new FileStoreChecksDelegate(this,
 											 new LocalFileStoreFilerAPI(this));
@@ -79,7 +79,7 @@ public class LocalFileStoreAPI
 		
 		// copy
 		File srcFile = new File(((Path)srcFileId).asAbsoluteString());
-		File dstFile = new File(((Path)srcFileId).asAbsoluteString());
+		File dstFile = new File(((Path)dstFileId).asAbsoluteString());
 		Files.move(srcFile,dstFile);
 		return true;
 	}
@@ -266,7 +266,7 @@ public class LocalFileStoreAPI
 												: outReaded;
 			return null;	// no data readed
 		} finally {
-			if(srcFIS!=null) srcFIS.close();
+			if (srcFIS!=null) srcFIS.close();
 		}
     }
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -169,7 +169,7 @@ public class PKCS7 {
         } else if (contentType.equals(ContentInfo.OLD_SIGNED_DATA_OID)) {
             // This is for backwards compatibility with JDK 1.1.x
             parseOldSignedData(content);
-        } else if (contentType.equals(ContentInfo.NETSCAPE_CERT_SEQUENCE_OID)){
+        } else if (contentType.equals(ContentInfo.NETSCAPE_CERT_SEQUENCE_OID)) {
             parseNetscapeCertChain(content);
         } else {
             throw new IOException("content type " + contentType +

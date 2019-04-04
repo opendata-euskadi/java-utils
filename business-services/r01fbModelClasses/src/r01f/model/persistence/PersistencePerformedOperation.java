@@ -16,9 +16,12 @@ public enum PersistencePerformedOperation
 	LOADED,
 	CREATED,
 	UPDATED,
+	SAVED,		// created or updated
 	DELETED,
+	COUNTED,
 	NOT_MODIFIED,
-	FOUND;
+	FOUND,
+	OTHER;
 /////////////////////////////////////////////////////////////////////////////////////////
 //	ENUM EXTENDED 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -60,6 +63,12 @@ public enum PersistencePerformedOperation
 		else if (requestedOp == PersistenceRequestedOperation.FIND) {
 			outPerformedOp = FOUND;
 		}
+		else if (requestedOp == PersistenceRequestedOperation.COUNT) {
+			outPerformedOp = COUNTED;
+		} 
+		else if (requestedOp == PersistenceRequestedOperation.OTHER) {
+			outPerformedOp = OTHER;
+		}
 		else {
 			throw new IllegalArgumentException("Illegal combination of PersistenceRequestedOperation and HttpResponseCode. This is a DEVELOPER mistake!");
 		}
@@ -96,6 +105,12 @@ public enum PersistencePerformedOperation
 		else if (requestedOp == PersistenceRequestedOperation.FIND) {
 			outPerformedOp = FOUND;
 		} 
+		else if (requestedOp == PersistenceRequestedOperation.COUNT) {
+			outPerformedOp = COUNTED;
+		}
+		else if (requestedOp == PersistenceRequestedOperation.OTHER) {
+			outPerformedOp = OTHER;
+		}
 		else {
 			throw new IllegalArgumentException("Illegal combination of PersistenceRequestedOperation and HttpResponseCode. This is a DEVELOPER mistake!");
 		}

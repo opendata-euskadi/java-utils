@@ -1,13 +1,13 @@
 package r01f.persistence.db;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.FindOIDsResult;
 import r01f.model.persistence.FindSummariesResult;
 import r01f.securitycontext.SecurityContext;
 
-public interface DBFindForParentModelObject<O extends OID,
-											CO extends OID,C extends PersistableModelObject<CO>> {
+public interface DBFindForParentModelObject<O extends PersistableObjectOID,
+											CO extends PersistableObjectOID,C extends PersistableModelObject<CO>> {
 	/**
 	 * Finds all children oids
 	 * @param securityContext

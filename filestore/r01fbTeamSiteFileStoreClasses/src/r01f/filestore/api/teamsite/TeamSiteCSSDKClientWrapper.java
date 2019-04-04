@@ -121,9 +121,9 @@ public class TeamSiteCSSDKClientWrapper {
      * @throws TeamSiteFileStoreException si no se puede autenticar.
      */
     public CSClient getOrCreateCSSDKClient() throws TeamSiteFileStoreException {
-
+    	
         log.debug("DATASTORE MANAGER (IW)>> Get client for user {} with role {} ",
-        		  _authInfo.getLoginUser(),_authInfo.getLoginUserRole());
+        		  _authInfo != null ? _authInfo.getLoginUser() : "null",_authInfo != null ? _authInfo.getLoginUserRole() : "null");
         
         // Options to get the client
         // 1) The client is cached

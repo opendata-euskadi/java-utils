@@ -3,9 +3,8 @@ package r01f.model.metadata;
 import java.util.Collection;
 import java.util.Map;
 
-import com.google.common.base.Joiner;
-
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.locale.Language;
@@ -35,8 +34,9 @@ public abstract class MetaDataForMyTestModelObject
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Accessors(prefix="_")
+	@RequiredArgsConstructor
 	public enum SEARCHABLE_METADATA 
-	 implements SearchableFieldID {
+	 implements FieldIDToken {
 		NAME ("name"),
 		ENUM ("enum"),
 		URL ("url"),
@@ -45,11 +45,7 @@ public abstract class MetaDataForMyTestModelObject
 		MAP ("map"),
 		SUB ("sub");
 		
-		@Getter private final IndexableFieldID _fieldId;
-		
-		SEARCHABLE_METADATA(final Object... ids) {
-			_fieldId = IndexableFieldID.forId(Joiner.on(".").skipNulls().join(ids).toString());
-		}
+		@Getter private final String _token;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

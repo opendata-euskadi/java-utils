@@ -4,11 +4,10 @@ import com.google.common.annotations.GwtIncompatible;
 
 import lombok.RequiredArgsConstructor;
 import r01f.exceptions.Throwables;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.FieldMetaData;
 import r01f.model.metadata.HasTypesMetaData;
-import r01f.model.metadata.IndexableFieldID;
 import r01f.model.metadata.MetaDataDescribable;
-import r01f.model.metadata.SearchableFieldID;
 import r01f.model.metadata.TypeFieldMetaData;
 import r01f.model.search.query.BooleanQueryClause.QueryClauseOccur;
 import r01f.model.search.query.QueryClause;
@@ -28,70 +27,64 @@ public class SearchFilterForModelObjectAccessorWrapper<F extends SearchFilterFor
 /////////////////////////////////////////////////////////////////////////////////////////
 	public class SearchFilterQueryClausesAccessorWrapper {
 		@SuppressWarnings("unchecked")
-		public <T> T getValueOrNull(final SearchableFieldID searchableField) {
-			final QueryClause clause = this.find(searchableField);
+		public <T> T getValueOrNull(final FieldID fieldId) {
+			final QueryClause clause = this.find(fieldId);
 			return clause != null ? (T)clause.getValue()
 								  : null;
 		}
 		@SuppressWarnings("unchecked")
-		public <T> T getValueOrNull(final SearchableFieldID searchableField,
+		public <T> T getValueOrNull(final FieldID fieldId,
 				 					final QueryClauseOccur occur) {
-			final QueryClause clause = this.find(searchableField,occur);
+			final QueryClause clause = this.find(fieldId,occur);
 			return clause != null ? (T)clause.getValue()
 								  : null;
 		}
 		@SuppressWarnings("unchecked")
-		public <T> T getValueOrNull(final SearchableFieldID searchableField,
+		public <T> T getValueOrNull(final FieldID fieldId,
 									final Class<? extends QueryClause> clauseType) {
-			final QueryClause clause = this.findOfType(searchableField,clauseType);
+			final QueryClause clause = this.findOfType(fieldId,clauseType);
 			return clause != null ? (T)clause.getValue()
 							  	  : null;
 		}
 		@SuppressWarnings("unchecked")
-		public <T> T getValueOrNull(final SearchableFieldID searchableField,
+		public <T> T getValueOrNull(final FieldID fieldId,
 									final Class<? extends QueryClause> clauseType,
 									final QueryClauseOccur occur) {
-			final QueryClause clause = this.findOfType(searchableField,clauseType,occur);
+			final QueryClause clause = this.findOfType(fieldId,clauseType,occur);
 			return clause != null ? (T)clause.getValue()
 							  	  : null;
 		}  
 		// ----------------------------------------------------------------------------------------
-		public boolean check(final SearchableFieldID searchableField) {
-			return this.check(searchableField.getFieldId());
-		}
-		public boolean check(final IndexableFieldID fieldId) {
+		public boolean check(final FieldID fieldId) {
 			final QueryClause clause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClause(fieldId)
 										 			   					  		: null;
 			return clause != null;
 		}
 		// ----------------------------------------------------------------------------------------  
-		public QueryClause find(final SearchableFieldID searchableField) {
-			return this.find(searchableField.getFieldId());
-		}
-		public QueryClause find(final IndexableFieldID fieldId) {
+		public QueryClause find(final FieldID fieldId) {
 			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClause(fieldId)
 										 				  					 	   : null;
 			return outClause;
 		}
-		public QueryClause find(final SearchableFieldID searchableField,
+		public QueryClause find(final FieldID fieldId,
 							    final QueryClauseOccur occur) {
-			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClause(searchableField.getFieldId(),
+			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClause(fieldId,
 																																	  occur)
 										 				  					 	   : null;
 			return outClause;
 		}
 		// ----------------------------------------------------------------------------------------  
-		public QueryClause findOfType(final SearchableFieldID searchableField,
+		public QueryClause findOfType(final FieldID fieldId,
 									  final Class<? extends QueryClause> clauseType) {
-			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClauseOfType(searchableField.getFieldId(),
+			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClauseOfType(fieldId,
 																																			clauseType)
 														  					 	   : null;
 			return outClause;
 		}
-		public QueryClause findOfType(final SearchableFieldID searchableField,
+		public QueryClause findOfType(final FieldID fieldId,
 								 	  final Class<? extends QueryClause> clauseType,
 									  final QueryClauseOccur occur) {
-			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClauseOfType(searchableField.getFieldId(),
+			final QueryClause outClause = _wrappedFilter.getBooleanQuery() != null ? _wrappedFilter.getBooleanQuery().findQueryClauseOfType(fieldId,
 																																			clauseType,occur)
 										 				  					 	   : null;
 			return outClause;
@@ -118,32 +111,32 @@ public class SearchFilterForModelObjectAccessorWrapper<F extends SearchFilterFor
 		private final HasTypesMetaData _hasTypesMetadata;
 		
 		/**
-		 * Finds a field's metadata when multiple object types are returned all of them with a common {@link IndexableFieldID}
+		 * Finds a field's metadata when multiple object types are returned all of them with a common {@link FieldID}
 		 * For example, if TypeA and TypeB are searched and both have a summary metadata, 
-		 * the summary field must be mapped to the same {@link IndexableFieldID} (ie SUMMARY) with the same type
+		 * the summary field must be mapped to the same {@link FieldID} (ie SUMMARY) with the same type
 		 * 
 		 * This method ensures that all searched object types have the summary field and that the metadata type is the same
 		 * @param modelObjMetaDataType 
 		 * @return
 		 */
-		public FieldMetaData findOrNull(final IndexableFieldID metaDataId) {
+		public FieldMetaData findOrNull(final FieldID metaDataId) {
 			return this.find(metaDataId,
 							 false);	// return null 
 		}
 		/**
-		 * Finds a field's metadata when multiple object types are returned all with a common {@link IndexableFieldID}
+		 * Finds a field's metadata when multiple object types are returned all with a common {@link FieldID}
 		 * For example, if TypeA and TypeB are searched and both have a summary metadata, 
-		 * the summary field must be mapped to the same {@link IndexableFieldID} (ie SUMMARY) with the same type
+		 * the summary field must be mapped to the same {@link FieldID} (ie SUMMARY) with the same type
 		 * 
 		 * This method ensures that all searched object types have the summary field and that the metadata type is the same
 		 * @param modelObjMetaDataType 
 		 * @return
 		 */
-		public FieldMetaData findOrThrow(final IndexableFieldID metaDataId) {
+		public FieldMetaData findOrThrow(final FieldID metaDataId) {
 			return this.find(metaDataId,
 							 true);	// throw an exception if metadata not found
 		}
-		public FieldMetaData find(final IndexableFieldID metaDataId,
+		public FieldMetaData find(final FieldID metaDataId,
 								  final boolean strict) {
 			// If multiple model object types are set, ensure that all them have the provided metadata id
 			FieldMetaData outFieldMetaData = null;

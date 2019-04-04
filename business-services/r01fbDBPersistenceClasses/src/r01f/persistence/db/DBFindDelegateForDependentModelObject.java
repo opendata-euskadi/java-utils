@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.SummarizedModelObject;
 import r01f.model.persistence.FindOIDsResult;
@@ -31,7 +32,7 @@ import r01f.util.types.collections.CollectionUtils;
  */
 @Slf4j
 @Accessors(prefix="_")
-public abstract class DBFindDelegateForDependentModelObject<O extends OID,M extends PersistableModelObject<O>,P extends PersistableModelObject<?>,
+public abstract class DBFindDelegateForDependentModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>,P extends PersistableModelObject<?>,
 							     			   				PK extends DBPrimaryKeyForModelObject,DB extends DBEntity & DBEntityForModelObject<PK>>
 	       implements DBFindForDependentModelObject<O,M,P> {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -55,7 +56,7 @@ public abstract class DBFindDelegateForDependentModelObject<O extends OID,M exte
 											  						 final PO parentOid) {
 		QueryWrapper qry = _dbFind.new QueryWrapper();
 		qry.addFilterByOidPredicate(parentOid,_getParentOidDBEntityFieldName());
-		return qry.exec(securityContext);
+		return qry.findOidsUsing(securityContext);
 	}
 	@Override @SuppressWarnings({ "unchecked","rawtypes" })
 	public <PO extends OID> FindResult<M> findDependentsOf(final SecurityContext securityContext,
@@ -69,8 +70,8 @@ public abstract class DBFindDelegateForDependentModelObject<O extends OID,M exte
 															  				   final PO parentOid) {
 		QueryWrapper qry = _dbFind.new QueryWrapper(_summarizedDBRowCols());
 		qry.addFilterByOidPredicate(parentOid,this._getParentOidDBEntityFieldName());
-		return qry.exec(securityContext,
-						_dbRowToSummarizedModelObjectTranformFunction(securityContext));
+		return qry.findSummariesUsing(securityContext)
+				  .convertingTuplesUsing(_dbRowToSummarizedModelObjectTranformFunction(securityContext));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  ABSTRACT METHODS
@@ -115,7 +116,7 @@ public abstract class DBFindDelegateForDependentModelObject<O extends OID,M exte
 		}
 		// the cols for the fields annotated with @ParentOidDBEntityField
 		if (CollectionUtils.hasData(parentFields)) {
-			for(FieldAnnotated<ParentOidDBEntityField> parentField : parentFields) {
+			for (FieldAnnotated<ParentOidDBEntityField> parentField : parentFields) {
 				outCols[i] = parentField.getField().getName();
 				i++;
 			}

@@ -37,7 +37,7 @@ public abstract class XMLPropertiesBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@NoArgsConstructor(access=AccessLevel.PRIVATE)
-	public class XMLPropertiesCacheUsageStep {
+	public final class XMLPropertiesCacheUsageStep {
 		public XMLProperties notUsingCache() {
 			return _buildXMLProperties(false);
 		}
@@ -64,7 +64,7 @@ public abstract class XMLPropertiesBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class XMLPropertiesForAppCacheUsageStep {
+	public final class XMLPropertiesForAppCacheUsageStep {
 		private final AppCode _appCode;
 		public XMLPropertiesForApp notUsingCache() {
 			XMLProperties props = new XMLPropertiesCacheUsageStep()
@@ -78,7 +78,7 @@ public abstract class XMLPropertiesBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class XMLPropertiesForAppComponentCacheUsageStep {
+	public final class XMLPropertiesForAppComponentCacheUsageStep {
 		private final AppCode _appCode;
 		private final AppComponent _appComponent;
 		public XMLPropertiesForAppComponent notUsingCache() {

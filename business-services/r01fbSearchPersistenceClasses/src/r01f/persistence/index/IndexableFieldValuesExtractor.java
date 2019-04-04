@@ -2,7 +2,7 @@ package r01f.persistence.index;
 
 import r01f.model.IndexableModelObject;
 import r01f.model.PersistableModelObject;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.persistence.PersistenceRequestedOperation;
 import r01f.persistence.index.document.IndexDocumentFieldValue;
 import r01f.persistence.index.document.IndexDocumentFieldValueSet;
@@ -22,7 +22,7 @@ public interface IndexableFieldValuesExtractor<M extends IndexableModelObject> {
 	 * @param metaDataId
 	 * @return
 	 */
-	public <T> T getFieldValue(final IndexableFieldID metaDataId);
+	public <T> T getFieldValue(final FieldID metaDataId);
 	/**
 	 * Extracts all fields values from the {@link PersistableModelObject}
 	 * @param securityContext

@@ -234,9 +234,9 @@ implements CertAttrSet<String> {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(REQUIRE)) {
-            return new Integer(require);
+            return Integer.valueOf(require);
         } else if (name.equalsIgnoreCase(INHIBIT)) {
-            return new Integer(inhibit);
+            return Integer.valueOf(inhibit);
         } else {
           throw new IOException("Attribute name not recognized by " +
                                 "CertAttrSet:PolicyConstraints.");

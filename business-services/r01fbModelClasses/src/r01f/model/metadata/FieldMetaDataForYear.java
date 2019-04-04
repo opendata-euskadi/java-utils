@@ -26,7 +26,7 @@ public class FieldMetaDataForYear
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());	
 	}
-	public FieldMetaDataForYear(final IndexableFieldID fieldId,
+	public FieldMetaDataForYear(final FieldID fieldId,
 								final LanguageTexts name,final LanguageTexts description,
 								final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

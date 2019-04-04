@@ -3,7 +3,9 @@ package r01f.types.datetime;
 import java.io.Serializable;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Iterator;
 
+import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.LocalTime;
 
@@ -21,26 +23,31 @@ import r01f.util.types.Strings;
 @MarshallType(as="hourOfDay")
 @GwtIncompatible
 @Accessors(prefix="_")
-public class HourOfDay 
+public class HourOfDay
   implements Serializable,
   			 CanBeRepresentedAsString,
   			 Comparable<HourOfDay> {
 
 	private static final long serialVersionUID = 8445517567471520680L;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter private int _hourOfDay;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  REGEX
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static final String REGEX = "([0-9]|0[0-9]|1[0-9]|2[0-3])";
+	public static final String REGEX_NOCAPTURE = "(?:[0-9]|0[0-9]|1[0-9]|2[0-3])";
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 /////////////////////////////////////////////////////////////////////////////////////////
    public static boolean canBe(final String str) {
-         return Strings.isNOTNullOrEmpty(str) 
+         return Strings.isNOTNullOrEmpty(str)
              && Numbers.isInteger(str)
              && Integer.parseInt(str) >= 0 && Integer.parseInt(str) < 24;
    }
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public HourOfDay(final int hourOfDay) {
 		_set(hourOfDay);
@@ -48,7 +55,7 @@ public class HourOfDay
 	public HourOfDay(final Integer hourOfDay) {
 		_set(hourOfDay);
 	}
-	public HourOfDay(final String month) { 
+	public HourOfDay(final String month) {
 		int m = Integer.parseInt(month);
 		_set(m);
 	}
@@ -73,15 +80,18 @@ public class HourOfDay
 	public static HourOfDay fromString(final String hourOfDay) {
 		return new HourOfDay(hourOfDay);
 	}
+	public static HourOfDay now() {
+		return HourOfDay.of(new Date());
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	private void _set(final int hourOfDay) {
 		Preconditions.checkArgument(hourOfDay < 24 || hourOfDay >= 0,"Not a valid hour of day");
-		_hourOfDay = hourOfDay;		
+		_hourOfDay = hourOfDay;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String toString() {
@@ -91,11 +101,14 @@ public class HourOfDay
 	public String asString() {
 		return this.toString();
 	}
+	public String asStringPaddedWithZero() {
+		return StringUtils.leftPad(this.asString(),2,'0');
+	}
 	public int asInteger() {
 		return _hourOfDay;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	public boolean is(final HourOfDay other) {
 		return _hourOfDay == other.asInteger();
@@ -116,6 +129,35 @@ public class HourOfDay
 		return _hourOfDay >= other.asInteger();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
+//	ITERABLE
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static Iterable<HourOfDay> dayHoursIterable() {
+		return new Iterable<HourOfDay>() {
+						@Override
+						public Iterator<HourOfDay> iterator() {
+							return new Iterator<HourOfDay>() {
+											private int _curr = -1;
+
+											@Override
+											public boolean hasNext() {
+												return _curr < 23;
+											}
+											@Override
+											public HourOfDay next() {
+												if (!this.hasNext()) throw new IllegalStateException();
+												_curr = _curr == -1 ? 0
+																	: _curr + 1;
+												return HourOfDay.of(_curr);
+											}
+											@Override
+											public void remove() {
+												throw new UnsupportedOperationException();
+											}
+								   };
+						}
+			   };
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
 //  EQUALS & HASHCODE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
@@ -127,11 +169,11 @@ public class HourOfDay
 	}
 	@Override
 	public int hashCode() {
-		return new Integer(_hourOfDay).hashCode();
+		return Integer.valueOf(_hourOfDay).hashCode();
 	}
 	@Override
 	public int compareTo(final HourOfDay other) {
-		return new Integer(this.asInteger())
-						.compareTo(new Integer(other.asInteger()));
+		return Integer.valueOf(this.asInteger())
+						.compareTo(Integer.valueOf(other.asInteger()));
 	}
 }

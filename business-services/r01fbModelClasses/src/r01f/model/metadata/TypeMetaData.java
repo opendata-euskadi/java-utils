@@ -31,7 +31,7 @@ import r01f.util.types.collections.CollectionUtils;
 public class TypeMetaData<M extends MetaDataDescribable> 
   implements Debuggable {
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter private final Type _type;				// the metadata-describable model object type 
 	@Getter private final TypeToken<? extends HasMetaDataForModelObject> _annotatedType;	// the type describing the model object
@@ -111,11 +111,11 @@ public class TypeMetaData<M extends MetaDataDescribable>
 	/**
 	 * @return a {@link Collection} of {@link FieldMetaDataID}s
 	 */
-	public Collection<IndexableFieldID> getFieldsMetaDataIds() {
+	public Collection<FieldID> getFieldsMetaDataIds() {
 		return FluentIterable.from(_fieldsMetaData)
-							 .transform(new Function<TypeFieldMetaData,IndexableFieldID>() {
+							 .transform(new Function<TypeFieldMetaData,FieldID>() {
 												@Override
-												public IndexableFieldID apply(final TypeFieldMetaData fieldMetaData) {
+												public FieldID apply(final TypeFieldMetaData fieldMetaData) {
 													return fieldMetaData.getId();
 												}
 							 			})
@@ -125,8 +125,8 @@ public class TypeMetaData<M extends MetaDataDescribable>
 	 * Returns a {@link Map} of all {@link TypeFieldMetaData} indexed by their {@link FieldMetaDataID}
 	 * @return 
 	 */
-	public Map<IndexableFieldID,TypeFieldMetaData> getTypeFieldsMetaDataMap() {
-		Map<IndexableFieldID,TypeFieldMetaData> outMap = Maps.newLinkedHashMapWithExpectedSize(_fieldsMetaData.size());
+	public Map<FieldID,TypeFieldMetaData> getTypeFieldsMetaDataMap() {
+		Map<FieldID,TypeFieldMetaData> outMap = Maps.newLinkedHashMapWithExpectedSize(_fieldsMetaData.size());
 		for (TypeFieldMetaData fieldMetaData : _fieldsMetaData) {
 			outMap.put(fieldMetaData.getId(),
 					   fieldMetaData);
@@ -137,8 +137,8 @@ public class TypeMetaData<M extends MetaDataDescribable>
 	 * Returns a {@link Map} of all {@link FieldMetaData} indexed by their {@link FieldMetaDataID}
 	 * @return
 	 */
-	public Map<IndexableFieldID,FieldMetaData> getFieldsMetaDataMap() {
-		Map<IndexableFieldID,FieldMetaData> outMap = Maps.newLinkedHashMapWithExpectedSize(_fieldsMetaData.size());
+	public Map<FieldID,FieldMetaData> getFieldsMetaDataMap() {
+		Map<FieldID,FieldMetaData> outMap = Maps.newLinkedHashMapWithExpectedSize(_fieldsMetaData.size());
 		for (TypeFieldMetaData fieldMetaData : _fieldsMetaData) {
 			outMap.put(fieldMetaData.getId(),
 					   fieldMetaData.asFieldMetaData());
@@ -167,72 +167,62 @@ public class TypeMetaData<M extends MetaDataDescribable>
 	 * @param metaDataId
 	 * @return
 	 */
-	public TypeFieldMetaData findFieldByIdOrThrow(final SearchableFieldID... searchableFieldIds) {
-		IndexableFieldID[] ids = searchableFieldIds != null
-										? FluentIterable.from(searchableFieldIds)
-												.transform(new Function<SearchableFieldID,IndexableFieldID>() {
+	public TypeFieldMetaData findFieldByIdOrThrow(final FieldIDToken... searchableFieldIds) {
+		if (CollectionUtils.isNullOrEmpty(searchableFieldIds)) throw new IllegalArgumentException();
+
+		// find the field 
+		TypeFieldMetaData outField = null;
+		Collection<TypeFieldMetaData> theFields = _fieldsMetaData;
+		for (int i = 0; i < searchableFieldIds.length; i++) {
+			final FieldID id = FieldID.from(Arrays.copyOfRange(searchableFieldIds,0,i+1));
+			TypeFieldMetaData fieldMetaData =  FluentIterable.from(theFields)
+													 .filter(new Predicate<TypeFieldMetaData>() {
 																	@Override
-																	public IndexableFieldID apply(final SearchableFieldID searchableFieldId) {
-																		return searchableFieldId.getFieldId();
+																	public boolean apply(final TypeFieldMetaData theFieldMetaData) {
+																		return theFieldMetaData.getId().equals(id);
 																	}
-														   })
-												.toArray(IndexableFieldID.class)
-									    : null;
-		return _findFieldById(true,					// throw if not found
-							  _fieldsMetaData,		// all fields
-							  ids);
+															 })
+													 .first().orNull();
+			if (fieldMetaData == null) throw new IllegalStateException(String.format("The meta data field %s is NOT an available metadata of %s that describes type %s",
+																	   				 id,_annotatedType,this.getRawType()));
+			if (i < searchableFieldIds.length - 1) {			
+				theFields = fieldMetaData.getFieldTypeMetaData().getFieldsMetaData();
+			} else if (i == searchableFieldIds.length - 1) {
+				outField = fieldMetaData;
+			}
+		}
+		return outField;
 	}
 	/**
 	 * Returns a field by it's id
 	 * @param id
 	 * @return
 	 */
-	public TypeFieldMetaData findFieldByIdOrThrow(final IndexableFieldID... ids) {
+	public TypeFieldMetaData findFieldByIdOrThrow(final FieldID id) {
 		return _findFieldById(true,				// throw if not found
 							  _fieldsMetaData,	// all fields
-							  ids);
+							  id);
 	}
-	public TypeFieldMetaData findFieldByIdOrNull(final IndexableFieldID... ids) {
+	public TypeFieldMetaData findFieldByIdOrNull(final FieldID id) {
 		return _findFieldById(false,			// DO NOT throw if not found
 							  _fieldsMetaData,	// all fields
-							  ids);
+							  id);
 	}
 	private TypeFieldMetaData _findFieldById(final boolean throwIfNotFound,
 											 final Collection<TypeFieldMetaData> fields,
-											 final IndexableFieldID... ids) {
-		if (CollectionUtils.isNullOrEmpty(ids)) throw new IllegalArgumentException("Cannot find any field without at least an id!");
-		
-		TypeFieldMetaData outField = null;
-		
-		Collection<TypeFieldMetaData> theFields = fields;
-		for (int i = 0; i < ids.length; i++) {
-			final IndexableFieldID id = _composeFieldMetaDataId(Arrays.copyOfRange(ids,0,i+1));
-			TypeFieldMetaData fieldMetaData =  FluentIterable.from(theFields)
-													 .filter(new Predicate<TypeFieldMetaData>() {
-																	@Override
-																	public boolean apply(final TypeFieldMetaData fieldMetaData) {
-																		return fieldMetaData.getId().equals(id);
-																	}
-															 })
-													 .first().orNull();
-			if (i < ids.length - 1) {			
-				theFields = fieldMetaData.getFieldTypeMetaData().getFieldsMetaData();
-			} else if (i == ids.length - 1) {
-				outField = fieldMetaData;
-			}
-		}
+											 final FieldID id) {
+		TypeFieldMetaData outField = FluentIterable.from(fields)
+											 .filter(new Predicate<TypeFieldMetaData>() {
+															@Override
+															public boolean apply(final TypeFieldMetaData theFieldMetaData) {
+																return theFieldMetaData.getId().equals(id);
+															}
+													 })
+											 .first().orNull();
 		if (outField == null 
 		 && throwIfNotFound) throw new IllegalStateException(String.format("The meta data field %s is NOT an available metadata of %s that describes type %s",
-																	   	   _composeFieldMetaDataId(ids),_annotatedType,this.getRawType()));
+																	   	   id,_annotatedType,this.getRawType()));
 		return outField;
-	}
-	private static IndexableFieldID _composeFieldMetaDataId(final IndexableFieldID... ids) {
-		StringBuilder sb = new StringBuilder();
-		for (int i=0; i < ids.length; i++) {
-			sb.append(ids[i]);
-			if (i < ids.length - 1) sb.append(".");
-		}
-		return IndexableFieldID.forId(sb.toString());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  DEBUG

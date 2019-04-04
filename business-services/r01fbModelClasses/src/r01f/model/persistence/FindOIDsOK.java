@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
@@ -11,7 +12,7 @@ import r01f.objectstreamer.annotations.MarshallType;
 
 @MarshallType(as="findResult",typeId="FINDOIDsOK")
 @Accessors(prefix="_")
-public class FindOIDsOK<O extends OID>
+public class FindOIDsOK<O extends PersistableObjectOID>
 	 extends FindOK<O>
   implements FindOIDsResult<O> {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -30,7 +31,7 @@ public class FindOIDsOK<O extends OID>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindOIDsOK() {
-		/* nothing */
+		super();
 	}
 	<M extends PersistableModelObject<O>> FindOIDsOK(final Class<M> modelObjectType,final Class<O> oidType) {
 		super(oidType); 

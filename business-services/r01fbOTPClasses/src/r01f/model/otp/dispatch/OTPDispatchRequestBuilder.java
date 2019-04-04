@@ -25,7 +25,7 @@ public abstract class OTPDispatchRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class OTPOIDStep {
+	public final class OTPOIDStep {
 		private final OTPDispatchRequest  _otpRequest;
 
 		public PresentationStep dispatch(final OTPOID otpOID) {
@@ -37,7 +37,7 @@ public abstract class OTPDispatchRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PresentationStep {
+	public final class PresentationStep {
 		private final OTPDispatchRequest  _otpRequest;
 		public PresentationStepViaMail usingMail() {
 			_otpRequest.setPresentationData(new OTPPresentationDataMail());
@@ -49,7 +49,7 @@ public abstract class OTPDispatchRequestBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PresentationStepViaMail {
+	public final class PresentationStepViaMail {
 		private final OTPDispatchRequest  _otpRequest;
 		public PresentationStepViaMailSubject to(final EMail to) {
 			_otpRequest.getPresentationData().asMail().setMailAddress(to);
@@ -64,7 +64,7 @@ public abstract class OTPDispatchRequestBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PresentationStepViaMailSubject {
+	public final class PresentationStepViaMailSubject {
 		private final OTPDispatchRequest  _otpRequest;
 		public PresentationStepViaMailSubject withSubject(final String subject) {
 			_otpRequest.getPresentationData().asMail().setMailSubject(subject);
@@ -75,7 +75,7 @@ public abstract class OTPDispatchRequestBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PresentationStepViaSMS {
+	public final class PresentationStepViaSMS {
 		private final OTPDispatchRequest  _otpRequest;
 		public PresentationStepViaSMS to(final Phone smsNumber) {
 			_otpRequest.getPresentationData().asSMS().setSmsNumber(smsNumber);

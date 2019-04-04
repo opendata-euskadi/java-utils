@@ -4,13 +4,16 @@ import java.util.Iterator;
 
 import r01f.facets.Facetable;
 import r01f.facets.HasName;
+import r01f.facets.HasOID;
 import r01f.facets.LangDependentNamed;
 import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
 import r01f.facets.LangInDependentNamed;
 import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
+import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.locale.Language;
+import r01f.locale.LanguageTexts;
 import r01f.model.search.SearchFilterForModelObject;
-import r01f.model.search.SearchResultItemContainsModelObject;
+import r01f.model.search.SearchResultItemContainsPersistableObject;
 import r01f.model.search.SearchResultItemForModelObject;
 import r01f.model.search.SearchResults;
 import r01f.types.summary.LangDependentSummary;
@@ -27,15 +30,35 @@ public class TestSearchUtil {
 		if (results.hasData()) {
 			System.out.println(">>>>Found " +  results.getTotalItemsCount() + ": results");
 			for (I item : results.getPageItems()) {
+				HasOID<?> itemHasOid = (HasOID<?>)item;
+				
 				StringBuilder sb = new StringBuilder();
-				sb.append(item.getOid() + " (" + item.getClass() + ") > ");
+				sb.append(itemHasOid.getOid() + " (" + item.getClass() + ") > ");
 				
 				String itemSum = null; 
 				
-				Summary sum = item.asSummarizable()
-								  .getSummary();
+				if (item instanceof HasName) {
+					if (item instanceof HasLangDependentNamedFacet) {
+						HasLangDependentNamedFacet langDepNamedItem = (HasLangDependentNamedFacet)item;
+						LanguageTexts langTexts = langDepNamedItem.getNameByLanguage();
+						for (Iterator<Language> langIt = langTexts.getDefinedLanguages().iterator(); langIt.hasNext(); ) {
+							Language lang = langIt.next();
+							sb.append("[" + lang + "]: " + langTexts.get(lang));
+							if (langIt.hasNext()) sb.append(", ");
+						}
+					} else if (item instanceof HasLangInDependentNamedFacet) {
+						HasLangInDependentNamedFacet langIndepNamedItem = (HasLangInDependentNamedFacet)item;
+						String name = langIndepNamedItem.getName();
+						sb.append(name);
+					} else {
+						throw new IllegalStateException();
+					}
+				}
 				// There's a summary at the search result item
-				if (sum != null) {
+				else if (item instanceof HasSummaryFacet) {
+					HasSummaryFacet itemHasSumm = (HasSummaryFacet)item;
+					Summary sum = itemHasSumm.asSummarizable()
+									  		 .getSummary();
 					if (sum.isLangDependent()) {
 						LangDependentSummary langDepSum = sum.asLangDependent();
 						for (Iterator<Language> langIt = langDepSum.getAvailableLanguages().iterator(); langIt.hasNext(); ) {
@@ -51,10 +74,10 @@ public class TestSearchUtil {
 					System.out.println("\t-" + itemSum);					
 				}
 				// The item's summary is NOT available... try to print something about the model object's name
-				else if (item instanceof SearchResultItemContainsModelObject
-					 &&  ((SearchResultItemContainsModelObject<?>)item).getModelObject() != null
-					 && ((SearchResultItemContainsModelObject<?>)item).getModelObject().hasFacet(HasName.class)) {
-					Facetable modelObj = ((SearchResultItemContainsModelObject<?>)item).getModelObject();
+				else if (item instanceof SearchResultItemContainsPersistableObject
+					 &&  ((SearchResultItemContainsPersistableObject<?,?>)item).getModelObject() != null
+					 && ((SearchResultItemContainsPersistableObject<?,?>)item).getModelObject().hasFacet(HasName.class)) {
+					Facetable modelObj = ((SearchResultItemContainsPersistableObject<?,?>)item).getModelObject();
 					if (modelObj.hasFacet(HasLangDependentNamedFacet.class)) {
 						LangDependentNamed langNames = modelObj.asFacet(HasLangDependentNamedFacet.class)
 														   	   .asLangDependentNamed();

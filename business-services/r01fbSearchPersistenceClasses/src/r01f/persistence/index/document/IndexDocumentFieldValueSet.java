@@ -8,7 +8,7 @@ import com.google.common.collect.Lists;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.patterns.Memoized;
 import r01f.util.types.collections.CollectionUtils;
 
@@ -58,7 +58,7 @@ public class IndexDocumentFieldValueSet
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public <T> IndexDocumentFieldValue<T> get(final IndexableFieldID id) {
+	public <T> IndexDocumentFieldValue<T> get(final FieldID id) {
 		IndexDocumentFieldValue<T> outValue = null;
 		for (IndexDocumentFieldValue<?> fieldValue : this) {
 			if (fieldValue.getIndexableFieldId().equals(id)) {
@@ -72,8 +72,8 @@ public class IndexDocumentFieldValueSet
 	 * Returns a collection of the field names
 	 * @return
 	 */
-	public Collection<IndexableFieldID> fieldIndexableFieldsIds() {
-		Collection<IndexableFieldID> outFields = null;
+	public Collection<FieldID> fieldIndexableFieldsIds() {
+		Collection<FieldID> outFields = null;
 		if (CollectionUtils.hasData(this)) {
 			outFields = Lists.newArrayListWithExpectedSize(this.size());
 			for (IndexDocumentFieldValue<?> field : this) {

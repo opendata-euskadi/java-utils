@@ -1,6 +1,7 @@
 package r01f.model.mock;
 
 import r01f.guids.OIDBaseMutable;
+import r01f.guids.PersistableObjectOID;
 import r01f.objectstreamer.annotations.MarshallType;
 
 public abstract class MyOIDs {
@@ -10,7 +11,8 @@ public abstract class MyOIDs {
 	@MarshallType(as="myTestOid")
 //	@JsonSerialize(using=OIDSerializer.class) @JsonDeserialize(using=OIDDeserializer.class)
 	public static class MyTestOID 
-				extends OIDBaseMutable<String> {
+				extends OIDBaseMutable<String>
+			 implements PersistableObjectOID {
 		private static final long serialVersionUID = -7707974037201898058L;
 		
 		public MyTestOID() {

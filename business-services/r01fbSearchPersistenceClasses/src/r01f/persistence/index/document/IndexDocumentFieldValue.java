@@ -13,7 +13,7 @@ import r01f.guids.OID;
 import r01f.locale.Language;
 import r01f.locale.LanguageTexts;
 import r01f.model.metadata.FieldMetaData;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.types.CanBeRepresentedAsString;
 import r01f.types.IsPath;
 import r01f.types.Range;
@@ -38,7 +38,7 @@ public class IndexDocumentFieldValue<T> {
 	/**
 	 * @return the metadata field id
 	 */
-	public IndexableFieldID getIndexableFieldId() {
+	public FieldID getIndexableFieldId() {
 		return _metaDataConfig.getIndexableFieldId();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

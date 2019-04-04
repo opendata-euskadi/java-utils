@@ -11,6 +11,7 @@ import com.google.inject.persist.Transactional;
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
@@ -28,7 +29,7 @@ import r01f.services.interfaces.CRUDServicesForVersionableModelObject;
  * delegated to {@link CRUDServicesForVersionableModelObjectDelegateBase}
  */
 @Accessors(prefix="_")
-public abstract class CoreCRUDServicesForVersionableModelObjectBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+public abstract class CoreCRUDServicesForVersionableModelObjectBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 			  extends CoreCRUDServicesForModelObjectBase<O,M>
 		   implements CRUDServicesForVersionableModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -2,7 +2,7 @@ package r01f.services.interfaces;
 
 import java.util.Collection;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.IndexableModelObject;
 import r01f.model.search.SearchFilterForModelObject;
 import r01f.model.search.SearchResultItemForModelObject;
@@ -21,6 +21,6 @@ public interface SearchServicesForModelObject<F extends SearchFilterForModelObje
      * @param ordering the order
      * @return the oids
      */
-	public <O extends OID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
-														   final F filter);
+	public <O extends PersistableObjectOID> Collection<O> filterRecordsOids(final SecurityContext securityContext,
+														   					final F filter);
 }

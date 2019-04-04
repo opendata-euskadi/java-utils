@@ -80,6 +80,13 @@ public interface LanguageTexts
 	 */
 	public String getForOrNull(Language lang);
 	/**
+	 * Returns a text in a language or null if it does NOT exists
+	 * @param lang
+	 * @param def
+	 * @return
+	 */
+	public String getForOrDefault(Language lang,String def);
+	/**
 	 * Returns the text in the system's default language
 	 * @return
 	 */
@@ -89,6 +96,12 @@ public interface LanguageTexts
 	 * @return
 	 */
 	public String getAny();
+	/**
+	 * Returns the first text in any of the given langs
+	 * @param lang
+	 * @return
+	 */
+	public String getAny(final Language...lang);
 	/**
 	 * Returns true if some text is defined for the lang
 	 * @param lang the language

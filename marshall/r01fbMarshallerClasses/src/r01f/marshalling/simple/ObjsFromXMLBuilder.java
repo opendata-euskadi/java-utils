@@ -70,21 +70,21 @@ import r01f.util.types.locale.Languages;
  */
 @Slf4j
 final class ObjsFromXMLBuilder<T> {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  MIEMBROS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	private final MarshallerMappings _mappings; // Definici�n de las clases que se van a cargar
                  								// y como estas se estructuran en el XML
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTORES
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     public ObjsFromXMLBuilder(MarshallerMappings map) {
     	_mappings = map;
-    }   
+    }
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  PUBLIC INTERFACE
-/////////////////////////////////////////////////////////////////////////////////////////// 
+/////////////////////////////////////////////////////////////////////////////////////////
     public final T beanFrom(final String xmlStr,
     						final Charset xmlCharset,
     						final TextEncoder encoder) throws MarshallerException {
@@ -128,14 +128,14 @@ final class ObjsFromXMLBuilder<T> {
 	        // Obtener un InputStream del XML
 	        InputStream transformedXMLIS = new ByteArrayInputStream(transformedXML.toByteArray());
 	        return _parseXML(transformedXMLIS,xmlCharset,encoder);
-	        
+
         } catch(TransformerException trEx) {
         	throw new MarshallerException(trEx.getMessage(),trEx);
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  PARSEO
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Parsea el xml de entrada y obtiene su representaci�n en objetos
      * @param xmlIS Stream de entrada con los datos xml
@@ -152,7 +152,7 @@ final class ObjsFromXMLBuilder<T> {
 	        @Cleanup InputStreamReader isr = new InputStreamReader(xmlIS,theCharset);
 	        InputSource is = new InputSource(isr);
 	        return _parseXML(is,textEncoder);
-	        
+
         } catch (IOException ioEx) {
             throw new MarshallerException(ioEx.getMessage(),ioEx);
         }
@@ -177,7 +177,7 @@ final class ObjsFromXMLBuilder<T> {
             												 textEncoder,
             												 log); 	// implementa DefaultHandler + LexicalHandler (para los CDATA)
             saxParser.setProperty("http://xml.org/sax/properties/lexical-handler",loader);  // Imprescindible para el LexicalHandler
-            saxParser.parse(xmlIS,loader);            
+            saxParser.parse(xmlIS,loader);
 
             @SuppressWarnings("unchecked")
             T outObj = (T)loader.getBuiltObj();
@@ -199,13 +199,13 @@ final class ObjsFromXMLBuilder<T> {
 //	proceso en un momento dado y que se "inicializan" cuando el parser SAX
 //	lanza el evento startElement para un nuevo TAG
 //	IMPORTANTE:
-//	-	Para los miembros "simples" (los de tipo String, long, 
-//		date, etc), o los "complejos" (aquellos que tambi�n se definen en 
+//	-	Para los miembros "simples" (los de tipo String, long,
+//		date, etc), o los "complejos" (aquellos que tambi�n se definen en
 //		el fichero de mapeo), en la pila _beanAndFieldStack hay un objeto:
 //			bean = bean que contiene el miembro
 //			field = null
-//		si el miembro es "complejo", una vez comienza el bean hijo, 
-//		en la pila _beanAndFieldStack se introduce otro objeto beanAndField 
+//		si el miembro es "complejo", una vez comienza el bean hijo,
+//		en la pila _beanAndFieldStack se introduce otro objeto beanAndField
 //		para el hijo
 //
 //	- 	Para los miembros tipo Colecci�n (Mapas, arrays y listas), en la
@@ -214,7 +214,7 @@ final class ObjsFromXMLBuilder<T> {
 //			field = una Lista donde se van "metiendo" cada uno de los beans
 //					de la colecci�n
 //		una vez comienza a procesarse un bean de la colecci�n, en la pila
-//		_beanAndFieldStack se introduce otro objeto beanAndField para el 
+//		_beanAndFieldStack se introduce otro objeto beanAndField para el
 //		bean.
 //		NOTA: 	Si la colecci�n es de alg�n tipo simple (ej XML, String, long...)
 //				para cada elemento de la colecci�n, en la pila se introduce
@@ -227,17 +227,17 @@ final class ObjsFromXMLBuilder<T> {
  */
 @Accessors(prefix="_")
 @RequiredArgsConstructor	// Constructor con los miembros final
-private class ObjsFromXMLLoader 
-      extends DefaultHandler 
+private class ObjsFromXMLLoader
+      extends DefaultHandler
    implements LexicalHandler  {
-	
+
 	private final SimpleMarshallerMappings _beanMappings;
 	private final TextEncoder _textEncoder;
 	private final Logger _log;
 
     @Getter private Object _builtObj = null;
     		private Deque<BeanAndFieldWrapper> _beanAndFieldStack = new ArrayDeque<BeanAndFieldWrapper>();
-    		private Deque<String> _beanElementTagNames = new ArrayDeque<String>();	// NO es estrictamente necesario (bastar�a con el �ltimo tag)...   
+    		private Deque<String> _beanElementTagNames = new ArrayDeque<String>();	// NO es estrictamente necesario (bastar�a con el �ltimo tag)...
     		private Deque<String> _rawXMLTags = new ArrayDeque<String>();   	// Si se est� cargando un miembro que contiene XML "a pelo" (raw), el contenido
     																			// del tag que "engloba" al miembro NO se parsea sino que se trata como una cadena
     																			//		Puede ocurrir que el tag que "engloba" al miembro tipo XML aparezca tambien en el
@@ -248,12 +248,12 @@ private class ObjsFromXMLLoader
 													    						//                      <value>2</value>
 													    						//                  </props>
 													    						//              </value>    <-- Los subsiguientes tags son "normales"
-    		boolean _loadingChars = true;	// evita que se compute una y otra vez el m�todo characters() si en la 
+    		boolean _loadingChars = true;	// evita que se compute una y otra vez el m�todo characters() si en la
     										// primera pasada por characters() se detecta que NO se mapea a ning�n miembro del objeto
-    		
+
     		private String _mapElementWrapperKey = null;
     		private Class<?> _realTypeToBeLoadedAtCharacters = null;
-    		
+
     // -------: METODOS DEL INTERFAZ DocumentHandler SAX
     @Override
     public void comment(char[] arg0, int arg1, int arg2) throws SAXException {
@@ -287,25 +287,25 @@ private class ObjsFromXMLLoader
                              final Attributes attrs) throws SAXException {
         // Obtener el nombre del tag y meterlo en la pila de tags
         String eName = lName; // element name
-        if ("".equals(eName)) eName = qName; // namespaceAware = false  
+        if ("".equals(eName)) eName = qName; // namespaceAware = false
 
-        StringBuilder dbg = _log.isTraceEnabled() ? new StringBuilder(100) 
+        StringBuilder dbg = _log.isTraceEnabled() ? new StringBuilder(100)
         										  : null;
-        
+
         if (_log.isTraceEnabled()) dbg.append("[START]: ").append(eName);
 		try {
-	        _loadingChars = true;	// NO mover... 
-	        
+	        _loadingChars = true;	// NO mover...
+
 	        if (_rawXMLTags.isEmpty()) _beanElementTagNames.push(eName);  	// solo poner en la pila el tag si NO se est� cargando un XML en un miembro
-        	
+
 	        if (_beanAndFieldStack.isEmpty()) {
-	        	_startingMainObject(eName,attrs);	// Crear el objeto principal 
+	        	_startingMainObject(eName,attrs);	// Crear el objeto principal
 	            return;
-	        } 
-	                                
-	        // Obtener una instancia del bean y el miembro en el que se mapean los datos	
+	        }
+
+	        // Obtener una instancia del bean y el miembro en el que se mapean los datos
 	        BeanAndFieldWrapper beanAndField = _loadingAField(_beanElementTagNames.peek());
-	        
+
 	        // si se est� cargando un xml "a pelo", simplemente poner el XML en el miembro
 	        if (!_rawXMLTags.isEmpty()) {
 	        	_rawXMLStartElement(beanAndField,
@@ -314,24 +314,24 @@ private class ObjsFromXMLLoader
 	        }
 	        // En este momento TIENE que haber una instancia y un field de la instancia...
 	        if (beanAndField == null || beanAndField.getBeanInstance() == null || beanAndField.getFieldInstance() == null) throw new SAXException("Error desconocido en el proceso de convesion de XML a objetos; probablemente la clase que mapea el tag " + eName + " NO esta anotada con @XmlRootElement(name=" + eName + ")");
-	        
+
 	        // Obtener el fieldMap y DataType para ahorrar c�digo...
 	        FieldMap fieldMap = beanAndField.getFieldMap();
 	        DataType fieldDataType = fieldMap.getDataType();
-	        
+
 	        // Comprobaci�n de seguridad (no mover de aqui)
-	        if (!beanAndField.isValid()) throw new SAXException("NO se ha podido encontrar una instancia para el tag " + eName + " en el bean " + (beanAndField.getBeanInstance() != null ? beanAndField.getBeanMap().getTypeName() : "NULL") + ": El XML que se esta parseando NO se corresponde con la configuracion del mapeo;\r\nLas causas mas frecuentes del error son:\r\n\t1.- en la definici�n de mapeo se ha especificado como ATRIBUTO, pero en el XML llega como ELEMENTO.\r\n\t2.- en la definici�n de mapeo NO se ha incluido el elemento");	        	        
-	        
-	        if ( fieldDataType.isCollectionOrMap() ) {	
-	        	// [[[[ COLECCION / MAPA ]]]] -----------------------	        	
+	        if (!beanAndField.isValid()) throw new SAXException("NO se ha podido encontrar una instancia para el tag " + eName + " en el bean " + (beanAndField.getBeanInstance() != null ? beanAndField.getBeanMap().getTypeName() : "NULL") + ": El XML que se esta parseando NO se corresponde con la configuracion del mapeo;\r\nLas causas mas frecuentes del error son:\r\n\t1.- en la definici�n de mapeo se ha especificado como ATRIBUTO, pero en el XML llega como ELEMENTO.\r\n\t2.- en la definici�n de mapeo NO se ha incluido el elemento");
+
+	        if ( fieldDataType.isCollectionOrMap() ) {
+	        	// [[[[ COLECCION / MAPA ]]]] -----------------------
 	        	if (fieldMap.getXmlMap().getNodeName().equals(eName)) {
 	        		if (_log.isTraceEnabled()) dbg.append(" (Collection)");
 	        		// Comienza la colecci�n poner en la pila de bean/field el bean/campo que CONTIENE la colecci�n
 	        		_beanAndFieldStack.push(beanAndField);
-	        		
+
 	        	} else {
 	        		if (_log.isTraceEnabled()) dbg.append(" (Collection Item)");
-	        		
+
 	        		// Normally Map objects are mapped like
 	        		//		<mapWrapper>
 	        		//			<mapElement oid='xxx'>...</mapElement>
@@ -347,24 +347,24 @@ private class ObjsFromXMLLoader
 	        		//				<mapElement...>
 	        		//			</BASQUE>
 	        		//		</mapWrapper>
-	        		// this time the map elements are wrapped and the map key is the wrapper tag 
+	        		// this time the map elements are wrapped and the map key is the wrapper tag
 	        		// ... so the map elements wrappers must be ignored until the endElement() method
 	        		// to do so, the wrapper key value must be stored at _mapElementWrapperKey and released at endElement() method
-	        		if (fieldMap.getDataType().isMap() 
+	        		if (fieldMap.getDataType().isMap()
 	        		 && fieldMap.getDataType().asMap().getKeyElementsDataType().is(Language.class)		// TODO maybe the same can be applied to Map<String,String> or LanguageTexts
 	        		 && !fieldMap.getDataType().asMap().getValueElementsDataType().is(String.class)
 	        		 && Languages.canBe(eName)) {
 	        			_mapElementWrapperKey = eName;
 	        			return;
 	        		}
-	        			        	
+
 		            // Un objeto DENTRO de una colecci�n
 	        		BeanMap colElBeanMap = _beanMapForField(fieldMap,
 	        												eName,attrs);
 	                BeanInstance colElBeanInstance = _createBeanInstance(colElBeanMap,
-	                												     eName,attrs);	                
+	                												     eName,attrs);
 
-	                
+
 	                // A�adir el bean a la colecci�n del bean padre
 	                List<BeanInstance> instances = beanAndField.getFieldInstance().get();
 	                if (instances == null) {
@@ -373,58 +373,58 @@ private class ObjsFromXMLLoader
 	                	instances = (List<BeanInstance>)FieldInstance.createInstance(fieldMap);
 	                	beanAndField.getFieldInstance().set(instances);
 	                }
-	                instances.add(colElBeanInstance); 
-	                                  
+	                instances.add(colElBeanInstance);
+
 	                // En la pila de bean/fields en proceso se inserta el nuevo bean
 	                BeanAndFieldWrapper colElBeanAndField = new BeanAndFieldWrapper(colElBeanInstance,	// nuevo bean dentro de una colecci�n / mapa
 	                															  	null);				// ... el "padre" es la colecci�n... NO otro bean
 	                _beanAndFieldStack.push(colElBeanAndField);
-	                
+
 	                // Si se trata de una colecci�n de XMLs, iniciar la carga del xml
 	                // NOTA: se detecta que es una coleccion de XMLs, por que:
-	                //			1.- El nuevo bean creado es de un tipo simple (un bean "virtual" en el que colElBeanInstance.getMapping() == null) 
+	                //			1.- El nuevo bean creado es de un tipo simple (un bean "virtual" en el que colElBeanInstance.getMapping() == null)
 	                //			2.- El tipo de dato de la colecci�n es XML
 	                //			3.- El nuevo bean tieen un custom Marshaller
 	                if (colElBeanInstance.getMapping() == null 		// tipo simple (integer, long, date, etc)
-	                					&& 
+	                					&&
 	                			(fieldDataType.isCollection() && DataTypeEnum.XML.canBeFromTypeName(fieldDataType.asCollection().getValueElementsType().getName())
 	                					||
 	                			(fieldDataType.isMap() && DataTypeEnum.XML.canBeFromTypeName(fieldDataType.asMap().getValueElementsType().getName())))
 	                   ||
 	                   (colElBeanInstance.getMapping() != null && colElBeanInstance.getMapping().isCustomXmlTransformed())) {
-	                	
+
 	                	_rawXMLStartElement(colElBeanAndField,
 	                						eName,attrs);
 	                }
-	        	} 
-	        	
+	        	}
+
 	        } else if (fieldDataType.isObject()) { 		// it's an object
 	        	// [[[[ OBJET ]]]] ---------------------------------
         		if (_log.isTraceEnabled()) dbg.append(" (Object)");
-        		
+
         		// [1] - Obtener el mapeo del bean al que se refiere el objeto
         		BeanMap fieldBeanMap = _beanMapForField(fieldMap,
         											    eName,attrs);
-	        	
+
 	        	// [2] - Crear beanInstance y fieldInstance en la pila
 		    	if (fieldBeanMap != null) {
 		    		// [2.1] - Create the bean instance
 		    		BeanInstance objBeanInstance = _createBeanInstance(fieldMap,fieldBeanMap,
 		    														   eName,attrs);
-		    		
+
 		    		// [2.2] - Poner en la pila
 		            // Referenciar el bean en el campo del bean padre
 		            beanAndField.getFieldInstance().set(objBeanInstance);
-	
-		            // Si al crear la instancia se ha detectado que es un tipo que se transforma xml<->java de forma customizada, 
+
+		            // Si al crear la instancia se ha detectado que es un tipo que se transforma xml<->java de forma customizada,
 		            // hay que pasar a modo leer xml raw
 		            if (objBeanInstance.getMapping().isCustomXmlTransformed()) _rawXMLStartElement(beanAndField,
 		                					  													   eName,attrs);
 		            // Poner en la pila de beanAndField el bean/field "padre" y el nuevo bean/field
-		            _beanAndFieldStack.push(beanAndField);                
+		            _beanAndFieldStack.push(beanAndField);
 		            _beanAndFieldStack.push(new BeanAndFieldWrapper(objBeanInstance,null));
-		            
-	        	} else {	        		
+
+	        	} else {
 	        		// The field is an object BUT it's not mapped (ej: it's a Boolean, Long, or so)
 	        		String typeDiscriminator = fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable();
 	        		if (Strings.isNOTNullOrEmpty(typeDiscriminator)) {
@@ -433,7 +433,7 @@ private class ObjsFromXMLLoader
 		        		//			@XmlElement(name="record") @XmlTypeDiscriminatorAttribute(name="type")
 		        		//			@Getter @Setter private R _record;
 		        		//      }
-		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object 
+		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object
 		        		// ... BUT there is no mapping for Boolean
 			        	if (Strings.isNOTNullOrEmpty(typeDiscriminator)) {
 			        		// set the real type to be loaded at characters method: WTF!
@@ -445,7 +445,7 @@ private class ObjsFromXMLLoader
 		        		//			@XmlElement
 		        		//			@Getter @Setter private R _record;
 		        		//      }
-		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object 
+		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object
 		        		// ... BUT there is no mapping for Boolean
 		        		// All the loading is done at characters() method
 	        		}
@@ -453,16 +453,16 @@ private class ObjsFromXMLLoader
 	        } else if (fieldDataType.isXML()																			// es xml
 	        	    || (fieldDataType.getBeanMap() != null && fieldDataType.getBeanMap().isCustomXmlTransformed())) {	// es un objeto que se transforma con un customXmlTransformer
         		if (_log.isTraceEnabled()) dbg.append(" (Object custom transformed or XML)");
-        		
-	        	// [[[[ XML ]]]] ------------------------------------	        	
+
+	        	// [[[[ XML ]]]] ------------------------------------
 	            // Miembros que cargan el XML como String... es decir, el field simplemente almacena el XML sin parsearlo
 	        	_rawXMLStartElement(beanAndField,
 	        					    eName,attrs);
-	        	
+
 	        } else if (fieldDataType.isSimple()) {
         		if (_log.isTraceEnabled()) dbg.append(" (simple)");
 	        	// [[[[ Tipo Simple ]]]] ----------------------------
-	        	// Tipo simple (String, Integer, Long, etc)	
+	        	// Tipo simple (String, Integer, Long, etc)
 	    		// No hacer nada... el dato se carga en el metodo characters()
 	        }
 		} catch (Exception ex) {
@@ -475,21 +475,21 @@ private class ObjsFromXMLLoader
 	        }
 		}
     }
-	
-	
+
+
 	@Override
     public void characters(final char buff[],final int offset,final int len) throws SAXException {
     	if (buff == null || buff.length == 0) return;		// NO meter nada si solo hay espacios en blanco
-    	
+
     	StringBuilder dbg = _log.isTraceEnabled() ? new StringBuilder(100) : null;
-    	
+
     	if (_log.isTraceEnabled()) dbg.append("[CHARACTERS]: ").append(_beanElementTagNames.peek());
-    	
-    	
+
+
     	if (!_loadingChars) return;		// do NOT compute again if the tag elements are not going anywhere
     	try {
 	       	BeanAndFieldWrapper beanAndField = _loadingAField(_beanElementTagNames.peek());
-	        
+
 	        // Multiple calls to characters() can be done do use a StringBuffer
 	       	if (beanAndField != null) {
 	       		StringBuilder sb = _textBuffer(beanAndField);
@@ -498,11 +498,11 @@ private class ObjsFromXMLLoader
 		        								.append(buff,offset,len);		// add the new text
 		        	if (_textEncoder != null) text = new StringBuilder(_textEncoder.decode(text));
 		    		sb.append(text);	// append the new text
-		    		
-		        } else if (beanAndField.getFieldInstance() != null 
-		        		&& beanAndField.getFieldInstance().get() == null 
+
+		        } else if (beanAndField.getFieldInstance() != null
+		        		&& beanAndField.getFieldInstance().get() == null
 		        		&& beanAndField.getFieldInstance().getMapping().getDataType().getType() == Object.class) {
-		        	
+
 		        	String value = new String(buff,offset,len);
 		        	Object o = null;
 		        	if (_realTypeToBeLoadedAtCharacters != null) {
@@ -511,20 +511,20 @@ private class ObjsFromXMLLoader
 		        		//			@XmlElement(name="record") @XmlTypeDiscriminatorAttribute(name="type")
 		        		//			@Getter @Setter private R _record;
 		        		//      }
-		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object 
+		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object
 		        		// ... BUT there is no mapping for Boolean
 		        		if (_realTypeToBeLoadedAtCharacters == String.class) {
 		        			o = value;
 		        		} else if (_realTypeToBeLoadedAtCharacters == Integer.class) {
-		        			o = new Integer(value);
+		        			o = Integer.valueOf(value);
 		        		} else if (_realTypeToBeLoadedAtCharacters == Long.class) {
-		        			o = new Long(value);
+		        			o = Long.valueOf(value);
 		        		} else if (_realTypeToBeLoadedAtCharacters == Short.class) {
-		        			o = new Short(value);
+		        			o = Short.valueOf(value);
 		        		} else if (_realTypeToBeLoadedAtCharacters == Double.class) {
-		        			o = new Double(value);
+		        			o = Double.valueOf(value);
  		        		} else if (_realTypeToBeLoadedAtCharacters == Float.class) {
- 		        			o = new Float(value);
+ 		        			o = Float.valueOf(value);
  		        		}
 		        	} else {
 		        		// The field is an object BUT it's not mapped (ej: it's a Boolean, Long, or so)
@@ -533,20 +533,20 @@ private class ObjsFromXMLLoader
 		        		//			@XmlElement
 		        		//			@Getter @Setter private R _record;
 		        		//      }
-		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object 
+		        		// and a RecordPersistenceOperationResult<Boolean> is mapped: _record field is detected as an Object
 		        		// ... BUT there is no mapping for Boolean
 			        	if (value.equals("true") || value.equals("false")) {
-			        		o = new Boolean(value);
+			        		o = Boolean.valueOf(value);
 			        	} else if (Numbers.isInteger(value)) {
-			        		o = new Integer(value);
+			        		o = Integer.valueOf(value);
 			        	} else if (Numbers.isLong(value)) {
-			        		o = new Long(value);
+			        		o = Long.valueOf(value);
 			        	} else if (Numbers.isShort(value)) {
-			        		o = new Short(value);
+			        		o = Short.valueOf(value);
 			        	} else if (Numbers.isDouble(value)) {
-			        		o = new Double(value);
+			        		o = Double.valueOf(value);
 			        	} else if (Numbers.isFloat(value)) {
-			        		o = new Float(value);
+			        		o = Float.valueOf(value);
 			        	} else {
 			        		o = value;
 			        	}
@@ -556,13 +556,13 @@ private class ObjsFromXMLLoader
 		        	bi.set(o);
 		        	beanAndField.getFieldInstance().set(bi);
 		        	_loadingChars = false;
-		        	
-		        } else if (beanAndField.getFieldInstance() != null 
+
+		        } else if (beanAndField.getFieldInstance() != null
 		        		&& beanAndField.getFieldInstance().get() == null
 		        		&& beanAndField.getFieldInstance().getMapping().getDataType().isObject()
 		        		&& beanAndField.getFieldInstance().getMapping().getDataType().getBeanMap() != null
-		        		&& (beanAndField.getFieldInstance().getMapping().getDataType().isCanBeCreatedFromString() 
-		        			|| !beanAndField.getFieldInstance().getMapping().getDataType().asObject().hasFields())) {	
+		        		&& (beanAndField.getFieldInstance().getMapping().getDataType().isCanBeCreatedFromString()
+		        			|| !beanAndField.getFieldInstance().getMapping().getDataType().asObject().hasFields())) {
 		        	// The field is an object BUT any of it's fields are mapped (they are transient or annotated with @XmlTransient
 		        	// This is the case for r01f.types.Path object
 		        	// The only way to create these type of objects is using a single String param constructor or a static valueOf(String) method
@@ -571,7 +571,7 @@ private class ObjsFromXMLLoader
 		        	BeanInstance bi = new BeanInstance();
 		        	bi.set(new StringBuilder(value));
 		        	beanAndField.getFieldInstance().set(bi);
-		        	
+
 		        } else if (beanAndField.getFieldInstance() == null
 		        	    && beanAndField.getBeanInstance().getMapping().getDataType().isCanBeCreatedFromString()) {
 		        	// A object that can be created from a String is being loaded (ie a OID object that have a valueOf(String) or fromString(String) method)
@@ -580,12 +580,12 @@ private class ObjsFromXMLLoader
 		        	//		</myObj>
 		        	String value = new String(buff,offset,len);
 		        	beanAndField.getBeanInstance().set(ReflectionUtils.createInstanceFromString(beanAndField.getBeanInstance().get().getClass(),value));
-		        	
+
 		        } else {
 		        	// The characters are NOT persisted in any bean member... ignore any characters() call from now on
 		        	_loadingChars = false;
 		        }
-	       	} else {	       		
+	       	} else {
 //	        	StringBuilder text2 = Strings.create()					// crear un buffer del tama�o adecuado = texto existente + texto nuevo
 //	        								.add(buff,offset,len)		// a�adir el texto que llega en el m�todo characters
 //	        								.decodeUsing(_textEncoder)	// decodificarlo
@@ -602,8 +602,8 @@ private class ObjsFromXMLLoader
     		}
     	}
     }
-	
-	
+
+
 	@Override
     public void startCDATA() throws SAXException {
     	if (_rawXMLTags.isEmpty()) return;	// si no se est� cargando un xml... no hacer nada
@@ -614,32 +614,32 @@ private class ObjsFromXMLLoader
 	        	xmlSb = beanAndField.getFieldInstance().get();
 	        } else {
 	        	xmlSb = beanAndField.getBeanInstance().get();
-	        }            	            	
+	        }
 	        xmlSb.append("<![CDATA[");
     	} catch(Exception ex) {
     		_log.error("[START_CDATA]: {} > ERROR",_beanElementTagNames.peek(),ex);
     		throw new SAXException(ex);
-    	}	        
+    	}
     }
-    
+
 	@Override
     public void endCDATA() throws SAXException {
     	if (_rawXMLTags.isEmpty()) return;	// si no se est� cargando un xml... no hacer nada
     	try {
-	    	BeanAndFieldWrapper beanAndField = _loadingAField(_beanElementTagNames.peek());        	
-	    	StringBuilder xmlSb = null;            	
+	    	BeanAndFieldWrapper beanAndField = _loadingAField(_beanElementTagNames.peek());
+	    	StringBuilder xmlSb = null;
 	        if (beanAndField.getFieldInstance() != null) {
 	        	xmlSb = beanAndField.getFieldInstance().get();
 	        } else {
 	        	xmlSb = beanAndField.getBeanInstance().get();
-	        }            	
+	        }
 	        xmlSb.append("]]>");
     	} catch(Exception ex) {
     		_log.error("[END_CDATA]: {} > ERROR",_beanElementTagNames.peek(),ex);
     		throw new SAXException(ex);
-    	}	        
+    	}
     }
-    
+
 	@Override @SuppressWarnings({ "unchecked" })
     public void endElement(final String namespaceURI,
                            final String sName, // simple name
@@ -647,12 +647,12 @@ private class ObjsFromXMLLoader
                            ) throws SAXException {
         String eName = sName; // element name
         if ("".equals(eName)) eName = qName; // namespaceAware = false
-        
+
         StringBuilder dbg = _log.isTraceEnabled() ? new StringBuilder(100) : null;
-        
+
         if (_log.isTraceEnabled()) dbg.append("[END]: ").append(eName);
-        
-        // Check wether a key-wrapped map element is ending 
+
+        // Check wether a key-wrapped map element is ending
         if (_mapElementWrapperKey != null && eName.equals(_mapElementWrapperKey)) {
         	 List<BeanInstance> colEls = _beanAndFieldStack.peek().getFieldInstance().get();
         	 colEls.get(colEls.size()-1).setEffectiveNodeName(eName);
@@ -660,66 +660,66 @@ private class ObjsFromXMLLoader
         	_beanElementTagNames.pop();
         	return;
         }
-        
+
         try {
 	        BeanAndFieldWrapper beanAndField = _beanAndFieldStack.peek();
-	        
+
 	        if (_beanAndFieldStack.isEmpty()) return; 	// the root object is being finished and the root object is a collection
-	        
+
 	        // :::: raw xml is being loaded?
-	        if (!_rawXMLTags.isEmpty()) { 
+	        if (!_rawXMLTags.isEmpty()) {
 				beanAndField = _loadingAField(_beanElementTagNames.peek());
 				_rawXmlEndElement(eName,beanAndField);
 				if (!_rawXMLTags.isEmpty()) return;
 	        }
-	        
+
 	        // :::: otherwise it can be finishing:
 	        //		- a collection's element
 	        //		- an object
-	        //		- a member	
+	        //		- a member
 	        if (beanAndField.getBeanMap() == null) {
-	        	// se est� finalizando un bean "virtual" correspondiente a un tipo "simple" (string, date, etc) 
+	        	// se est� finalizando un bean "virtual" correspondiente a un tipo "simple" (string, date, etc)
 	    		// y englobado en una colecci�n
 	        	_beanAndFieldStack.pop();
-	        	
+
 	        } else if (beanAndField.getFieldInstance() != null
 	        		&& beanAndField.getFieldMap().getDataType().isCollectionOrMap()) {
 	        	// a collection is being finished
 	            _beanAndFieldStack.pop();		// The bean/field that CONTAINS the collection
-	        	
-	        } else if (beanAndField.getFieldInstance() == null 
-	        		&& beanAndField.getBeanInstance() != null            			
+
+	        } else if (beanAndField.getFieldInstance() == null
+	        		&& beanAndField.getBeanInstance() != null
 	        		&& beanAndField.getBeanInstance().getEffectiveNodeName().equals(eName)) {
 	        	// se est� finalizando un bean que es un miembro de otro bean (beanAndField tiene field = null)
 	        	Object builtObj = beanAndField.getBeanInstance()
 	        								  .build();				// <-- IMPORTANT!!! here the bean is built <-----------
 	        	_beanAndFieldStack.pop();
-	        	
+
 	        	if ( !_beanAndFieldStack.isEmpty() ) {
 	        		// Si el bean/field "padre" NO es una colecci�n, hay que sacarlo tambien de la pila
 	            	BeanAndFieldWrapper parentBeanAndField = _beanAndFieldStack.peek();
-	            	if ( parentBeanAndField.getFieldInstance() != null 
+	            	if ( parentBeanAndField.getFieldInstance() != null
 	            	 && !parentBeanAndField.getFieldMap().getDataType().isCollection()
 	            	 && !parentBeanAndField.getFieldMap().getDataType().isMap()) {
-	            		_beanAndFieldStack.pop();	// El bean/field que CONTIENE el objeto "hijo" 
+	            		_beanAndFieldStack.pop();	// El bean/field que CONTIENE el objeto "hijo"
 	            	}
 	        	}
 	        } else {
 	        	/* empty */
-	        }	        
+	        }
 	    	// ... se termina el objeto
 			_beanElementTagNames.pop();		// sacar el tag de la pila
-			
+
 			_loadingChars = true;
 			// Ver si se ha terminado con el �ltimo objeto
 	    	if (_beanAndFieldStack.isEmpty()) {
 	    		// Obtener el �ltimo objeto construido
 	    		Object lastBuiltObj = beanAndField.getBeanInstance().get();
-	    		
+
 	    		// Hay 2 casos:
 	    		//		- El objeto construido es el objeto tra�z
 	    		//		- El objeto construido es un elemento del objeto ra�z y este es una colecci�n o mapa
-	    		
+
 	    		// El objeto ra�z es un mapa
 	    		if (this._builtObj != null && CollectionUtils.isMap(this._builtObj.getClass())) {
 	    			// Buscar la clave y valor para poner en el mapa
@@ -757,12 +757,12 @@ private class ObjsFromXMLLoader
 	    		else {
     				_builtObj = lastBuiltObj;		// el objeto construido
 	    		}
-	    	}     		
+	    	}
     	} catch(Exception ex) {
     		_log.error("[END]: {} > ERROR",eName,ex);
     		throw new SAXException(ex);
     	} finally {
-    		if(_log.isTraceEnabled()) {
+    		if (_log.isTraceEnabled()) {
     			dbg.append(" > END");
     			_log.trace(dbg.toString());
     		}
@@ -775,7 +775,7 @@ private class ObjsFromXMLLoader
     }
 ///////////////////////////////////////////////////////////////////////////////
 //  METODOS AUXILIARES
-///////////////////////////////////////////////////////////////////////////////  
+///////////////////////////////////////////////////////////////////////////////
 	private void _startingMainObject(final String eName,
 									 final Attributes attrs) throws MarshallerException {
         // Ver si se est� empezando con el objeto raiz; hay DOS posibilidades
@@ -794,7 +794,7 @@ private class ObjsFromXMLLoader
     			throw new MarshallerException("NO se ha podido encontrar un mapeo para el tag " + eName);
     		}
     	}
-    	
+
         if (rootBeanMap.isCustomXmlTransformed()) {
         	// [CASO 0] - El objeto principal est� transformado de forma customizada
         	this._builtObj = null;	// importante!!
@@ -807,16 +807,16 @@ private class ObjsFromXMLLoader
         } else {
             BeanInstance rootBeanInstance = _createBeanInstance(rootBeanMap,
             													eName,attrs);
-            
+
         	// [CASO 1] - Se est� comenzando el objeto principal y este es un mapa o colecci�n;
-            //			  en this.builtObj se deja una instancia de la colecci�n/Mapa que se va 
+            //			  en this.builtObj se deja una instancia de la colecci�n/Mapa que se va
             //			  completando en el m�todo endElement()
             if (rootBeanMap.getDataType().isMap() || rootBeanMap.getDataType().isCollection()) {
             	_beanElementTagNames.pop();
             	this._builtObj = rootBeanInstance.get();
-            } 
+            }
             // [CASO 2,3]- El objeto principal es un mapa o colecci�n y se est� empezando un item de dicho mapa/colecci�n
-            //			   se trata como si se estubiera construyendo un bean "normal" que m�s tarde en endElement() se 
+            //			   se trata como si se estubiera construyendo un bean "normal" que m�s tarde en endElement() se
             //			   pasar� al mapa / colecci�n que est� en this.builtObj
             else if (this._builtObj != null && CollectionUtils.isMap(this._builtObj.getClass())) {
 	            _beanAndFieldStack.push( new BeanAndFieldWrapper(rootBeanInstance,null) );
@@ -834,8 +834,8 @@ private class ObjsFromXMLLoader
     private BeanAndFieldWrapper _loadingAField(final String currNodeName) throws MarshallerException {
     	// IMPORTANT!!! When loading a type's field, beanAndField.getFieldInstance() is ALLWAYS Null
     	BeanAndFieldWrapper beanAndField = _beanAndFieldStack.peek();
-		BeanInstance beanInstance = beanAndField.getBeanInstance(); 
-		
+		BeanInstance beanInstance = beanAndField.getBeanInstance();
+
 		BeanAndFieldWrapper outBeanAndField = null;
 		if (!_rawXMLTags.isEmpty()) {
 			// se est� cargando un miembro xml o custom marshalled
@@ -851,26 +851,26 @@ private class ObjsFromXMLLoader
 				fieldMap = beanInstance.getMapping().getFieldFromXmlNode(fieldTag,false);
 				if (fieldMap == null) {
 					// caso 2
-					fieldMap = beanInstance.getMapping().getFieldFromXmlNode(beanInstance.getEffectiveNodeName(),false);	
+					fieldMap = beanInstance.getMapping().getFieldFromXmlNode(beanInstance.getEffectiveNodeName(),false);
 				} else {
 					// caso 1
 				}
 				outBeanAndField =  new BeanAndFieldWrapper(beanInstance,
 											    		   beanInstance.getFieldInstance(fieldMap));
 			}
-			
-		} 
+
+		}
 		// Cuando se carga un miembro de un bean, beanAndField.getFieldInstance() es SIEMBRE Null
-		else if (beanAndField.getFieldInstance() == null) {	
+		else if (beanAndField.getFieldInstance() == null) {
 			if (beanInstance.getMapping() == null) {
 				// tipo "simple" (string, long, date, etc) dentro de una colecci�n... se devuelve un bean "virtual" en el que
 				//		- beanAndField.getBean().getMapping() == null (es un tipo "simple" que NO se refleja en el fichero de mapeo
 				//		- beanAndField.getField() == null (como cualquier bean)
-				outBeanAndField = beanAndField;	
-				
+				outBeanAndField = beanAndField;
+
 			} else {
 				// miembro "normal" dentro de un bean o nuevo objeto dentro de una colecci�n/mapa
-				
+
 				// Averiguar el miembro del bean padre en el que se mapea el tag
 				// ... si se trata de un nuevo objeto de una colecci�n fieldMap = null
 				FieldMap fieldMap = beanInstance.getMapping()
@@ -890,21 +890,21 @@ private class ObjsFromXMLLoader
 					//				@Getter @Setter private MyType _myType;		en lugar de estar englobado en <MyType>
 					//			}
 					//	   en este caso, cuando llega el tag myTypeFakeTag (<myTypeFakeTag>...</myTypeFakeTag>) al intentar buscar en el registro
-					//	   tipos<->tags un tipo englobado por <myTypeFake> NO se encuentra nada 
+					//	   tipos<->tags un tipo englobado por <myTypeFake> NO se encuentra nada
 					// 	   Hay que "enga�ar" al flujo y buscar por <myType> en lugar de por <myTypeFakeTag>
 					fieldMap = beanInstance.getMapping()
 										   .getFieldFromXmlNode(beanInstance.getXmlMap().getNodeName(),false);
 				}
 				if (fieldMap == null) {
 					// Caso en el que NO se define el tag en el que se mapea el miembro:
-					// ej:		@XmlElement 
+					// ej:		@XmlElement
 					//			private MyType myField;		<-- La anotaci�n @XmlElement no lleva el atributo name
-					// Normalmente esta caso se da cuando el field est� definido con un interfaz o clase abstracta que puede ser 
-					// implementada por diferentes tipos y cada un de ellos se "engloba" en un tag XML distinto especificado 
+					// Normalmente esta caso se da cuando el field est� definido con un interfaz o clase abstracta que puede ser
+					// implementada por diferentes tipos y cada un de ellos se "engloba" en un tag XML distinto especificado
 					// en la anotaci�n @XmlRootElement
 					BeanMap candidateBeanMap = _beanMappings.getBeanMapFromXmlTag(currNodeName);
 					if (candidateBeanMap != null) {
-						// El tag engloba un tipo existente en el mapeo... ver si hay alg�n field en el bean actual de este tipo 
+						// El tag engloba un tipo existente en el mapeo... ver si hay alg�n field en el bean actual de este tipo
 						fieldMap = beanInstance.getMapping()
 											   .getFieldForType(candidateBeanMap.getDataType().getType());
 					}
@@ -926,18 +926,18 @@ private class ObjsFromXMLLoader
 					fieldMap = _fieldForACollection(currNodeName,
 												    beanInstance);
 				}
-				
+
 				// >>> Devolver....
 				if (fieldMap != null) { //&& !fieldMap.getDataType().isCollectionOrMap()) {
-					// ... caso normal; se devuelve el bean y el miembro donde se va a cargar el valor					
+					// ... caso normal; se devuelve el bean y el miembro donde se va a cargar el valor
 					outBeanAndField =  new BeanAndFieldWrapper(beanInstance,
 	    										    		   beanInstance.getFieldInstance(fieldMap));
 				} else {
 					// ...caso en el que el texto (characters) del tag que "engloba" al bean NO se mapea en ning�n miembro
 					outBeanAndField = new BeanAndFieldWrapper(beanInstance,null);
 				}
-			} 
-		} 
+			}
+		}
 		// Cuando se carga un elemento de una colecci�n o mapa, beanAndField.getFieldInstance() es SIEMBRE una colecci�n donde
 		// se van "guardando" los elementos de la colecci�n o mapa
 		else if (beanAndField.getFieldInstance() != null && beanAndField.getFieldInstance().getMapping().getDataType().isCollectionOrMap()) {
@@ -951,7 +951,7 @@ private class ObjsFromXMLLoader
     	//		- Colecciones cuyos elementos se "engloban" en un tag
     	//		- Colecciones cuyos elementos NO se "engloban" en un tag, sino que los elementos est�n directamente "colgando" del tag del bean
     	//
-    	// 		Coleccion NO englobada en un tag              	Colecci�n englobada en un tag 
+    	// 		Coleccion NO englobada en un tag              	Colecci�n englobada en un tag
 		//		(el propio tag del objeto "padre" contiene
 		//		 los elementos de la colecci�n)
     	//		<obj>											<obj>
@@ -966,11 +966,11 @@ private class ObjsFromXMLLoader
     	//															\</myObjs> <----------------------------wrapper tag
     	//														</obj>
 		FieldMap outColFieldMap = null;
-		
-		// (1) Ver si llega el tag que "engloba" a la colecci�n 
+
+		// (1) Ver si llega el tag que "engloba" a la colecci�n
 		outColFieldMap = beanInstance.getMapping().getFieldFromXmlNode(currNodeName,false);	// hay un miembro tipo colecci�n que se mapea en el tag?
 		if (outColFieldMap == null || !outColFieldMap.getDataType().isCollectionOrMap()) {
-			// (2) Los elementos de la colecci�n NO se engloban en un wrapper tag				
+			// (2) Los elementos de la colecci�n NO se engloban en un wrapper tag
 			// 	   ...ver si los elementos de la colecci�n se "engloban" directamente en el tag del bean
 			// Hay dos casos:
 			//		CASO 1: todos los elementos de la colecci�n tienen el mismo tag
@@ -987,10 +987,10 @@ private class ObjsFromXMLLoader
 			if ( fieldMapCandidate != null
 			 && (fieldMapCandidate.getDataType().isCollection() || fieldMapCandidate.getDataType().isMap()) ) {
 				outColFieldMap = fieldMapCandidate;
-			} 
-		} 
+			}
+		}
 		// Caso en el que se trata de un elemento de una colecci�n que se mapea directamente con el tag del bean padre
-		// SOLO puede haber 
+		// SOLO puede haber
 		// ej: 		@XmlRootElement(name="myTag")					<myTag>
 		//			public class MyType {								<myColElement>...</myColElement>
 		//				@XmlValue										<myColElement>...</myColElement>
@@ -1002,13 +1002,13 @@ private class ObjsFromXMLLoader
 														 .getCollectionOrMapFields();
 			if (CollectionUtils.hasData(colFields)) {
 				//FieldMap fm = CollectionUtils.of(colFields).pickOneAndOnlyElement();	// solo puede haber un elemento anotado con @XmlValue
-				FieldMap fm = CollectionUtils.of(colFields).pickOneElement();	// solo puede haber un elemento anotado con @XmlValue				
+				FieldMap fm = CollectionUtils.of(colFields).pickOneElement();	// solo puede haber un elemento anotado con @XmlValue
 				if (fm.getXmlMap().getNodeName().equals(beanInstance.getMapping().getXmlMap().getNodeName())) {
 					outColFieldMap = fm;
 				}
 			}
 		}
-		// Caso particular del anterior en el que un field es una coleccion o mapa PERO no se puede anotar con @XmlElementWrapper debido al uso de 
+		// Caso particular del anterior en el que un field es una coleccion o mapa PERO no se puede anotar con @XmlElementWrapper debido al uso de
 		// genericos:
 		// ej: 		@XmlRootElement(name="myType")
 		// 			public class MyType
@@ -1019,7 +1019,7 @@ private class ObjsFromXMLLoader
 		//				@XmlElement
 		//				private T _value;	<-- this finally is a Collection<String> BUT cannot be annotated with @XmlElementWrapper
 		//			}
-		if (outColFieldMap == null 
+		if (outColFieldMap == null
 		&& (currNodeName.equals("list") || currNodeName.equals("set") || currNodeName.equals("map"))) {
 	        for (FieldMap fm : beanInstance.getMapping().getFields().values()) {
 	        	DataType dataType = fm.getDataType();
@@ -1037,8 +1037,8 @@ private class ObjsFromXMLLoader
 	        		break;
 	        	}
 	        }
-		}		
-		return outColFieldMap;    				
+		}
+		return outColFieldMap;
     }
     /**
      * Guess the {@link BeanMap} for a certain field given it's {@link FieldMap}, XML node name and attributes
@@ -1056,11 +1056,11 @@ private class ObjsFromXMLLoader
     	if (fieldMap.getDataType().isCollection()) {
     		// The dataType IS a collection
     		actualDataType = fieldMap.getDataType().asCollection().getValueElementsDataType();
-    		
+
     	} else if (fieldMap.getDataType().isMap()) {
     		// The dataType IS a Map
     		actualDataType = fieldMap.getDataType().asMap().getValueElementsDataType();
-    		
+
     	} else {
     		// The dataType is an object
     		actualDataType = fieldMap.getDataType();
@@ -1072,12 +1072,12 @@ private class ObjsFromXMLLoader
     		theBeanMap = actualDataType.getBeanMap();
     		if (theBeanMap == null) {
 				// Caso en el que NO se define el tag en el que se mapea el miembro:
-				// ej:		@XmlElement 
-				//			private MyType myField;		<-- La anotaci�n @XmlElement no lleva el atributo name 
+				// ej:		@XmlElement
+				//			private MyType myField;		<-- La anotaci�n @XmlElement no lleva el atributo name
     			theBeanMap = _beanMappings.getBeanMapFromXmlTag(effectiveNodeName);
     		}
-    		
-    	} else { 		
+
+    	} else {
     		// 2.1 - See if the object's enclosing node is mapped to some type (the node's name must match some type's @XmlRootElement annotation value)
     		theBeanMap = _beanMappings.getBeanMapFromXmlTag(effectiveNodeName);
 
@@ -1092,24 +1092,24 @@ private class ObjsFromXMLLoader
 	    		//		2.- See if it's an XML attribute that gives some "clues" about the type to be created (the name of this XML attribute is set by the @XmlTypeDiscriminatorAttribute annotation)
 	    		//			The @XmlTypeDiscriminatorAttribute's value can be:
 	    		//				i) the tag name that "encloses" the real type (the one at the type's @XmlRootElement's annotation)
-	    		//			   ii) the java class like r01f.types.MyConcreteType 
+	    		//			   ii) the java class like r01f.types.MyConcreteType
     			if (fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable() != null) {
     				String discriminator = attrs.getValue(fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable());
     				if (discriminator == null) throw new MarshallerException("The XML node " + effectiveNodeName + " is supposed to have an attribute named " + fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable() + " used to know the concrete type to be instanciated");
-    				
+
     				//  i) try to see if the discriminator's value is the tag that encloses the concrete type
     				theBeanMap = _beanMappings.getBeanMapFromXmlTag(discriminator);
-    				// ii) if not... the discriminator's value is the java datatype 
-    				if (theBeanMap == null) {    					
+    				// ii) if not... the discriminator's value is the java datatype
+    				if (theBeanMap == null) {
 		        		DataType dataType = DataType.create(discriminator);
 		        		if (dataType != null) {
 			        		theBeanMap = dataType.getBeanMap(); 	// simple types (long, String, etc) are NOT mapped so dataType.getBeanMap() = null
 		        		} else {
-		        			throw new MarshallerException("El miembro '" + fieldMap.getName() + "' del tipo " + fieldMap.getDeclaringBeanMap().getTypeName() + " es de un tipo NO instanciable (" + actualDataType.getName() + "); para conocer el tipo concreto se ha intentado buscar el mapeo para el tipo indicado en el atributo " + fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable() + "=" + discriminator + " PERO NO se ha encontrado el mapeo de este tipo"); 
+		        			throw new MarshallerException("El miembro '" + fieldMap.getName() + "' del tipo " + fieldMap.getDeclaringBeanMap().getTypeName() + " es de un tipo NO instanciable (" + actualDataType.getName() + "); para conocer el tipo concreto se ha intentado buscar el mapeo para el tipo indicado en el atributo " + fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable() + "=" + discriminator + " PERO NO se ha encontrado el mapeo de este tipo");
 		        		}
     				}
-    			} 
-    		}	
+    			}
+    		}
     	}
     	return theBeanMap;
     }
@@ -1122,24 +1122,24 @@ private class ObjsFromXMLLoader
 	 * @return
 	 * @throws MarshallerException
 	 */
-	private final BeanInstance _createBeanInstance(final FieldMap fieldMap,final BeanMap beanMap,	
+	private final BeanInstance _createBeanInstance(final FieldMap fieldMap,final BeanMap beanMap,
     											   final String effectiveNodeName,final Attributes attrs) throws MarshallerException {
 		BeanInstance outBeanInstance = null;
-		
+
 		// [2.1] - Crear el beanInstance
 		if (beanMap.isCustomXmlTransformed()) {
     		// El bean est� transformado a XML de forma customizada...
     		outBeanInstance = new BeanInstance(beanMap,effectiveNodeName);
     		outBeanInstance.set(new StringBuilder());
-    		
+
 		} else {																				// Objeto que NO se transforma con un customXmlTransformer
         	// Objeto complejo que NO tiene asociados customXMLTransformers
         	// El bean puede estar "englobado" en el tag que se indica en el atributo fromElement del miembro o
         	// estarlo en el que se indica en la definici�n del bean
-        	
-        	// Crear el nuevo bean que puede ser UNICAMENTE 
+
+        	// Crear el nuevo bean que puede ser UNICAMENTE
     		//		- El bean correspondiente a otro objeto complejo definido en el fichero de mapeo
-    		//		  ---> en este caso newBeanInstance.getMapping() != null 
+    		//		  ---> en este caso newBeanInstance.getMapping() != null
             outBeanInstance = _createBeanInstance(beanMap,
 											      effectiveNodeName,attrs,
  			    							      fieldMap.getXmlMap().getDiscriminatorWhenNotInstanciable());		// ignored attrs
@@ -1162,52 +1162,52 @@ private class ObjsFromXMLLoader
     	if (beanMap != null && beanMap.isCustomXmlTransformed()) {
     		// El bean est� transformado a XML de forma customizada...
     		BeanInstance outBeanInstance = new BeanInstance(beanMap,effectiveNodeName);
-    		outBeanInstance.set(new StringBuilder());		
+    		outBeanInstance.set(new StringBuilder());
     		return outBeanInstance;
     	}
-    	
+
     	// [1] Diferenciar entre los fields finales y los que no lo son
     	//	   Crear tres mapas que asocian el nombre del miembro con el valor del atributo correspondiente
     	//			- Un mapa para los miembros finales (que hay que instanciar en [2] y pasar en el constructor del bean en [3])
     	//			- Otro mapa para los miembros no finales (que se establecen una vez creado el bean en [4])
-    	//			- Un �ltimo mapa para los atributos NO mapeados y que puedan proceder de objetos complejos expandidos    	
+    	//			- Un �ltimo mapa para los atributos NO mapeados y que puedan proceder de objetos complejos expandidos
     	Map<String,CharSequence> finalFieldsFromAttrs = Maps.newLinkedHashMap();
     	Map<String,CharSequence> nonFinalFieldsFromAttrs = Maps.newLinkedHashMap();
     	Map<String,CharSequence> attrsFromExpandedObjs = Maps.newLinkedHashMap();
         for (int i=0; i < attrs.getLength(); i++) {
         	String attrName = attrs.getQName(i);
         	if ( _isIgnoredAttribute(attrName,ignoredAttrs) ) continue;	// saltar si el attribute es un type discriminator
-        	
-        	CharSequence encodedAttrTxt = _textEncoder != null ? _textEncoder.decode(attrs.getValue(i)) 
+
+        	CharSequence encodedAttrTxt = _textEncoder != null ? _textEncoder.decode(attrs.getValue(i))
         													   : attrs.getValue(i); 	// Texto del atributo (decodificar si es necesario)
         	FieldMap attrFieldMap = beanMap.getFieldFromXmlNode(attrName,true);
-        	if (attrFieldMap != null && !attrFieldMap.getXmlMap().isExpandableAsAttributes()) {	
+        	if (attrFieldMap != null && !attrFieldMap.getXmlMap().isExpandableAsAttributes()) {
         		// usually this is the case: it's a normal attribute (not a one that comes from an expanded complex field)
-	        	if (attrFieldMap.isFinal()) {       		
+	        	if (attrFieldMap.isFinal()) {
 	        		finalFieldsFromAttrs.put(attrFieldMap.getName(),encodedAttrTxt);
 	        	} else {
 	        		nonFinalFieldsFromAttrs.put(attrFieldMap.getName(),encodedAttrTxt);
 	        	}
-        	} else {																					
+        	} else {
         		// not found attribute... could be an expanded complex object
         		attrsFromExpandedObjs.put(attrName,encodedAttrTxt);
         	}
-        }                       
-        
-        
+        }
+
+
         // [2] Instance the final fields whoose values come from xml element attributes
         //	   This final fields values MUST be provided at the bean constructor
         Class<?>[] constructorArgsTypes = null;
         Object[] constructorArgs = null;
-        if (CollectionUtils.hasData(finalFieldsFromAttrs)) {         	
+        if (CollectionUtils.hasData(finalFieldsFromAttrs)) {
         	constructorArgsTypes = new Class<?>[finalFieldsFromAttrs.size()];
         	constructorArgs = new Object[finalFieldsFromAttrs.size()];
         	int i=0;
         	for (Map.Entry<String,CharSequence> me : finalFieldsFromAttrs.entrySet()) {
-        		// en [1] se ha creado un mapa que asocia el nombre del miembro con el valor del atributo 
-	        	String fieldName = me.getKey();				// nombre del field						
+        		// en [1] se ha creado un mapa que asocia el nombre del miembro con el valor del atributo
+	        	String fieldName = me.getKey();				// nombre del field
 	        	CharSequence fieldValue = me.getValue();	// valor del field (valor del atributo)
-	        	
+
 				FieldMap attrFieldMap = beanMap.getField(fieldName);	// normalmente ser�n tipos simples (String, Long, etc)
 	        	Object constructorArgInstance = MappingReflectionUtils.simpleObjFromString(attrFieldMap.getDataType(),fieldValue);
 	        	Class<?> constructorArgType = attrFieldMap.getDataType().getType();
@@ -1219,26 +1219,26 @@ private class ObjsFromXMLLoader
     	// [3] Crear el bean (IMPORTANTE: Si se trata de un tipo simple, devuelve un BeanInstance con un StringBuilder)
         BeanInstance beanInstance = new BeanInstance(beanMap,
         											 constructorArgsTypes,constructorArgs,		// Argumentos de la creaci�n del bean...
-        											 effectiveNodeName);    
-        
-        
+        											 effectiveNodeName);
+
+
         // [4] If there's any attribute that comes from an expanded complex object try to map it
         if (CollectionUtils.hasData(attrsFromExpandedObjs)) {
-        	
+
 	    	Collection<FieldMap> fieldMapsOfExpandedFields = beanMap.getXmlMap().getFieldsExpandedAsXmlAttributes();
-	    	if (!CollectionUtils.hasData(fieldMapsOfExpandedFields)) throw new MarshallerException("Some of the attributes " + attrsFromExpandedObjs.keySet() + " are NOT mapped at " + beanMap.getTypeName()); 
-	    		
+	    	if (!CollectionUtils.hasData(fieldMapsOfExpandedFields)) throw new MarshallerException("Some of the attributes " + attrsFromExpandedObjs.keySet() + " are NOT mapped at " + beanMap.getTypeName());
+
 	    	for (FieldMap expandedField : fieldMapsOfExpandedFields) {
 	    		BeanMap expandedBeanMap = expandedField.getDataType().getBeanMap();
 	        	Object expandedBeanInstance = null;
-		        	
-	    		// Try to instance the expanded bean 
+
+	    		// Try to instance the expanded bean
 	    		Map<String,FieldMap> expandedBeanFinalFields = expandedBeanMap.getFinalFields();
 	    		if (CollectionUtils.hasData(expandedBeanFinalFields)) {
 		        	constructorArgsTypes = new Class<?>[expandedBeanFinalFields.size()];
 		        	constructorArgs = new Object[expandedBeanFinalFields.size()];
 		        	int i=0;
-		        	for (Map.Entry<String,FieldMap> me : expandedBeanFinalFields.entrySet()) {		        		
+		        	for (Map.Entry<String,FieldMap> me : expandedBeanFinalFields.entrySet()) {
 			        	FieldMap expandedFieldMap = me.getValue();			// mapeo del field
 			        	CharSequence expandedFieldValue = attrsFromExpandedObjs.get(expandedFieldMap.getXmlMap().getNodeName());
 			        	Object constructorArgInstance = MappingReflectionUtils.simpleObjFromString(expandedFieldMap.getDataType(),
@@ -1279,7 +1279,7 @@ private class ObjsFromXMLLoader
 	    		} else {
 	    			expandedBeanInstance = ReflectionUtils.createInstanceOf(expandedBeanMap.getDataType().getType());
 	    		}
-	    		
+
 				// ... now set the non final fields on the recently created instance
 	    		Map<String,FieldMap> expandedBeanNonFinalFields = expandedBeanMap.getNonFinalFields();
 	    		if (CollectionUtils.hasData(expandedBeanNonFinalFields)) {
@@ -1295,17 +1295,17 @@ private class ObjsFromXMLLoader
 	    		}
 	    		// Set the expanded object instance at the bean's field
 	    		beanInstance.getFieldInstance(expandedField)
-        					.createInstance(expandedBeanInstance);	
+        					.createInstance(expandedBeanInstance);
 	    	}
-        }       
-        
+        }
+
 	    // [5] Establecer los miembros que vienen de atributos NO finales
         if (CollectionUtils.hasData(nonFinalFieldsFromAttrs)) {
-	        for (Map.Entry<String,CharSequence> me : nonFinalFieldsFromAttrs.entrySet()) {	        	
+	        for (Map.Entry<String,CharSequence> me : nonFinalFieldsFromAttrs.entrySet()) {
 	        	String fieldName = me.getKey();
-	        	CharSequence fieldValue = me.getValue();	        	
+	        	CharSequence fieldValue = me.getValue();
 	        	FieldMap fieldMap = beanMap.getField(fieldName);
-	        	
+
 	        	// Instance the fields
 	        	// [A] - It's an object with a single simple (long, String, int, etc) field that can be
 	        	//		 built using a single-arg constructor
@@ -1329,12 +1329,12 @@ private class ObjsFromXMLLoader
 //	        		Object obj = MappingReflectionUtils.simpleObjFromString(argDataType,fieldValue);
 //	        		beanInstance.getFieldInstance(fieldMap)
 //	        					.createInstance(new Class<?>[] {objType},new Object[] {obj});
-//	        		
+//
 //	        	}
 //	        	// [C] - It's NOT an iImmutable objet, BUT it has a single simple (long, String, int, etc) field
 //	        	//		 AND can be constructed using a single arg constuctor
 //	        	//		 (ej mutable oids which must have a no-arg constructor to be serializable to GWT)
-//	        	else if (fieldMap.getDataType().isObject() 
+//	        	else if (fieldMap.getDataType().isObject()
 //	        		  && fieldMap.getDataType().asObject().hasOnlyOneSimpleField()) {
 //	        		DataType argDataType = fieldMap.getDataType().asObject()
 //	        													 .getSingleSimpleField();
@@ -1342,19 +1342,19 @@ private class ObjsFromXMLLoader
 //	        		Object obj = MappingReflectionUtils.simpleObjFromString(argDataType,fieldValue);
 //	        		beanInstance.getFieldInstance(fieldMap)
 //	        					.createInstance(new Class<?>[] {objType},new Object[] {obj});
-//	        		
+//
 //	        	}
         		// [C] - It's NOT an iImmutable object, use the default no-arg constructor and
 	        	//		 set each of the fields
-	        	else { 
+	        	else {
 		        	Object instance = beanInstance.getFieldInstance(fieldMap)
 		        								  .createInstance();
-		        	
+
 		        	if (instance instanceof StringBuilder) {
 		        		// La instancia del miembro es un tipo simple (String, Long, etc) que se crea a partir del valor del atributo
 			        	StringBuilder sb = (StringBuilder)instance;
-			            sb.append(fieldValue); 	
-			            
+			            sb.append(fieldValue);
+
 		        	} else if (instance instanceof BeanInstance) {
 		        		// la instancia del miembro probablemente es un tipo complejo que se crea con un CustomTransformer a partir del valor del atributo
 		        		Object attrObj = null;
@@ -1378,10 +1378,10 @@ private class ObjsFromXMLLoader
         if (beanMap != null && beanMap.getFields() != null) {
 	        for (FieldMap fieldMap : beanMap.getFields().values()) {
 	        	FieldInstance fieldInstance = beanInstance.getFieldInstance(fieldMap);
-	        	
+
 	        	// los objetos complejos se crean en el m�todo START del bean
 	        	if (fieldInstance.getMapping().getXmlMap().isAttribute() || fieldInstance.getMapping().getDataType().isObject()) continue;
-	        	
+
 	        	// se crea una instancia para tipos simples y colecciones... (no objetos complejos)
 	        	if (fieldInstance.get() == null) {
 	        		fieldInstance.createInstance();
@@ -1389,7 +1389,7 @@ private class ObjsFromXMLLoader
 	        }
         }
         return beanInstance;
-    } 
+    }
     private boolean _isIgnoredAttribute(final String attr,final String... ignoredAttrs) {
 		boolean ignoreAttr = false;
     	if (ignoredAttrs != null) {
@@ -1408,10 +1408,10 @@ private class ObjsFromXMLLoader
     								 final Attributes attrs) {
 //    	log.debug("[--- START RAWXML]: {}",tagName);
     	boolean isFirstTagInRawXML = _rawXMLTags.isEmpty();
-    	String rawXmlEnclosingTag = isFirstTagInRawXML ? tagName 
+    	String rawXmlEnclosingTag = isFirstTagInRawXML ? tagName
     												   : _rawXMLTags.peekFirst(); 	// el tag que "engloba" el xml es el primero de la pila
         if (tagName.equals(rawXmlEnclosingTag)) _rawXMLTags.push(tagName);			// ...por si el tag raw xml aparece varias veces en el raw xml (ej: <rawXML>...<rawXML>adsf</rawXML>...</rawXML>)
-        
+
     	StringBuilder xmlSb = _textBuffer(beanAndField);
         xmlSb.append("<").append(tagName);
         for (int i=0; i<attrs.getLength(); i++) xmlSb.append(" ")
@@ -1425,28 +1425,28 @@ private class ObjsFromXMLLoader
 //    	log.debug("--- [END RAWXML]: {}",tagName);
     	boolean isFirstTagInRawXML = _rawXMLTags.isEmpty();
     	String rawXmlEnclosingTag = isFirstTagInRawXML ? tagName
-    												   : _rawXMLTags.peekFirst(); 		// el tag que "engloba" el xml es el primero de la pila        	
+    												   : _rawXMLTags.peekFirst(); 		// el tag que "engloba" el xml es el primero de la pila
     	if (tagName.equals(rawXmlEnclosingTag)) _rawXMLTags.pop(); 	// ...por si el tag raw xml aparece varias veces en el raw xml (ej: <rawXML>...<rawXML>adsf</rawXML>...</rawXML>)
     	isFirstTagInRawXML = _rawXMLTags.isEmpty();
-    	
+
 		StringBuilder xmlSb = _textBuffer(beanAndField);
         xmlSb.append("</").append(tagName).append(">");
     }
-    
-    
-    
+
+
+
     /**
      * Obtiene el buffer donde poner el valor de los miembros de un tipo simple o XML-raw
      */
-    private StringBuilder _textBuffer(final BeanAndFieldWrapper beanAndField) { 
+    private StringBuilder _textBuffer(final BeanAndFieldWrapper beanAndField) {
     	StringBuilder sb = null;
     	// [1]: the xml is mapped to a field
-    	if (beanAndField.getFieldInstance() != null 
+    	if (beanAndField.getFieldInstance() != null
         		&& beanAndField.getFieldInstance().get() instanceof StringBuilder) {	// el xml se mapea en un miembro
-        	sb = beanAndField.getFieldInstance().get();									// ... se toma la instancia del field        	
+        	sb = beanAndField.getFieldInstance().get();									// ... se toma la instancia del field
         }
     	// [2]: the xml is mapped through a customXmlTransformer
-    	else if (beanAndField.getFieldInstance() != null 
+    	else if (beanAndField.getFieldInstance() != null
         	    && beanAndField.getFieldInstance().get() instanceof BeanInstance) {		// el xml se mapea con un customXmlTransformer
         	BeanInstance customXmlTransformedInstance = beanAndField.getFieldInstance().get();
         	sb = customXmlTransformedInstance.get();
@@ -1456,26 +1456,26 @@ private class ObjsFromXMLLoader
         	}
         }
     	// [3]: simple types (String, boolean, long, XML, etc)
-    	else if (beanAndField.getBeanInstance() != null 
+    	else if (beanAndField.getBeanInstance() != null
         	    && beanAndField.getBeanInstance().get() instanceof StringBuilder) { // beanAndField.getBean().getMapping() == null)
         	// objeto "virtual" para elementos de tipo "simple" (String, long, XML, etc) en colecciones
         	sb = beanAndField.getBeanInstance().get();
-        } 
+        }
         return sb;
     }
 
-    
+
 }   // Fin de la clase cargadora..
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  AUX INNER TYPE
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Accessors(prefix="_")
-    @RequiredArgsConstructor 
+    @RequiredArgsConstructor
     private class BeanAndFieldWrapper {
     	@Getter private final BeanInstance _beanInstance;
     	@Getter private final FieldInstance _fieldInstance;
-    	
+
     	public boolean isValid() {
     		return _beanInstance != null && _fieldInstance != null;
     	}

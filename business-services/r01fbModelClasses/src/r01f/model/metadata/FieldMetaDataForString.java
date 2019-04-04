@@ -25,7 +25,7 @@ public class FieldMetaDataForString
 			 other.getSearchEngineIndexingConfig());
 		if (other.getDataType() != String.class) _dataType = other.getDataType();
 	}
-	public FieldMetaDataForString(final IndexableFieldID fieldId,
+	public FieldMetaDataForString(final FieldID fieldId,
 								  final LanguageTexts name,final LanguageTexts description,
 								  final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,
@@ -33,7 +33,7 @@ public class FieldMetaDataForString
 			  searchEngineIndexingConfig,
 			  String.class);
 	}
-	public FieldMetaDataForString(final IndexableFieldID fieldId,
+	public FieldMetaDataForString(final FieldID fieldId,
 								  final LanguageTexts name,final LanguageTexts description,
 								  final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								  final Class<? extends CanBeRepresentedAsString> stringType) {

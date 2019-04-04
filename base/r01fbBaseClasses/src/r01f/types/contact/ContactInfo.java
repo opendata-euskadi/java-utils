@@ -5,6 +5,7 @@ import java.util.Collection;
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 
 import lombok.Getter;
@@ -15,6 +16,7 @@ import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
 import r01f.locale.Language;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallType;
+import r01f.types.geo.GeoFacets.HasGeoPosition;
 import r01f.types.geo.GeoPosition;
 import r01f.util.types.collections.CollectionUtils;
 
@@ -25,8 +27,9 @@ import r01f.util.types.collections.CollectionUtils;
 @MarshallType(as="contactInfo")
 @Accessors(prefix="_")
 @NoArgsConstructor
-public class ContactInfo 
-     extends ContactInfoBase<ContactInfo> {
+public class ContactInfo
+     extends ContactInfoBase<ContactInfo>
+  implements HasGeoPosition {
 
 	private static final long serialVersionUID = 8960930452114541680L;
 
@@ -44,7 +47,7 @@ public class ContactInfo
 	@MarshallField(as="socialNetworkChannels")
 	@Getter @Setter private Collection<ContactSocialNetwork> _socialNetworks;
 	/**
-	 * email 
+	 * email
 	 */
 	@MarshallField(as="emailChannels")
 	@Getter @Setter private Collection<ContactMail> _mailAddresses;
@@ -54,13 +57,12 @@ public class ContactInfo
 	@MarshallField(as="webSiteChannels")
 	@Getter @Setter private Collection<ContactWeb> _webSites;
 	/**
-	 * The language the user prefers to be used in the interaction with him/her 
+	 * The language the user prefers to be used in the interaction with him/her
 	 */
 	@MarshallField(as="preferredLanguage")
 	@Getter @Setter private Language _preferedLanguage;
-	
 	/**
-	 * The geoposition of user.
+	 * The geo-position of user.
 	 */
 	@MarshallField(as="geoPosition")
 	@Getter @Setter private GeoPosition _geoPosition;
@@ -79,6 +81,16 @@ public class ContactInfo
 	 */
 	public boolean hasMailAddress() {
 		return CollectionUtils.hasData(_mailAddresses);
+	}
+	public boolean hasEmail(final EMail theEmail) {
+		EMail searchedMail = Iterables.tryFind(this.getMailAddreses(),
+												new Predicate<EMail>() {
+														@Override
+														public boolean apply(final EMail aMail) {
+															return aMail.equals(theEmail);
+												}})
+         							   .orNull();
+		return searchedMail != null;
 	}
 	/**
 	 * Returns an email address for an intended usage
@@ -118,6 +130,14 @@ public class ContactInfo
 	public EMail getDefaultMailAddressOrAny() {
 		ContactMail mail = _findDefault(_mailAddresses);
 		if (mail == null && CollectionUtils.hasData(_mailAddresses)) mail = CollectionUtils.pickOneElement(_mailAddresses);
+		return mail != null ? mail.getMail() : null;
+	}
+	/**
+	 * Returns a mail address other than default
+	 * @return
+	 */
+	public EMail getMailAddressOtherThanDefaul() {
+		ContactMail mail = _findOtherThanDefault(_mailAddresses);
 		return mail != null ? mail.getMail() : null;
 	}
 	/**
@@ -178,6 +198,16 @@ public class ContactInfo
 	public boolean hasPhones() {
 		return CollectionUtils.hasData(_phones);
 	}
+	public boolean hasPhone(final Phone thePhone) {
+		Phone searchedPhone = Iterables.tryFind(this.getPhoneNumbers(),
+												new Predicate<Phone>() {
+														@Override
+														public boolean apply(final Phone aPhone) {
+															return aPhone.equals(thePhone);
+												}})
+         							   .orNull();
+		return searchedPhone != null;
+	}
 	/**
 	 * Returns a phone for an intended usage
 	 * @param id
@@ -213,7 +243,14 @@ public class ContactInfo
 		if (phone == null && CollectionUtils.hasData(_phones)) phone = CollectionUtils.pickOneElement(_phones);
 		return phone != null ? phone.getNumber() : null;
 	}
-
+	/**
+	 * Returns any not-default phone number
+	 * @return
+	 */
+	public Phone getPhoneOtherThanDefault() {
+		ContactPhone phone = _findOtherThanDefault(_phones);
+		return phone != null ? phone.getNumber() : null;
+	}
 	/**
 	 * Returns a phone number (if there is more than one it returns one of them randomly)
 	 * @return
@@ -374,6 +411,19 @@ public class ContactInfo
 		M out = null;
 		if (CollectionUtils.hasData(col)) out = (M)CollectionUtils.of(col)
 																  .pickOneElement();
+		return out;
+	}
+
+	@SuppressWarnings("unchecked")
+	private static <M extends ContactInfoMediaBase<?>> M _findOtherThanDefault(final Collection<? extends ContactInfoMediaBase<?>> col) {
+		M out = null;
+		if (CollectionUtils.hasData(col)) out = (M)CollectionUtils.of(col)
+														     	  .findFirstElementMatching(new Predicate<ContactInfoMediaBase<?>>() {
+																									@Override
+																									public boolean apply(final ContactInfoMediaBase<?> el) {
+																										return !el.isDefault();
+																									}
+															  							    });
 		return out;
 	}
 

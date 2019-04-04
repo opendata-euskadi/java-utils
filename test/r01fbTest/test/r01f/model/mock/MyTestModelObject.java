@@ -6,7 +6,6 @@ import java.util.Map;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
-import r01f.facets.Summarizable;
 import r01f.locale.Language;
 import r01f.locale.LanguageTexts;
 import r01f.model.PersistableModelObjectBase;
@@ -35,12 +34,4 @@ public class MyTestModelObject
 	@Getter @Setter private Collection<String> _col;
 	@Getter @Setter private Map<Integer,String> _map;
 	@Getter @Setter private MyTestDependentModelObject _sub;
-	
-/////////////////////////////////////////////////////////////////////////////////////////
-//  SUMMARIZABLE
-/////////////////////////////////////////////////////////////////////////////////////////	
-	@Override
-	public Summarizable asSummarizable() {
-		return null;
-	}
 }

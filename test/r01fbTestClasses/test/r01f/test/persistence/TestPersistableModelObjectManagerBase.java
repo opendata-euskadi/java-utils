@@ -6,14 +6,14 @@ import com.google.common.collect.Lists;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.patterns.Factory;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDServices;
 import r01f.util.types.collections.CollectionUtils;
 
 @Accessors(prefix="_")
-abstract class TestPersistableModelObjectManagerBase<O extends OID,M extends PersistableModelObject<O>>
+abstract class TestPersistableModelObjectManagerBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
     implements ManagesTestMockModelObjsLifeCycle<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //

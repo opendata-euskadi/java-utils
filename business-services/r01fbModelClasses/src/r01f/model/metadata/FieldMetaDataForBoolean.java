@@ -1,6 +1,5 @@
 package r01f.model.metadata;
 
-import java.sql.Date;
 
 import com.google.common.annotations.GwtIncompatible;
 
@@ -26,13 +25,13 @@ public class FieldMetaDataForBoolean
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForBoolean(final IndexableFieldID fieldId,
+	public FieldMetaDataForBoolean(final FieldID fieldId,
 								   final LanguageTexts name,final LanguageTexts description,
 								   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,
 			  name,description,
 			  searchEngineIndexingConfig,
-			  Date.class);
+			  Boolean.class);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

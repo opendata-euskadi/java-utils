@@ -1,6 +1,6 @@
 package r01f.test.persistence;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.patterns.CommandOn;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDServices;
@@ -8,9 +8,9 @@ import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectFindSer
 
 /**
  * JVM arguments:
- * -javaagent:D:/tools_workspaces/eclipse/local_libs/aspectj/lib/aspectjweaver.jar -Daj.weaving.verbose=true
+ * -javaagent:D:/eclipse/local_libs/aspectj/lib/aspectjweaver.jar -Daj.weaving.verbose=true
  */
-public abstract class TestPersistableModelObjectBase<O extends OID,M extends PersistableModelObject<O>> {
+public abstract class TestPersistableModelObjectBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////

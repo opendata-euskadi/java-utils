@@ -36,15 +36,14 @@ import lombok.NoArgsConstructor;
  */
 @NoArgsConstructor
 public class XMLStringSerializer {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Imprime toda una estructura XML
-     * @param doc el documento a escribir como cadena
-     * @param outEncoding codificaci�n de la cadena con el xml generado
-     *                    (null para utilizar la codificaci�n por defecto)
-     * @return una cadena con el xml
+     * Prints an xml structure
+     * @param doc 
+     * @param outEncoding generated xml encoding (use null for default encoding)
+     * @return
      */
     public static String writeDocument(final Document doc,final Charset outEncoding) {
         if (doc == null) return null;
@@ -52,26 +51,24 @@ public class XMLStringSerializer {
     }
     
     /**
-     * Imprime una estructura XML a partir de un nodo
-     * @param beginNode el nodo de inicio
-     * @param outEncoding codificaci�n de la cadena con el xml generado
-     *                    (null para utilizar la codificaci�n por defecto)
-     * @return una cadena con el xml
+     * Prints an xml structure
+     * @param beginNode 
+     * @param outEncoding generated xml encoding (use null for default encoding)
+     * @return 
      */
     public static String writeNode(final Node beginNode,final Charset outEncoding) {
         if (beginNode == null) return null;
         try {
             return XMLStringSerializer.writeOuterXML(beginNode,outEncoding);
         } catch (TransformerException tEx) {
-            return ("Error al pasar el nodo DOM a String XML: " + tEx.toString() );
+            return ("Error while parsing a DOM node to an XML string: " + tEx.toString() );
         }        
     }    
     /**
-     * Serializa el contenido del nodo que se pasa como parametro
-     * @param node El nodo a serializar
-     * @param outEncoding encoding de la cadena con el xml generado
-     *                    (null para utilizar la codificaci�n por defecto)
-     * @return Una cadena con el contenido del nodo serializado
+     * Serializes an xml node
+     * @param node 
+     * @param outEncoding egenerated xml encoding (use null for default encoding
+     * @return 
      * @throws TransformerException
      */
     public static String writeInnerXML(final Node node,final Charset outEncoding) throws TransformerException {
@@ -87,12 +84,11 @@ public class XMLStringSerializer {
         return "";
     }    
     /**
-     * Serializa nodo que se pasa como parametro 
-     * @param node nodo DOM a serializar
-     * @param outEncoding codificacion de la cadena con el XML generado
-     *                    (null para utilizar la codificaci�n por defecto)
-     * @return una cadena formateada con el dcr
-     * @throws TransformerException si se produce un error en el proceso
+     * Serializes a given xml node 
+     * @param node 
+     * @param outEncoding generated xml encoding (use null for default encoding
+     * @return 
+     * @throws TransformerException 
      */
     public static String writeOuterXML(final Node node,final Charset outEncoding) throws TransformerException {
         if (node == null) return null;
@@ -101,11 +97,11 @@ public class XMLStringSerializer {
             Transformer tf = fac.newTransformer();
             Properties tfProps = new Properties();
             if (outEncoding != null) tfProps.setProperty(OutputKeys.ENCODING,outEncoding.name());
-            tfProps.setProperty(OutputKeys.INDENT,"yes");  // indentar
+            tfProps.setProperty(OutputKeys.INDENT,"yes");  // indent
             tf.setOutputProperties(tfProps);
-            tf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");  // 2 espacios de tabulacion
-            DOMSource src = new DOMSource(node);  // origen de la transformacion
-            StringWriter w = new StringWriter();  // destino del xm serializado
+            tf.setOutputProperty("{http://xml.apache.org/xslt}indent-amount","2");  // 2 spaces as tab
+            DOMSource src = new DOMSource(node);  // transform source
+            StringWriter w = new StringWriter();  // serialized destination
             StreamResult rslt = new StreamResult(w);
             tf.transform(src,rslt);
             return w.toString();
@@ -118,22 +114,21 @@ public class XMLStringSerializer {
         }      
     }
     /**
-     * Parsea un "churro" xml todo seguido y lo pone tag a tag- 
-     * IMPORTANTE!!	Utiliza el encoding por defecto tanto para el String de entrada como para el de salida
-     * @param notFormatedXMLStringodificaci�n por defecto)
-     * @return una cadena con el xml formateado
+     * Beautifies an xml string 
+     * IMPORTANT!!	It uses the default encoding
+     * @param notFormatedXMLString
+     * @return 
      * @throws TransformerException
      */    
     public static String beautifyXMLString(final String notFormatedXMLString) throws TransformerException {
     	return XMLStringSerializer.beautifyXMLString(notFormatedXMLString,Charset.defaultCharset(),Charset.defaultCharset());
     }
     /**
-     * Parsea un "churro" xml todo seguido y lo pone tag a tag- 
+     * Beautifies an xml string 
      * @param notFormatedXMLString
-     * @param inputEncoding codificaci�n de la cadena de entrada
-     * @param outEncoding codificacion de la cadena de salida
-     *                    (null para utilizar la codificaci�n por defecto)
-     * @return una cadena con el xml formateado
+     * @param inputEncoding input string encoding
+     * @param outEncoding generated xml encoding (use null for default encoding
+     * @return 
      * @throws TransformerException
      */    
     public static String beautifyXMLString(final String notFormatedXMLString,final Charset inputEncoding,
@@ -147,11 +142,11 @@ public class XMLStringSerializer {
             is.setEncoding(inputEncoding.name());
             doc = dfactory.newDocumentBuilder().parse(is);
         } catch (ParserConfigurationException pcEx) {
-            throw new TransformerException("Error en la configuracin del parser XML: " + pcEx.toString());
+            throw new TransformerException("XML parser error: " + pcEx.toString());
         } catch (SAXException saxEx) {
-            throw new TransformerException("Error en el parseo SAX: " + saxEx.toString());
+            throw new TransformerException("SAX parser error: " + saxEx.toString());
         } catch (IOException ioEx) {
-            throw new TransformerException("Error en el parseo SAX: " + ioEx.toString());
+            throw new TransformerException("SAX parser error: " + ioEx.toString());
         }
         
         String salida = XMLStringSerializer.writeDocument(doc,outEncoding);

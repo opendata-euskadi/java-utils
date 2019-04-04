@@ -44,429 +44,293 @@ The high level architecture of the system is like shown below:
 USER GUIDE
 -------------------------------
 
-[[[[[[ API side ]]]]]]]
-[[[[[[ ======== ]]]]]]]
-The API is built down to top: from fine-grained to aggregators
+[[[[[[ Client API side ]]]]]]]
+[[[[[[ =============== ]]]]]]]
 
-1.- Define each service interface that contains the methods exposed by the backend services
-	The service interfaces type MUST be at package r01m.api.interfaces and MUST be annotated with @ServiceInterfaceFor(appCode,module)
-	providing the appCode and module of the core
+0.- Define the service interfaces
+	Service interfaces are just interfaces that extends ServiceInterface type
 	
-		@ServiceInterfaceFor(appCode="coreX_appCode",module="xxx")
-		public interface MyServiceInterfaceForXXX {
-			public void doSomething(UserContext userContext,...);
-			...
+	a) Define a marker interface that extends ServiceInterface. All the service interfaces will extend from this marker interface
+	
+		public interface MyServiceInterface 
+				 extends ServiceInterface {
+			// just a marker interface
 		}
 		
-		@ServiceInterfaceFor(appCode="coreY_appCode",module="yyy")
-		public interface MyServiceInterfaceForYYY {
-			public void doOtherthing(UserContext userContext,...);
+	b) Define a business interface extending the previous marker ServiceInterface
+	
+		@ExposedServiceInterface
+		public interface MyServiceInterfaceForXXX
+				 extends MyServiceInterface {
+				 
+			public void doSomething(final SecurityContext securityContext,...);
+		}
+		@ExposedServiceInterface
+		public interface MyServiceInterfaceForYYY
+				 extends MyServiceInterface {
+				 
+			public void doOtherThing(final SecurityContext securityContext,...);
 		}
 		
-2.- Create a proxy for each service interface at package r01m.client.servicesproxy
-	The proxies types MUST be at package r01m.client.servicesproxy.{bean|rest|ejb} 
-	AND MUST implement the service interface and ProxyFor{Bean|REST|EJB}ImplementedService
+		BEWARE!!
+			Service interfaces MUST be annotated with @ExposedServiceInterface because the system will try to
+			match all @ExposedServiceInterface-annotated interfaces with a CORE impl or a PROXY to the CORE impe
+			(interfaces NOT annotated with @ExposedServiceInterface) will NOT be matched)	
+	
+1.-	If the CORE-Impl is exposed as a REST service or as an EJB service, for each ServiceInterface, implement a PROXY to the CORE impl 
+	create a proxy type
+	BEWARE! If the CORE-Impl is directly accessible as a BEAN, there's NO NEED to create a proxy type (skip this step)
 
+	a) Define a marker interface extending ServiceProxyImpl. All proxies will implement this marker interface
+	   as well as the ServiceInterface and ProxyFor{Bean|REST|EJB}ImplementedService depending on how the CORE impl is exposed
+			
+			public interface MyServiceInterfaceCoreImplProxy {
+				// just a marker interface
+			}
+	
+	b) Create a proxy type for each ServiceInterface
+			- The ServiceInterface ==> Obviously the proxy MUST implement the ServiceInterface
+			- The proxy-marker interface
+			- The proxy-type marker interface
+	
 			public class MyServiceProxyForXXX
-			  implements MyServiceInterfaceForXXX,
-			  			 ProxyForBeanImplementedService {	// <-- it's a proxy for a BEAN-exposed service
-			 	public void doSomething(UserContext userContext,...) {
+			  implements MyServiceInterfaceForXXX,			// <-- a proxy for the MyServiceInterfaceForXXX ServiceInterface CORE impl => MUST implement the MyServiceInterfaceForXXX
+			  			 MyServiceInterfaceCoreImplProxy,	// <-- it's a proxy 
+			  			 ProxyForRESTImplementedService {	// <-- it's a proxy for a REST-exposed service
+			 	public void doSomething(final SecurityContext securityContext,...) {
 			 		... do whatever should be done to call the bean-exposed services
 			 	} 			 
 			}
 			public class MyServiceProxyForYYY
-			  implements MyServiceInterfaceForYYY,
-			  			 ProxyForBeanImplementedService {	// <-- it's a proxy for a BEAN-exposed service
-			 	public void doOtherthing(UserContext userContext,...) {
+			  implements MyServiceInterfaceForYYY,			// <-- a proxy for the MyServiceInterfaceForYYY ServiceInterface CORE impl => MUST implement the MyServiceInterfaceForYYY
+			  			 MyServiceInterfaceCoreImplProxy,	// <-- it's a proxy 
+			  			 ProxyForRESTImplementedService {	// <-- it's a proxy for a REST-exposed service
+			 	public void doOtherThing(final SecurityContext securityContext,...) {
 			 		... do whatever should be done to call the bean-exposed services
 			 	}
-			}
-		  
-3.- Create a service proxies aggregator that provides centralized access to all service interfaces
-	The service proxies aggregator type MUST be at package r01m.client.servicesproxy AND extend ServicesClientProxy
-		3.1 - Create an ABSTRACT base type for the service proxy
-		
-					public class MyServicesClientProxy 
-					 	 extends ServicesClientProxy {
-					 	 
-						private MyServiceInterfaceForXXX _proxyForXXX;
-						private MyServiceInterfaceForYYY _proxyForYYY;
-						
-						public R01MServicesClientProxy(final ServicesImpl servicesImpl) {
-							super(servicesImpl);
-						}
-						
-						public MyServiceProxyForXXX forXXX() {
-							return _structureLabelsBagGroupServicesProxy;
-						}
-						public MyServiceProxyForYYY forYYY() {
-							return _structureLabelsBagGroupServicesProxy;
-						}
-					}
-					
-		3.2 - Create an instance of the previously created abstract base type for each access type (Bean/REST/EJB/Default)
-			  The instances MUST be at r01m.client.servicesproxy package AND implement the ServicesClientProxyFor{Bean|REST|EJB|Default}Impl interface
-			  (the ServicesClientProxyForDefaultImpl is MANDATORY)
-					
-					public class MyServicesClientProxyForBeanImpl 
-     					 extends MyServicesClientProxy
-  					  implements ServicesClientProxyForBeanImpl {
-  					  
-						public MyServicesClientProxyForBeanImpl() {
-							super(ServicesImpl.Bean);
-						}
-  					}	 
+			} 
 
-4.- Create a fine-grained API for each service that in turn could be sub-divided into smaller api portions using delegation
-    The API USES the service interface methods BUT DOES NOT HAVE TO IMPLEMENT the service interface; in fact, the API-exposed methods
-    DO NOT have the userContext parameter that the service interface methods DO HAVE.
-    
-	The fine-grained API types MUST be at package r01m.client.api.sub and MUST extend ClientSubAPIBase
-	
-			public class MyClientAPIForXXX
-	     		 extends ClientSubAPIBase<MyClientAPI,				// a sub API may access other sub-apis so an access to the "parent" aggregator api should be provided
-	     						  		  MyServicesClientProxy> {	// a sub API uses the proxy to access the services layer
+2.- Create an API type exposing the fine-grained ServiceInterface types:
+	BEWARE!! The client API is a SINGLETON
+
+		@Singleton
+		@Accessors(prefix="_")
+		public class MyClientAPI
+		     extends ClientAPIImplBase {	// a sub API uses the proxy to access the services layer
+		     
+			@Inject @SuppressWarnings({ "rawtypes" })
+			public MyClientAPI(					       final Provider<SecurityContext> securityContextProvider,
+							   @ModelObjectsMarshaller final Marshaller modelObjectsMarshaller,
+							   @Named("{clientApiAppCode}") final Map<Class,ServiceInterface> srvcIfaceMappings) {
+				super(securityContextProvider,
+					  modelObjectsMarshaller,
+					  srvcIfaceMappings);	
+			}
+		}
+		API methods are grouped in fine-grained ServiceInterfaces so in order to create an usable API, 
+		is a good practice to sub-divide the API into sub-apis (usually one sub api for every ServiceInterface) 
+		so the API-usage semantics will be something like:
+		
+				api.getXXXServices()
+						.doSomething();
+		
+		in order to get this semantics, encapsulate each file-grained ServiceInterface into sub-api delegates 
+			public class MyClientSubAPIForXXX
+	     		 extends ClientSubAPIBase {
+	     		 
+	     		// sub-api constructor usually receives the same params as the parent api
+	     		public MyClientSubAPIForXXX(final Provider<SecurityContext> securityContextProvider,
+							   				final Marshaller modelObjectsMarshaller,
+							   				final Map<Class,ServiceInterface> srvcIfaceMappings) {
+					super(securityContextProvider,
+						  modelObjectsMarshaller,
+						  srvcIfaceMappings);	
+				}
 	     						  		  
 	     		public void doSomething(...) {	// note this method DOES NOT have to have the same name as the service interface one and 
 	     										// does NOT have the userContext parameter
-					this.getServicesProxy()
+					this.getServicesProxyAs(MyServiceProxyForXXX.class)	
 							.forXXX()
 							   .doSomething(this.getUserContext(),	// <-- here the user context is injected 
 									   		contentOid);
 	     		}			 
 	     	}
+	     	
+		Beware that the API USES the service interface methods BUT DOES NOT IMPLEMENT the service interface; 
+		in fact, the API-exposed methods DO NOT have the sercurityContext parameter that the service interface methods DO HAVE.
+		This is aliviates the developer of the burden of dealing with the SecurityContext
+  
+  		Sub-apis are created 'parent' API type and are just final fields of it:
+  		
+			@Singleton
+			@Accessors(prefix="_")
+			public class MyClientAPI
+			     extends ClientAPIImplBase {	// a sub API uses the proxy to access the services layer
+			     
+			    @Getter private final MyClientSubAPIForXXX _xxxServices;
+			     
+				@Inject @SuppressWarnings({ "rawtypes" })
+				public MyClientAPI(					       final Provider<SecurityContext> securityContextProvider,
+								   @ModelObjectsMarshaller final Marshaller modelObjectsMarshaller,
+								   @Named("{clientApiAppCode}") final Map<Class,ServiceInterface> srvcIfaceMappings) {
+					super(securityContextProvider,
+						  modelObjectsMarshaller,
+						  srvcIfaceMappings);	
+					// create the sub-apis
+					_xxxServices = new MyClientSubAPIForXXX(securityContext,
+															marshaller,
+															srvcIfaceMappings)
+				}
+			}
 
-5.- Create a coarse-grained API that provides access for ALL fine-grained APIs
-		5.1 - Create an interface extending ClientAPI that provides access to every fine-grained API
-		
-					public interface MyClientAPI
-					  	  implements ClientAPI {
-					  	  
-					  	public MyClientAPIForXXX forXXX();
-					  	public MyClientAPIForYYY forYYY();
-					}  
-		2.2 - Crate a base ABSTRACT implementation of the MyClientAPI interface extending ClientAPIBase:
-		
-					public abstract class MyClientAPIBase<S extends ServicesClientProxy> 
-       							  extends ClientAPIBase<S>
-    						   implements R01MClientAPI {
-    						   
-    					private MyClientAPIForXXX _serviceProxyForXXX;
-    					private MyClientAPIForYYY _serviceProxyForYYY;
-    					
-					  	public MyServiceInterfaceForXXX xxxAPI() {
-					  		return _serviceProxyForXXX;
-					  	} 
-					  	public MyServiceInterfaceForYYY yyyAPI() {
-					  		return _serviceProxyForYYY;
-					  	}
-    				}
-    	2.3 - Create an instance of the previously created abstract base type for each access type (Bean/REST/EJB/Default)
-			  The instances MUST be at r01m.client.api package AND implement the ClientAPIFor{Bean|REST|EJB|Default}Services interface
-			  (the ClientAPIForDefaultServices is MANDATORY)
-			  
-					public class R01MClientAPIForBeanServices 
-					     extends MyClientAPIBase<MyServicesClientProxyForBeanImpl>
-					  implements ClientAPIForBeanServices {
-					  
-						@Inject
-						public R01MClientAPIForBeanServices(final UserContext userContext,
-															final MyServicesClientProxyForBeanImpl servicesProxy) {
-							super(userContext,
-								  servicesProxy);
-						}
-					}
+3.- Create a GUIC module for the client bindings:
+		@EqualsAndHashCode(callSuper=true) // This is important for guice modules
+		public class MyClientBootstrapGuiceModule
+		  	 extends ServicesClientAPIBootstrapGuiceModuleBase 	// this is a client guice bindings module
+		  implements HasMoreBindings {
+		  
+			protected MyClientBootstrapGuiceModule(final ServicesClientGuiceBootstrapConfig servicesClientBootstrapCfg) {
+				super(servicesClientBootstrapCfg);
+			}
+			@Override
+			public void configureMoreBindings(final Binder binder) {
+				// configure any client binding
+			}
+		}
+
+3.- Create a client bootstrap config:
+
+		@NoArgsConstructor(access=AccessLevel.PRIVATE)
+		public abstract class MyClientBootstrapConfigBuilder
+				   implements IsBuilder {
+			public static ServicesClientBootstrapConfig buildClientBootstrapConfig() {
+				return  ServicesClientBootstrapConfigBuilder.forClientApiAppCode({clientApiAppCode})
+								  .exposingApi(MyClientAPI.class)
+								  .ofServiceInterfacesExtending(MyServiceInterface.class)		// remember step 0??
+								  .bootstrappedWith(MyClientBootstrapGuiceModule.class)
+								  .build();
+			}
+		}
+
+
+
 					
 [[[[[[ Server (core) side ]]]]]]]
 [[[[[[ ================== ]]]]]]]	
-The services core is normally implemented as BEAN services that encapsulates all the business logic
 
-1.- Create a services-aggregator type implementing ServicesCore at {coreAppCode}.services package
-	This aggregator type is the one that will be used when calling services within the core in order to avoid going up to the api
-	to step down to the services again
+1.- The services core is normally implemented as BEAN services that encapsulates all the business logic
+ 	BEWARE!! All services are SINGLETONS!
+
+	a) Define a marker interface that extends CoreService. All the core service impls will extend from this marker interface
 	
-		public class MyServices {
-			@Inject private MyServicesForXXXImpl _servicesForXXXImpl;
-			@Inject private MyServicesForYYYImpl _servicesForYYYImpl;
-			
-			public MyServicesForXXXImpl forXXX() {
-				return _servicesForXXXImpl;
-			}
-			public MyServicesForYYYImpl forYYY() {
-				return _servicesForYYYImpl;
-			}
+		public interface MyServiceCoreImpl 
+				 extends CoreService {
+			// just a marker interface
 		}
-2.- Create the fine-grained services interfaces implementation at {coreAppCode}.services package
-		public class MyServiceInterfaceForXXXImpl
-		  implements MyServiceInterfaceForXXX {
-			public void doSomething(UserContext userContext,...) {
-				... the REAL method implementation
-			}  
-		}
-		public class MyServiceInterfaceForYYYImpl
-		  implements MyServiceInterfaceForYYY {
-			public void doOtherthing(UserContext userContext,...) {
-				... the REAL method implementation
-			}  
-		}
-			
-The REST services endpoint is only a layer on top of the BEAN services so the REST resources simply "adapts" the BEAN services methods
-to the HTTP protocol semantics, delegating all the logic to the BEAN services 
-
-
-
-[[[[[[ Guice Bindings & Configuration ]]]]]]]
-[[[[[[ ============================== ]]]]]]]
-1.- Client-Side Guice bindings:
-	Create a GUICE module type extending ClientGuiceModule at r01m.client.internal that do the client-api specific guice bindings like objects marshalling or objects extensions
-
-			public class MyClientBootstrapGuiceModule 
-	  	         extends ClientGuiceModule {
-	  	         
-				public MyClientBootstrapGuiceModule(final Map<AppAndComponent,ServicesImpl> defaultServicesImplByAppAndModule) {
-					super(R01MAppCode.API.code(),
-						  defaultServicesImplByAppAndModule);
-				}
-				@Override
-				protected void _configure(final Binder binder) {
-					... do bindings like objects marshaller or objects extensions...
-				}
-	  	    }
-	  	    
-2.- CORE-side Guice bindings:
-	Create a GUICE module type extending either BeanImplementedServicesCoreGuiceModuleBase, RESTImplementedServicesCoreGuiceModuleBase or EJBImplementedServicesCoreGuiceModuleBase
-	depending on the type of the CORE
-	If the CORE module DEPENDS UPON other CORE module (for example, the REST core module DEPENDS UPON Bean core module), add the @ServicesCoreGuiceModuleDependencies
-	annotation
-	  
-	  		@ServicesCoreGuiceModuleDependencies({ServicesImpl.Bean})	// the REST services impl DEPENDS UPON Bean services Impl
-			@Slf4j
-			@EqualsAndHashCode				// This is important for guice modules
-			@NoArgsConstructor
-			public class MyRESTServicesBootstrapGuiceModule
-			     extends RESTImplementedServicesCoreGuiceModuleBase {
-			
-				@Override
-				public void _configure(final Binder binder) {
-					... module-specific bindings...
-				}
-			}
-			
-3.- Configuration
-		7.1 - At the CORE-side the modules to be loaded MUST be listed at {apiAppCode}.core.properties.xml
-					<core>
-						<modules>
-							<module appCode="coreAppCode" id="coreModule" impl="REST">My REST Core Module</module>
-							...
-						</modules>
-					</core>	
-		7.2 - At the CLIENT-side the way services are going to be accessed might (not mandatory) be specified at {apiAppCode}.client.properties.xml
-		      If NO config is present or an entry for a module is NOT listed, it's assumed to use REST services					   
-	
-	
-[[[[[[ Usage ]]]]]]]
-[[[[[[ ===== ]]]]]]]
-A client API user will mainly USE the aggregator interface MyClientAPI that provides access to every fine-grained client sub-api interfaces
-(it's also possible to use directly the fine-grained sub-api interfaces)
-
-To use the client API there are two alternatives:
-	1.- Use the API Provider:
-			To use REST services:
-	 	  		MyClientAPIProvider.getRestApi()
-	 	  								.forXXX()	<-- this will return the REST proxy
-	 	  									.doSomething(...)
-	 	  	To use the DEFAULT configured APIs (the ones configured at {apiAppCode}.client.properties.xml)
-	 	  		MyClientAPIProvider.getDefaultApi()
-	 	  								.forXXX()	<-- this will return the REST proxy
-	 	  									.doSomething(...)
-	2.- Let GUICE Inject the API
-			To inject the DEFAULT configured APIs (the ones configured at {apiAppCode}.client.properties.xml)
-				public class MyAPIUserType {
-					@Inject MyClientAPI _api;
-					
-					public void apiUserMethod(...) {
-						_api.forXXX()
-								.doSomething(...);
-					}
-				}
-			To inject a concrete implementation of the API (for example the REST API):
-				public class MyAPIUserType {
-					@Inject @ClientUsesRESTServices MyClientAPI _api;
-					
-					public void apiUserMethod(...) {
-						_api.forXXX()
-								.doSomething(...);
-					}
-				}
 		
-	
-			  
-
--------------------------------
-INTERNAL DETAILS
--------------------------------
-Guice is used intensivelly to isolate the interfaces from the implementation and to provide this one at runtime (dependency injection)
-The injection flow is like:
-
-	ServicesGuiceBootstrap
-			|
-			|--> ServicesCoreBootstrap
-			|
-			|--> ServicesClientBootstrap
-						|
-						|--> ClientGuiceModule
-									|
-									|--> ServicesClientGuiceModuleForInterfacesToProxyImpl
-
-
-Everything starts at r01m.common.internal.R01MInjector.java even at CLIENT or SERVER (core) side.
-The injector simply delegates to r01f.services.ServicesGuiceBootstrap where both core & client bindings takes place:
-	- Core Bindings  : r01f.services.core.ServicesCoreBootstrap
-	- Client Bindings: r01f.services.client.ServicesClientBootstrap 
-
-	It's IMPORTANT to note that at the SERVER(core) side, the CLIENT bindings are ALSO NECESSARY since sometimes a service implementation
-	USES ANOTHER service through it's client-side API.
-	  
-	   
-[CORE-Side] > r01f.services.core.ServicesCoreBootstrap
-				
-	The services CORE modules that MUST be bootstraped are loaded from r01m.core.properties.xml where there's an entry for every 
-	module to be loaded... a module NOT listed at r01m.core.properties.xml will NOT be loaded:
-		<core>
-			<modules>
-				<module appCode="r01e" id="structures" impl="REST">Gestor de Etiquetas de catalogación</module>
-				...
-			</modules>
-		</core>	
-	
-		For every appCode/module configured at r01m.core.properties.xml, the system looks for types implementing a subtype of 
-		r01f.services.core.ServicesCoreGuiceModule at packages [appCode].internal
-		The concrete subtype of ServicesCoreGuiceModule depends on the type of the module:
-			- For Bean implemented CORE modules: r01f.services.core.BeanImplementedServicesCoreGuiceModuleBase
-			- For REST implemented CORE modules: r01f.services.core.RESTImplementedServicesCoreGuiceModuleBase
-			- For EJB implemented CORE modules:  r01f.services.core.EJBImplementedServicesCoreGuiceModuleBase
-			
-		ie: for structures catalog core, the appCode is R01E so the system will try to find a guice module extending r01f.services.core.ServicesCoreGuiceModule
-		    at r01e.internal 
-		    If R01E is implemented using bean services and REST services, there will be TWO modules:
-		    	- A WAR module with the REST services incluiding a guice module type at package r01e.internal 
-		    	  extending r01f.services.core.RESTImplementedServicesCoreGuiceModule
-		    	- A "normal" java module with the Bean services including a guice module type at package r01e.internal
-		    	  extending r01f.services.core.BeanImplementedServicesCoreGuiceModule 
-		
-		It's important to note that sometimes a service implementation needs another service implementation to do it's work; for example, 
-		the REST or EJB service implementation NEEDS the Bean service implementation because REST or EJB impl are only an access layer to 
-		the real bean-base implementation
-		To tell the system that dependency condition, the dependant service impl MUST be annotated with @ServicesGuiceModuleDependencies
-	     
-	
-[Client-Side] > r01f.services.client.ServicesClientBootstrap
-	API implementation bindings
-		There are TWO LEVELS of API:
-			- Aggregator API	: provides access to fine-grained apis in a centralized way
-							  	  ie: provides access to content-api, structure catalog-api, portal-api 
-			- Fine-grained API	: a component API 
-								  ie: content-api, structure catalog-api, portal-api, etc
-			
-		For each fine-grained API there're many possible implementation bindings
-			- Default: the API binding to use is configured at r01m.client.properties.xml and can be REST, Bean, EJB, etc
-			- REST	 : the API is binded to a proxy to REST services (that in turn delegates to Bean services implementation)
-			- Bean	 : the API is binded to a proxy to Bean services
-			- EJB	 : the API is binded to a proxy to EJB services (that in turn delegates to Bean services implementation)
-			- Mock	 : the API is binded to a proxy to mocked services
-		There's also an aggregator implementation (R01MClientAPI) for every API implementation:
-			- REST	 : R01MClientAPIForRESTServices 	--> all fine-grained APIs are accessed through a REST proxy
-			- Bean	 : R01MClientAPIForBeanServices		--> all fine-grained APIs are accessed through an Bean proxy
-			- EJB	 : R01MClientAPIForEJBServices		--> all fine-grained APIs are accessed through an EJB proxy
-			- Default: R01MClientAPIForDefaultServices	--> each fine-grained API is accessed as configured at r01m.client.properties.xml, 
-															so an API can be accessed through a REST proxy, another through an EJB proxy 
-															and others through a Bean proxy.
-		Usage:
-			An API instance can be obtained both letting GUICE inject the instance or using an API provider
-			1.- Using GUICE
-					To inject a certain API implementation only annotate the R01MClientAPI with:
-						- @ClientUsesRESTServices to inject a REST services ONLY client API
-						- @ClientUsesBeanServices to inject a Bean services ONLY client API
-						- @ClientUsesEJBServices to inject an EJB services ONLY client API
-						- @ClientUsesDefaultServices to inject a client API where each services might be REST, Bean, EJB, etc
-													 depending on what's configured at r01m.client.properties.xml
-			2.- Using a provider
-				If a pre-fixed service implementation (EJB, Bean, REST, etc) has to be used, the call will be:
-		 	  		R01MClientAPIProvider.getRestApi()
-		 	  								.forStructures()	<-- this will return the REST proxy
-		 	  										.... call any structures method...
-				But the normal case is where the service implementation to use is configured at r01m.client.properties.xml 
-		 	    and may be different from a service to another.
-		 	    For this cases the usage is like:
-		 	  		R01MClientAPIProvider.getDefaultApi()
-		 	  								.forStructures()	 <-- this will return the proxy configured at r01m.client.properties.xml
-													... call any structures method...	
+	b.- Create the fine-grained core services implementation
+		Each core impl MUST implement;
+			- The MyServiceCoreImpl marker interface
+			- The corresponding ServiceInterface
 		 
-		It's important to note that the "real" implementation (REST, Bean, EJB, etc) MUST be accessible by the proxy layer in order the 
-		api to work:
-		For example:
-			- The REST service endpoint must be accesible by HTTP if REST implementation is used
-			- The EJB layer must be accesible via RMI if the EJB implementation is used
-			- The Bean services implementations must be accesible in the classpath if the Bean implementation is used
-			- etc
+			public class MyServiceCoreImplForXXXImpl
+			  implements MyServiceInterfaceForXXX,
+			  			 MyServiceCoreImpl {	
+				public void doSomething(SecurityContext securityContext,...) {
+					... the REAL method implementation
+				}  
+			}
+			public class MyServiceInterfaceForYYYImpl
+			  implements MyServiceInterfaceForYYY,
+			  			 MyServiceCoreImpl {
+				public void doOtherthing(SecurityContext securityContext,...) {
+					... the REAL method implementation
+				}  
+			}
 			
-		The R01MClientAPI does NOT provide direct access to the services, it "routes" the service's methods calls through
-		a proxy that adapts the client to the server services implementation.
-		The real "magic" is how to inject the correct proxy to each service; that's what's done on step [4]
+	The REST services endpoint is only a layer on top of the BEAN services so the REST resources simply "adapts" the BEAN services methods
+	to the HTTP protocol semantics, delegating all the logic to the BEAN services 
+
+2.- Create a guice module for the core bindings:
+
+		@EqualsAndHashCode(callSuper=true)											// This is important for guice modules
+		public class MyCoreServicesBootstrapGuiceModule
+		     extends BeanImplementedPersistenceServicesCoreBootstrapGuiceModuleBase
+		  implements ServicesBootstrapGuiceModuleBindsCRUDEventListeners,
+		  			 HasMoreBindings {
+		  			 
+			public MyCoreServicesBootstrapGuiceModule(final ServicesCoreBootstrapConfigWhenBeanExposed coreBootstrapCfg) {
+				super(coreBootstrapCfg);
+			}
+			@Override
+			public void configureMoreBindings(final Binder binder) {
+				// any core-specific bindings
+			}
+		}
+
+3.- Create the core bootstrap config
+
+		@NoArgsConstructor(access=AccessLevel.PRIVATE)
+		public abstract class MyBeanCoreServicesBootstrapConfigBuilder
+				   implements IsBuilder {
+				   
+			public static ServicesCoreBootstrapConfigWhenBeanExposed buildCoreBootstrapConfig(final XMLPropertiesForApp xmlProps) {
+				XMLPropertiesForAppComponent fsXmlProps = xmlProps.forComponent(AppComponent.compose({coreAppCode},
+																									 {coreModule});
+				return ServicesCoreBootstrapConfigBuilder.forCoreAppAndModule({coreAppCode},{coreModule})
+							.beanImplemented()
+								.bootstrappedBy(MyCoreServicesBootstrapGuiceModule.class)
+								.findServicesExtending(MyServiceCoreImpl.class)			// remember step 0??
+								.withSubModulesConfigs(
+									// any sub module config built from the properties
+								)
+								.build();
+			}
+		}
 
 
-	The client API bindings takes place at r01f.services.client.ServicesClientBootstrap
-  
-		1.- Find the types extending r01f.services.client.ClientGuiceModule in package r01m.client.internal --> r01m.client.internal.R01MClientGuiceModule
-		
-		2.- Bind the aggregator API by type: REST, Bean, EJB, Default, etc
-				2.1- Find a subtype of r01f.services.client.ClientAPI at package r01m.client.api that represents the interface that
-					 provides aggregation access to every fine-grained api: R01MClientAPI
-				2.2- Bind API aggregator instances to R01MClientAPI. The aggregator instances MUST be at package r01m.client.api
-						- Bean API   : Bind a type extending ClientAPIForBeanServices   : R01MClientAPIForBeanServices to R01MClientAPI    annotating the binding with @ClientUsesBeanServices
-						- REST API	 : Bind a type extending ClientAPIForRESTServices   : R01MClientAPIForRESTServices to R01MClientAPI    annotating the binding with @ClientUsesRESTServices
-						- EJB API	 : Bind a type extending ClientAPIForEJBServices    : R01MClientAPIForEJBServices to R01MClientAPI     annotating the binding with @ClientUsesEJBServices
-						- Default API: Bind a type extending ClientAPIForDefaultServices: R01MClientAPIForDefaultServices to R01MClientAPI annotating the binding with @ClientUsesDefaultServices
-					 This way when a REST, Bean, EJB or Default ClientAPI is required, the proper instance is provided
-					 
-		3.- Bind proxy aggregator instances by type 
-				3.1 - Find r01f.services.client.ServicesClientProxyImpl instances at package r01.client.servicesproxy
-							- Bean proxy aggregator instances MUST implement r01f.services.client.ServicesClientProxyForBeanImpl
-							- REST proxy aggregator instances MUST implement r01f.services.client.ServicesClientProxyForRESTImpl
-							- EJB proxy aggregator instances MUST implement r01f.services.client.ServicesClientProxyForEJBImpl
-		    				- Default proxy aggregator instances MUST implement r01f.services.client.ServicesClientProxyForDefaultImpl
-		    	3.2 - Bind proxy aggregator instances as singletons
-		    				
-		4.- Bind every service proxy implementation to the service interface
-		     	- The service interfaces are defined at package: r01m.api.interfaces
-		     	- The service interfaces proxy implementation are defined at package: r01m.client.servicesproxy
 
-		     To do this binding, at r01f.services.client.ServicesClientGuiceModuleForInterfacesToProxyImpl.ServicesClientGuiceModuleForInterfacesToProxyImpl
-		    	4.1 - All the service interfaces (types implementing r01f.services.client.ServiceInterface) are searched at package r01m.api.interfaces
-		    	4.2 - For EACH of the previously found service interfaces, all implementations = service proxies are searched at package r01m.client.servicesproxy
-		    		  There could be many diferent implementations:
-			     			- Bean Proxy impl implementing r01f.services.client.ProxyForBeanImplementedService at package r01m.client.servicesproxy.bean 
-			     			- REST Proxy impl implementing r01f.services.client.ProxyForRESTImplementedService r01m.client.servicesproxy.rest
-			     			- EJB Proxy impl implementing r01f.services.client.ProxyForEJBImplementedService r01m.client.servicesproxy.ejb
-			     			(note that there is NO default proxy impl)
-			     4.3 - Bind the service interface type and the service proxy type annotating the binding as:
-			     			- Annotate Bean Proxy impl implementing r01f.services.client.ProxyForBeanImplementedService with @ClientUsesBeanServices 
-			     			- Annotate REST Proxy impl implementing r01f.services.client.ProxyForRESTImplementedService with @ClientUsesRESTServices
-			     			- Annotate EJB Proxy impl implementing r01f.services.client.ProxyForEJBImplementedService with @ClientUsesEJBServices
-			     
-			     The question is how to bind the DEFAULT service interface to its proxy implementation??
-			     		- The service interface - to - proxy implementation to bind is defined at r01m.client.properties.xml
-			     ... so the service interface type MUST be annotated with @ServiceInterfaceFor(appCode,module) that provides the information to 
-			         query the r01m.client.properties.xml and know what the DEFAULT proxy is
-					     	     
+[[[[[[     Bootstrapping & usage      ]]]]]]]
+[[[[[[ ============================== ]]]]]]]
+
+Just USE the bootstrap config builders for the client and core modules
+
+	// [0] - Create the bootstrap cfg
+	XMLPropertiesForApp coreXmlProps = XMLPropertiesBuilder.createForApp({coreAppCode})
+													   .notUsingCache();
+
+	ServicesBootstrapConfig bootstrapCfg = ServicesBootstrapConfigBuilder
+												.forClient(MyClientBootstrapConfigBuilder.buildClientBootstrapConfig())
+											    .ofCoreModules(MyBeanCoreServicesBootstrapConfigBuilder.buildCoreBootstrapConfig(coreXmlProps))
+											    .notUsingCoreEvents();
+	
+	// [1] - Create the guice injector 
+	// a) create the injector
+	Injector guiceInjector = Guice.createInjector(ServicesBootstrapUtil.getBootstrapGuiceModules(bootstrapCfg)
+								  									   .withoutCommonBindingModules());
 		
-		5.- Model Object's marshalling bindings
-		
-		4.- Model Object's extensions bindings (model object's behabiour is "extended" at runtime using AOP aspects)
-		
-		5.- UserContext binding
-			
-	   
-			
+	// b) init the services
+	// If stand-alone (no app-server is used), init the JPA service or any service that needs to be started
+	// like the search engine index
+	// 		If the core is available at client classpath, start it
+	// 		This is the case where there's no app-server
+	// 		(usually the JPA's ServiceHandler is binded at the Guice module extending DBGuiceModuleBase at core side)
+	ServicesBootstrapUtil.startServices(GUICE_INJECTOR);
+	
+	// [3] - Get an api instance
+	MyClientAPI clientApi = guiceInjector.getInstance(MyClientAPI.class);	// the client api is a singleton!
+	
+	// [4] - Use the api
+	clientApi.getForXXXServices()
+				.doSomething(...)
+				
+	// [5] - Stop the services
+	// Close JPA's Persistence Service, Lucene indexes and everything that has to be closed
+	// (see https://github.com/google/guice/wiki/ModulesShouldBeFastAndSideEffectFree)
+	ServicesBootstrapUtil.stopServices(guiceInjector);
+	
+	
+	
+That's all!!
 	
    

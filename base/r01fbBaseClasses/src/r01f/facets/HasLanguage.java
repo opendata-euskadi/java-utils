@@ -3,7 +3,7 @@ package r01f.facets;
 import r01f.locale.Language;
 
 /**
- * Interface for language dependant model objects
+ * Interface for language dependent model objects
  */
 public interface HasLanguage 
 	     extends Facet {

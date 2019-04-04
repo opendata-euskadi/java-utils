@@ -51,7 +51,7 @@ public class ReflectionException
 		boolean isInvocationTargetEx = cause != null ? ReflectionUtils.isSameClassAs(cause.getClass(),
 																					 InvocationTargetException.class)
 												     : false;
-		if (isInvocationTargetEx) {
+		if (isInvocationTargetEx && cause != null) {
 			cause = ((InvocationTargetException)cause).getTargetException();
 		}
 		return super.getCause();

@@ -5,7 +5,7 @@ import java.io.Serializable;
 import com.google.common.annotations.GwtIncompatible;
 
 import r01f.generics.TypeRef;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallPolymorphicTypeInfo;
 
 
@@ -23,7 +23,7 @@ public interface QueryClause
 	 * The field which the query refers to
 	 * @return
 	 */
-	public IndexableFieldID getFieldId();
+	public FieldID getFieldId();
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////

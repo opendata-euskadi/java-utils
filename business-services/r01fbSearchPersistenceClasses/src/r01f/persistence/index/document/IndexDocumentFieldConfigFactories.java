@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import r01f.guids.OIDBase;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallType;
 
 /**
@@ -60,7 +60,7 @@ public class IndexDocumentFieldConfigFactories {
 		public static IndexDocumentFieldCfgFactoryId forId(final String id) {
 			return new IndexDocumentFieldCfgFactoryId(id);
 		}
-		public static IndexDocumentFieldCfgFactoryId forId(final IndexableFieldID id) {
+		public static IndexDocumentFieldCfgFactoryId forId(final FieldID id) {
 			return IndexDocumentFieldCfgFactoryId.forId(id.asString());
 		}
 	}
@@ -75,7 +75,7 @@ public class IndexDocumentFieldConfigFactories {
 			 		  implements IndexDocumentFieldConfigFactory {
 		private final IndexDocumentFieldCfgFactoryId _fieldCfgId;
 		
-		public IndexDocumentFieldConfigFactoryMatchingFieldNameByEquality(final IndexableFieldID fieldId) {
+		public IndexDocumentFieldConfigFactoryMatchingFieldNameByEquality(final FieldID fieldId) {
 			_fieldCfgId = IndexDocumentFieldCfgFactoryId.forId(fieldId);
 		}
 		@Override

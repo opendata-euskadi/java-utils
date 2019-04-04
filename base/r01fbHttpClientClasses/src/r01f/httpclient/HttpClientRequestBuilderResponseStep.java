@@ -127,8 +127,8 @@ public class HttpClientRequestBuilderResponseStep
 			MimeType payloadContentType = _payload.payloadContentType();
 			if (payloadContentType != null) {
 				String otherContentType = _headers != null ? _headers.get("Content-Type") : null;
-				if (otherContentType != null && !otherContentType.equals(payloadContentType)) throw new IllegalArgumentException("The Content-Type set for the http request is NOT the same as the one set for the payload!");
-				_headers.put("Content-Type",payloadContentType.getTypeName());
+				if (otherContentType != null && !otherContentType.equals(payloadContentType.getName())) throw new IllegalArgumentException("The Content-Type set for the http request is NOT the same as the one set for the payload!");
+				_headers.put("Content-Type",payloadContentType.getName());
 			}
 			long payloadContentLength = _payload.payloadContentLength();
 			if (payloadContentLength > 0) _headers.put("Content-Length",Long.toString(payloadContentLength));
@@ -137,7 +137,7 @@ public class HttpClientRequestBuilderResponseStep
 		// [5]: Set the cookies header
 		if (!CollectionUtils.isNullOrEmpty(_cookies)) {
 			StringBuilder cookiesStr = new StringBuilder(_cookies.size() * 15);
-			for(Iterator<Map.Entry<String,String>> it = _cookies.entrySet().iterator(); it.hasNext(); ) {
+			for (Iterator<Map.Entry<String,String>> it = _cookies.entrySet().iterator(); it.hasNext(); ) {
 				Map.Entry<String,String> cookie = it.next();
 				cookiesStr.append(cookie.getKey() + "=" + cookie.getValue());
 				if (it.hasNext()) cookiesStr.append(";");
@@ -147,7 +147,7 @@ public class HttpClientRequestBuilderResponseStep
 		if (log.isTraceEnabled() && CollectionUtils.hasData(_headers)) {
 			StringBuilder headersDbg = new StringBuilder();
 			headersDbg.append("[HEADERS]:\n");
-			for(Iterator<Map.Entry<String,String>> hdIt = _headers.entrySet().iterator(); hdIt.hasNext(); ) {
+			for (Iterator<Map.Entry<String,String>> hdIt = _headers.entrySet().iterator(); hdIt.hasNext(); ) {
 				Map.Entry<String,String> hd = hdIt.next();
 				headersDbg.append("\t* ").append(hd.getKey()).append(": ").append(hd.getValue());
 				if (hdIt.hasNext()) headersDbg.append("\n");
@@ -246,6 +246,8 @@ public class HttpClientRequestBuilderResponseStep
 		} else if (_method.isGET()) {
 			conx.setDoOutput(false);
 			conx.setRequestMethod("GET");
+		} else {
+			throw new IllegalStateException(_method.name() + " is not supported!");
 		}
 	}
 	/**

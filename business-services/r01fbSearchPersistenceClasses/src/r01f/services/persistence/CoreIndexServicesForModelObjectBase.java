@@ -6,9 +6,9 @@ import com.google.common.eventbus.EventBus;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
-import r01f.guids.CommonOIDs.TenantID;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.CommonOIDs.TenantID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.IndexableModelObject;
 import r01f.model.ModelObject;
 import r01f.model.PersistableModelObject;
@@ -30,7 +30,7 @@ import r01f.types.jobs.EnqueuedJob;
  * a delegated object
  */
 @Accessors(prefix="_")
-public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extends IndexableModelObject>
+public abstract class CoreIndexServicesForModelObjectBase<O extends PersistableObjectOID,M extends IndexableModelObject>
               extends CoreServicesBase					  
            implements HasIndexerProvider<M>,
            			  IndexServicesForModelObject<O,M> {
@@ -78,13 +78,13 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 		_indexerProvider = indexerProvider;
 		_crudServiceByModelObjectOidTypeProvider = new CRUDServiceByModelObjectOIDTypeProvider() {
 															@Override @SuppressWarnings("unchecked")
-															public <O2 extends OID,M2 extends PersistableModelObject<O2>> CRUDServicesForModelObject<O2,M2> getFor(final Class<? extends OID> type) {
+															public <O2 extends PersistableObjectOID,M2 extends PersistableModelObject<O2>> CRUDServicesForModelObject<O2,M2> getFor(final Class<? extends PersistableObjectOID> type) {
 																return (CRUDServicesForModelObject<O2,M2>)crudService;
 															}
 							   					   };
 		_findServiceByModelObjectTypeProvider = new FindServiceByModelObjectTypeProvider() {
 															@Override @SuppressWarnings("unchecked")
-															public <O2 extends OID,M2 extends PersistableModelObject<O2>> FindServicesForModelObject<O2,M2> getFor(final Class<?> type) {
+															public <O2 extends PersistableObjectOID,M2 extends PersistableModelObject<O2>> FindServicesForModelObject<O2,M2> getFor(final Class<?> type) {
 																return (FindServicesForModelObject<O2,M2>)findService;
 															}
 												};
@@ -116,7 +116,8 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 /////////////////////////////////////////////////////////////////////////////////////////
 //  INDEX
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob index(final SecurityContext securityContext,
 							 final M modelObject) {
 		return this.forSecurityContext(securityContext)
@@ -124,7 +125,7 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 								.index(securityContext,
 									   modelObject);
 	}
-	@Override 
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob updateIndex(final SecurityContext securityContext,
 							 	   final M modelObject) {
 		return this.forSecurityContext(securityContext)
@@ -135,7 +136,7 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 /////////////////////////////////////////////////////////////////////////////////////////
 //  UN-INDEX
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob removeFromIndex(final SecurityContext securityContext,
 							   		   final O oid) {
 		return this.forSecurityContext(securityContext)
@@ -149,7 +150,7 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 						.createDelegateAs(IndexServicesForModelObject.class)
 							.removeAllFromIndex(securityContext);
 	}
-	@Override 
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob removeAllFromIndex(final SecurityContext securityContext,
 								  		  final Collection<O> all) {
 		return this.forSecurityContext(securityContext)
@@ -160,15 +161,15 @@ public abstract class CoreIndexServicesForModelObjectBase<O extends OID,M extend
 /////////////////////////////////////////////////////////////////////////////////////////
 //  RE-INDEX
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob reIndex(final SecurityContext securityContext,
-							 	   final O oid) {
+							   final O oid) {
 		return this.forSecurityContext(securityContext)
 						.createDelegateAs(IndexServicesForModelObject.class)
 							.reIndex(securityContext,
 								     oid);
 	}
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public EnqueuedJob reIndexAll(final SecurityContext securityContext,
 								  final Collection<O> all) {
 		return this.forSecurityContext(securityContext)

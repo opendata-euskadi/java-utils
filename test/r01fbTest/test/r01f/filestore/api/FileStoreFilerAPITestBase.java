@@ -42,7 +42,7 @@ public abstract class FileStoreFilerAPITestBase {
 	public void testExistFolderHappyPath() {
 		// Happy path
 		try {
-			_fileStoreFilerApi.existsFolder(_rootPath.joinedWith("test_folder"));
+			_fileStoreFilerApi.existsFolder(_rootPath.<Path>joinedWith("test_folder"));
 		} catch (IOException e1) {
 			Assert.fail(e1.getMessage());
 		}
@@ -418,13 +418,16 @@ public abstract class FileStoreFilerAPITestBase {
 												@Override
 												public boolean accept(final Path path) {
 													try {
-														return _fileStoreApi
-																				   .getFileProperties(path)
-																				   .isFile();
+														return _fileStoreApi.getFileProperties(path)
+																			.isFile();
 													} catch(IOException ioEx) {
 														ioEx.printStackTrace();
 													}
 													return false;
+												}
+												@Override
+												public boolean accept(final FileProperties props) {
+													return true;
 												}
 										   },
 						    		 	   false);					// do NOT overwrite
@@ -1040,13 +1043,16 @@ public abstract class FileStoreFilerAPITestBase {
 																					@Override
 																					public boolean accept(final Path path) {
 																						try {
-																							return _fileStoreApi
-																													   .getFileProperties(path)
-																													   .isFile();
+																							return _fileStoreApi.getFileProperties(path)
+																												.isFile();
 																						} catch(IOException ioEx) {
 																							ioEx.printStackTrace();
 																						}
 																						return false;
+																					}
+																					@Override
+																					public boolean accept(final FileProperties props) {
+																						return true;
 																					}
 																			 },
 																  			 false);	// not recursive

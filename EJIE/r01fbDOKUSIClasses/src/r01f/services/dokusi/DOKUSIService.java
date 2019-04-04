@@ -22,7 +22,7 @@ import javax.xml.soap.SOAPMessage;
 import org.w3c.dom.Document;
 
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
+import r01f.ejie.xlnets.api.XLNetsAPI;
 import r01f.model.dokusi.DOKUSIOIDs.DOKUSIDocumentID;
 import r01f.model.dokusi.DOKUSIRetrievedDocument;
 import r01f.patterns.Memoized;
@@ -102,11 +102,11 @@ public class DOKUSIService {
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final DOKUSIServiceAPIData _apiData;
 	
-	private final XLNetsAuthTokenProvider _xlnetsAuthTokenProvider;	
+	private final XLNetsAPI _xlNetsApi;	
 	private final Memoized<Document> _xlnetsAuthToken = new Memoized<Document>() {
 																		@Override
 																		protected Document supply() {
-																			return _xlnetsAuthTokenProvider.getXLNetsSessionTokenDoc();
+																			return _xlNetsApi.getXLNetsSessionTokenDoc();
 																		}
 																};
 	private final PifService _pifService;
@@ -116,10 +116,10 @@ public class DOKUSIService {
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
 	public DOKUSIService(final DOKUSIServiceAPIData apiData,
-						 final XLNetsAuthTokenProvider xlnetsAuthTokenProvider,
+						 final XLNetsAPI xlNetsApi,
 						 final PifService pifService) {
 		_apiData = apiData;
-		_xlnetsAuthTokenProvider = xlnetsAuthTokenProvider;
+		_xlNetsApi = xlNetsApi;
 		_pifService = pifService;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

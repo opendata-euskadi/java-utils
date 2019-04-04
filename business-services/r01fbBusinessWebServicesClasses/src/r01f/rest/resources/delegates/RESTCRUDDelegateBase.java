@@ -5,7 +5,7 @@ import java.net.URI;
 import javax.ws.rs.core.Response;
 
 import lombok.experimental.Accessors;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.CRUDResult;
 import r01f.model.persistence.PersistenceException;
@@ -17,7 +17,7 @@ import r01f.services.interfaces.CRUDServicesForModelObject;
  * Base type for REST services that encapsulates the common CRUD ops>
  */
 @Accessors(prefix="_")
-public abstract class RESTCRUDDelegateBase<O extends OID,M extends PersistableModelObject<O>> 
+public abstract class RESTCRUDDelegateBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 	          extends RESTDelegateForModelObjectBase<M> { 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  NOT INJECTED STATUS

@@ -14,6 +14,7 @@ import com.google.common.reflect.TypeToken;
 
 import lombok.RequiredArgsConstructor;
 import r01f.guids.CommonOIDs.AppCode;
+import r01f.objectstreamer.annotations.MarshallFormat;
 import r01f.patterns.Memoized;
 
 @RequiredArgsConstructor
@@ -57,6 +58,58 @@ public class MarshallerImpl
 	public MarshallerReadFromStream forReading() {
 		return new MarshallerReadFromStream() {
 						@Override
+						public <T> T from(final InputStream is,final MarshallFormat format,
+										  final Class<T> type) {
+							if (format == MarshallFormat.XML) {
+								return this.fromXml(is,
+										  			type);
+							} else if (format == MarshallFormat.JSON) {
+								return this.fromJson(is,
+													 type);
+							} else {
+								throw new IllegalArgumentException(format + " is NOT a supported marshall format!");
+							}
+						}
+						@Override
+						public <T> T from(final InputStream is,final MarshallFormat format,
+										  final TypeToken<T> typeToken) {
+							if (format == MarshallFormat.XML) {
+								return this.fromXml(is,
+										  			typeToken);
+							} else if (format == MarshallFormat.JSON) {
+								return this.fromJson(is,
+													 typeToken);
+							} else {
+								throw new IllegalArgumentException(format + " is NOT a supported marshall format!");
+							}
+						}
+						@Override
+						public <T> T from(final String xml,final Charset charset,final MarshallFormat format,
+										  final Class<T> type) {
+							return this.from(new ByteArrayInputStream(xml.getBytes(charset)),format,
+										 	 type);
+						}
+						@Override
+						public <T> T from(final String xml,final MarshallFormat format,
+										  final Class<T> type) {
+							return this.from(xml,_defaultCharset,format,
+											 type);
+						}
+						@Override
+						public <T> T from(final String xml,final Charset charset,final MarshallFormat format,
+										  final TypeToken<T> typeToken) {
+							return this.from(new ByteArrayInputStream(xml.getBytes(charset)),format,
+										 	 typeToken);
+						}
+						@Override
+						public <T> T from(final String xml,final MarshallFormat format,
+										  final TypeToken<T> typeToken) {
+							return this.from(xml,_defaultCharset,format,
+											 typeToken);
+						}
+			
+						// ================================================================================
+						@Override
 						public <T> T fromXml(final InputStream is,
 											 final Class<T> type) {
 							MarshallerMapperForXml xmlMapper = _marshallerXmlMapper.get();
@@ -96,6 +149,8 @@ public class MarshallerImpl
 							return this.fromXml(xml,_defaultCharset,
 												typeToken);
 						}
+						
+						// ================================================================================
 						@Override
 						public <T> T fromJson(final InputStream is,
 											  final Class<T> type) {
@@ -172,6 +227,34 @@ public class MarshallerImpl
 	public MarshallerWriteToStream forWriting() {
 		return new MarshallerWriteToStream() {
 						@Override
+						public <T> void to(final MarshallFormat format,
+										   final T obj,
+										   final OutputStream os) {
+							if (format == MarshallFormat.XML) {
+								this.toXml(obj,os);
+							} else if (format == MarshallFormat.JSON) {
+								this.toJson(obj,os);
+							} else {
+								throw new IllegalArgumentException(format + " is NOT a supported marshall format!"); 
+							}
+						}
+						@Override
+						public <T> String to(final MarshallFormat format,
+											 final T obj,final Charset charset) {
+							ByteArrayOutputStream os = new ByteArrayOutputStream();
+							this.to(format,
+									obj,os);
+							return new String(os.toByteArray(),charset);
+						}
+						@Override
+						public <T> String to(final MarshallFormat format,
+											 final T obj) {
+							return this.to(format,
+										   obj,_defaultCharset);
+						}
+						
+						// ================================================================================
+						@Override
 						public <T> void toXml(final T obj,
 											  final OutputStream os) {
 							// BEWARE: JSON specification states, that only valid encodings are UTF-8, UTF-16 and UTF-32.
@@ -195,6 +278,8 @@ public class MarshallerImpl
 						public <T> String toXml(final T obj) {
 							return this.toXml(obj,_defaultCharset);
 						}
+						
+						// ================================================================================
 						@Override
 						public <T> void toJson(final T obj,
 											   final OutputStream os) {

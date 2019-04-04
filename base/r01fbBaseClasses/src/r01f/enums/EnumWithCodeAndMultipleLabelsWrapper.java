@@ -16,7 +16,7 @@ import com.google.common.annotations.GwtIncompatible;
  *		MyEnumValue2(0.7F,"MyEnumValue2Description_21","MyEnumValue2Description_22"),
  *		MyEnumValue3(0.9F,"MyEnumValue3Description_31","MyEnumValue3Description_32");
  *				
- *		@Getter private Float _code;		// NOTA: NO tiene por qué ser un Float... puede ser un String u otra cosa
+ *		@Getter private Float _code;		// NOTA: if must not be a float... can be an string or anything
  *		@Getter private String[] _labels;
  *
  *		private static EnumWithCodeAndMultipleLabelsWrapper<Float,MyEnum> _enums = new EnumWithCodeAndMultipleLabelsWrapper<Float,MyEnum>(MyEnum.values());

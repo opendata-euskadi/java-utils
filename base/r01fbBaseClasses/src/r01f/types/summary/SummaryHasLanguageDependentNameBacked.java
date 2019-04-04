@@ -57,6 +57,6 @@ public class SummaryHasLanguageDependentNameBacked
 	}
 	@Override
 	public LanguageTexts asLanguageTexts() {
-		return _hasName.getNamesByLanguage();
+		return _hasName.getNameByLanguage();
 	}
 }

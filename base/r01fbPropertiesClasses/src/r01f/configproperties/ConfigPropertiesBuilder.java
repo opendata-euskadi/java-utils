@@ -92,7 +92,7 @@ public class ConfigPropertiesBuilder
 //  BUILDERS
 /////////////////////////////////////////////////////////////////////////////////////////
     @RequiredArgsConstructor
-    public class ConfigPropertiesBundleBuilderBundleStep {
+    public final class ConfigPropertiesBundleBuilderBundleStep {
     	private final String _bundleSpec;
     	
 	    /**

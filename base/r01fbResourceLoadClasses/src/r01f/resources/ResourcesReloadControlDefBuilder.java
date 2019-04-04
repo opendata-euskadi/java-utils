@@ -17,8 +17,8 @@ import r01f.types.TimeLapse;
 import r01f.util.types.Strings;
 
 @NoArgsConstructor(access=AccessLevel.PRIVATE)
-public class ResourcesReloadControlDefBuilder 
-  implements IsBuilder {
+public abstract class ResourcesReloadControlDefBuilder 
+           implements IsBuilder {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -54,11 +54,11 @@ public class ResourcesReloadControlDefBuilder
 	 */
 	public static ResourcesReloadControlBuilderPeriodicIntervalStep createForPeriodicReloading() {
 		ResourcesReloadControlDef outDef = new ResourcesReloadControlDef(ResourcesReloadPolicy.PERIODIC);
-		return new ResourcesReloadControlDefBuilder() 
+		return new ResourcesReloadControlDefBuilder() { /* nothing */ }
 						.new ResourcesReloadControlBuilderPeriodicIntervalStep(outDef);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderPeriodicIntervalStep {
+	public final class ResourcesReloadControlBuilderPeriodicIntervalStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderEnabledStep reloadingEvery(final long milis) {
@@ -93,11 +93,11 @@ public class ResourcesReloadControlDefBuilder
 	public static ResourcesReloadControlBuilderFileUpdateTimeStampStep createForFileUpdateTimeStamp() {
 		ResourcesReloadControlDef outDef = new ResourcesReloadControlDef(ResourcesReloadPolicy.FILE_LAST_MODIF_TIMESTAMP);
 		outDef.setControlProps(new HashMap<String,String>());
-		return new ResourcesReloadControlDefBuilder()
+		return new ResourcesReloadControlDefBuilder() { /* nothing */ }
 						.new ResourcesReloadControlBuilderFileUpdateTimeStampStep(outDef);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderFileUpdateTimeStampStep {
+	public final class ResourcesReloadControlBuilderFileUpdateTimeStampStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderFileUpdateTimeStampLoaderStep forFile(final Path path) {
@@ -124,7 +124,7 @@ public class ResourcesReloadControlDefBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderFileUpdateTimeStampLoaderStep {
+	public final class ResourcesReloadControlBuilderFileUpdateTimeStampLoaderStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderCheckStep loadedUsing(final ResourcesLoaderType resLoader) {
@@ -149,11 +149,11 @@ public class ResourcesReloadControlDefBuilder
 	 */
 	public static ResourcesReloadControlBuilderBBDDLoaderPropertiesConxStep createForBBDDChecking() {
 		ResourcesReloadControlDef reloadCtrlDef = new ResourcesReloadControlDef(ResourcesReloadPolicy.BBDD);
-		return new ResourcesReloadControlDefBuilder()
+		return new ResourcesReloadControlDefBuilder() { /* nothing */ }
 						.new ResourcesReloadControlBuilderBBDDLoaderPropertiesConxStep(reloadCtrlDef);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderBBDDLoaderPropertiesConxStep {
+	public final class ResourcesReloadControlBuilderBBDDLoaderPropertiesConxStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderBBDDLoaderPropertiesLoadSqlStep conectingUsingDataSource(final String dataSourceName) {
@@ -174,7 +174,7 @@ public class ResourcesReloadControlDefBuilder
 		}		
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderBBDDLoaderPropertiesLoadSqlStep {
+	public final class ResourcesReloadControlBuilderBBDDLoaderPropertiesLoadSqlStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep sqlToLoadReloadFlag(final String sql) {
@@ -186,7 +186,7 @@ public class ResourcesReloadControlDefBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep {
+	public final class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderCheckStep sqlToUpdateReloadFlag(final String sql) {
@@ -201,7 +201,7 @@ public class ResourcesReloadControlDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderCheckStep {
+	public final class ResourcesReloadControlBuilderCheckStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		/**
 		 * Sets the milis interval to check if a reload is needed
@@ -229,7 +229,7 @@ public class ResourcesReloadControlDefBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderEnabledStep {
+	public final class ResourcesReloadControlBuilderEnabledStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlBuilderBuildStep enabled() {
@@ -242,7 +242,7 @@ public class ResourcesReloadControlDefBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesReloadControlBuilderBuildStep {
+	public final class ResourcesReloadControlBuilderBuildStep {
 		private final ResourcesReloadControlDef _reloadControlDef;
 		
 		public ResourcesReloadControlDef build() {

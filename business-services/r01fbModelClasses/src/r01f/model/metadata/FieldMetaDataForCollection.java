@@ -38,7 +38,7 @@ public class FieldMetaDataForCollection
 			 other.getSearchEngineIndexingConfig(),
 			 other.getComponentsType());
 	}
-	public FieldMetaDataForCollection(final IndexableFieldID fieldId,
+	public FieldMetaDataForCollection(final FieldID fieldId,
 									  final LanguageTexts name,final LanguageTexts description,
 									  final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 									  final Class<?> collectionComponentsType) {

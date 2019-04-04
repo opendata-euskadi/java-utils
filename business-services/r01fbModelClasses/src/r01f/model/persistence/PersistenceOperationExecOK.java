@@ -19,10 +19,32 @@ public class PersistenceOperationExecOK<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 //	FIELDS  
 /////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * The performed operation
+	 * Sometimes the requested operation is NOT the same as the requested operation since
+	 * for example, the client requests a create operation BUT an update operation is really 
+	 * performed because the record already exists at the persistence store
+	 */
+	@MarshallField(as="performedOperation",
+				   whenXml=@MarshallFieldAsXml(attr=true))
+	@Getter @Setter protected PersistencePerformedOperation _performedOperation;
+	/**
+	 * The result 
+	 */
 	@MarshallField(as="operationExecResult",
 				   whenXml=@MarshallFieldAsXml(collectionElementName="resultItem"))		// only when the result is a Collection (ie: find ops)
 	@Getter @Setter protected T _operationExecResult;
-	
+/////////////////////////////////////////////////////////////////////////////////////////
+//  CONSTRUCTOR
+/////////////////////////////////////////////////////////////////////////////////////////
+	public PersistenceOperationExecOK() {
+		// by default
+		this(PersistenceRequestedOperation.OTHER,PersistencePerformedOperation.OTHER);
+	}
+	public PersistenceOperationExecOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation perfOp) {
+		super(reqOp);
+		_performedOperation = perfOp;
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////

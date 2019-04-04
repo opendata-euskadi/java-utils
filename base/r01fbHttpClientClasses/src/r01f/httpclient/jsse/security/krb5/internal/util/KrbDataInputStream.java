@@ -52,7 +52,7 @@ public class KrbDataInputStream extends BufferedInputStream{
             bigEndian = false;
         }
     }
-    public KrbDataInputStream(InputStream is){
+    public KrbDataInputStream(InputStream is) {
         super(is);
     }
     /**

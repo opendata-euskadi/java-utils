@@ -6,6 +6,7 @@ import javax.inject.Provider;
 
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.SummarizedModelObject;
 import r01f.model.persistence.FindOIDsResult;
@@ -21,7 +22,7 @@ import r01f.services.interfaces.FindServicesForDependentModelObject;
  * @param <M>
  */
 @Slf4j
-public class ClientAPIDelegateForDependentModelObjectFindServices<O extends OID,M extends PersistableModelObject<O>,
+public class ClientAPIDelegateForDependentModelObjectFindServices<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
 															      P extends PersistableModelObject<?>> 
 	 extends ClientAPIServiceDelegateBase<FindServicesForDependentModelObject<O,M,P>> {
 

@@ -40,11 +40,11 @@ public class FindSummariesOK<M extends PersistableModelObject<? extends OID>>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindSummariesOK() {
-		/* nothing */
+		super(PersistenceRequestedOperation.FIND,PersistencePerformedOperation.FOUND,
+			  Collection.class);
 	}
 	protected FindSummariesOK(final Class<M> entityType) {
-		super(Collection.class,
-			  PersistenceRequestedOperation.FIND,PersistencePerformedOperation.from(PersistenceRequestedOperation.FIND));
+		this();
 		_modelObjectType = entityType;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

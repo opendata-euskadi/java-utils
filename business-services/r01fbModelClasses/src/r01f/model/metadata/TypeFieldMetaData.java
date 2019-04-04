@@ -23,7 +23,7 @@ public class TypeFieldMetaData
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Getter private final TypeMetaData<? extends MetaDataDescribable> _containerType;
-	@Getter private final IndexableFieldID _id;
+	@Getter private final FieldID _id;
 	@Getter private final MetaDataForField _fieldMetaData;
 	@Getter private final Type _fieldType;
 	@Getter private final TypeMetaData<? extends MetaDataDescribable> _fieldTypeMetaData; 		// if the type of this field is another type with metadata
@@ -63,7 +63,7 @@ public class TypeFieldMetaData
 			&& _fieldMetaData.storage() != null
 			&& _fieldMetaData.storage().indexed();
 	}
-	public IndexableFieldID getIndexableFieldId() {
+	public FieldID getIndexableFieldId() {
 		if (!this.isIndexed()) throw new UnsupportedOperationException(String.format("Field with id=%s of type %s is NOT indexable!",
 																					 _id,_containerType.getType()));
 		return _id;

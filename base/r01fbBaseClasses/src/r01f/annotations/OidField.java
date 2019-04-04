@@ -5,8 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
-
 /**
  * Annotation used to mark a field that will be the key when an object is putted into a map
  * when marshalling / unmarshalling
@@ -14,10 +12,10 @@ import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
  * 		@TypeMarshall(as="myType")
  * 		public class MyType {
  * 			@MarshallField(as="key",
- * 						   whenXml=@MarshallXmlField(attr=true)) 
+ * 						   whenXml=@MarshallXmlField(attr=true))
  * 			@OidField
  * 			@Getter @Setter private String _keyField;
- * 			
+ *
  * 			@MarshallField(as="value")
  * 			@Getter @Setter private String _valueField;
  * 		}

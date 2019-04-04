@@ -2,7 +2,7 @@ package r01f.persistence.db;
 
 import java.util.Set;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.PersistenceException;
 import r01f.securitycontext.SecurityContext;
@@ -12,7 +12,7 @@ import r01f.securitycontext.SecurityContext;
  * @param <O>
  * @param <M>
  */
-public interface LoadsPersistableModelObject<O extends OID,
+public interface LoadsPersistableModelObject<O extends PersistableObjectOID,
 					  						 M extends PersistableModelObject<O>> {
 	/**
 	 * Returns a entity from its identifier.

@@ -9,7 +9,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import org.eclipse.persistence.config.PersistenceUnitProperties;
-import org.eclipse.persistence.exceptions.DatabaseException;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
@@ -282,7 +281,10 @@ public abstract class DBModuleConfigBase
 			jpql.append(Strings.customized("SQL('MATCH(?) AGAINST(?)',entity.{},:text)",
 										   fieldName));
 		} else if (theDBSpec.getVendor().is(DBVendor.ORACLE)) {
-			jpql.append(Strings.customized("AND SQL('CONTAINS(?,?,1) > 0',entity.{},:text) ",
+			// SELECT t.*
+			//   FROM {table} t 
+			//  WHERE CONTAINS({column},'{text}',1) > 0
+			jpql.append(Strings.customized("SQL('CONTAINS(?,?,1) > 0',entity.{},:text) ",
 										   fieldName));
 		}
 		// Execute the query

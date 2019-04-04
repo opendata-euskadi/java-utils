@@ -23,7 +23,7 @@ public abstract class LuceneSearchQueryBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LuceneSearchQueryBuilderAnalyzerStep {
+	public final class LuceneSearchQueryBuilderAnalyzerStep {
 		private final IndexDocumentFieldConfigSet<?> _fieldConfigSet;
 		
 		public LuceneSearchQueryBuilderUILanguageStep usingLuceneAnalyzer(final Analyzer analyzer) {
@@ -32,7 +32,7 @@ public abstract class LuceneSearchQueryBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LuceneSearchQueryBuilderUILanguageStep {
+	public final class LuceneSearchQueryBuilderUILanguageStep {
 		private final IndexDocumentFieldConfigSet<?> _fieldConfigSet;
 		private final Analyzer _luceneAnalyzer;
 		
@@ -48,7 +48,7 @@ public abstract class LuceneSearchQueryBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LuceneSearchQueryBuilderPredicatesStep {
+	public final class LuceneSearchQueryBuilderPredicatesStep {
 		private final IndexDocumentFieldConfigSet<?> _fieldConfigSet;
 		private final Analyzer _luceneAnalyzer;
 		private final Language _uiLanguage;

@@ -13,6 +13,7 @@ import com.google.common.collect.Ordering;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.debug.Debuggable;
+import r01f.util.types.collections.CollectionUtils;
 import r01f.util.types.collections.Lists;
 
 
@@ -59,16 +60,21 @@ public class TypeOutline
     /**
      * Constructs an ordered list starting at the most specialized class
      * in the tree and moving up the tree to the most general types,
-     * ensuring no especialization comes before one of its generalizations.
+     * ensuring no specialization comes before one of its generalizations.
      * @return a list ordered as above
      */
     public Collection<Class<?>> getNodesFromSpezializedToGeneralization() {
+//    	System.out.print(">>>>>>>>>>>>>>>>>>"); System.out.println(_bottomType);    	
+//    	System.out.println(this.debugInfo());
+    	
         Collection<OutlineTreeNode> treeNodes = Lists.newArrayList();
         treeNodes.add(_bottomType);
         _recurseBuildList(_bottomType,
-        		   treeNodes);
+        		   		  treeNodes);
 
         // order the tree nodes
+		// bug: error “Comparison method violates its general contract!”
+		// see: https://stackoverflow.com/questions/8327514/comparison-method-violates-its-general-contract
         Collection<OutlineTreeNode> orderedTreeNodes = Ordering.from(new Comparator<OutlineTreeNode>() {
 																				@Override
 																				public int compare(final OutlineTreeNode n1,final OutlineTreeNode n2) {
@@ -87,18 +93,18 @@ public class TypeOutline
 															}
 			        					 			})
 			        					 .toList();
+//        System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
         return typesList;
     }
     /**
-     * Build breadth first in order to maintain sudo ordering as per
-     * class declarations (i.e. if A implements B, C... B is closer in the
-     * chain to A than C is, because B comes first in the implements clause.
+     * Build breadth first in order to maintain sudo ordering as per class declarations 
+     * (i.e. if A implements B, C... B is closer in the chain to A than C is, 
+     *  because B comes first in the implements clause).
      *
-     * Note that the list coming out here is preordered, but not natural
-     * ordered. (i.e. some classes are out of order in relation to classes
-     * they have direct relationships with. This is later fixed by a sort
-     * on the list by natural ordering. Collecitons.sort, does preserve
-     * the preordering for nodes that have no relationship.
+     * Note that the list coming out here is preordered, but not natural ordered.
+     * (i.e. some classes are out of order in relation to classes they have direct relationships with=
+     * This is later fixed by a sort on the list by natural ordering. 
+     * Collecitons.sort, does preserve the preordering for nodes that have no relationship.
      *
      * @param node the node to be browsed.
      * @param output this list is altered to add the contents as they are
@@ -152,7 +158,7 @@ public class TypeOutline
         // The map of children classes to their class names
         @Getter protected final Collection<OutlineTreeNode> _children;
 
-        // A reference to the parent node of this node
+        // A reference to the parent nodes of this node
         @Getter protected final Collection<OutlineTreeNode> _parents;
 
         public OutlineTreeNode(final Class<?> objectType) {
@@ -166,6 +172,54 @@ public class TypeOutline
         }
         public void addChild(final OutlineTreeNode node) {
             _children.add(node);
+        }
+        public boolean isParentOf(final OutlineTreeNode other) {
+        	if (CollectionUtils.isNullOrEmpty(_parents)) return false;
+        	return _recurseFindParent(other,
+        							  _parents);
+        }
+        private static boolean _recurseFindParent(final OutlineTreeNode other,
+        								   		  final Collection<OutlineTreeNode> parents) {
+        	boolean found = false;
+        	for (OutlineTreeNode parent : parents) {
+        		if (parent.equals(other)) {
+        			found = true;
+        			break;
+        		}
+        	}
+        	if (!found) {
+	        	for (OutlineTreeNode parent : parents) {
+	        		if (CollectionUtils.hasData(parent.getParents())) {
+	        			found = _recurseFindParent(other,parent.getParents());	// RECURSE!!!
+	        			if (found) break;
+	        		}
+	        	}
+        	}
+        	return found;
+        }
+        public boolean isChildOf(final OutlineTreeNode other) {
+        	if (CollectionUtils.isNullOrEmpty(_children)) return false;
+        	return _recurseFindChild(other,
+        							 _children);
+        }
+        private static boolean _recurseFindChild(final OutlineTreeNode other,
+        								  		 final Collection<OutlineTreeNode> childs) {
+        	boolean found = false;
+        	for (OutlineTreeNode child : childs) {
+        		if (child.equals(other)) {
+        			found = true;
+        			break;
+        		}
+        	}
+        	if (!found) {
+	        	for (OutlineTreeNode child : childs) {
+	        		if (CollectionUtils.hasData(child.getChildren())) {
+	        			found = _recurseFindChild(other,child.getChildren());	// RECURSE!!!
+	        			if (found) break;
+	        		}
+	        	}
+        	}
+        	return found;
         }
         @Override
         public boolean equals(final Object obj) {
@@ -186,23 +240,32 @@ public class TypeOutline
         /**
          * Compares one class to another class by their inheritance tree.
          * @return an integer representing the comparison results as follows:<br>
-         *    2  if this is a subclass of past in object<br>
-         *    -2 if this is a superclass of past in object<br>
-         *    0 if they are not related (and in relation to sorting, equal)<br>
-         *    0  if they are the same<br>
+         *    		2  	if this is a subclass of object<br>
+         *    		-2 	if this is a superclass of object<br>
+         *    		0 	if they are not related (and in relation to sorting, equal)<br>
+         *    		0  	if they are the same<br>
          */
         @Override
         public int compareTo(final OutlineTreeNode other) {
+        	int out = 0;
             Class<?> otherType = other.getObjectType();
             if (otherType.equals(_objectType)) {
-                return 0;
-            } else if (_objectType.isAssignableFrom(otherType)) {
-                return 2;
-            } else if (otherType.isAssignableFrom(_objectType)) {
-                return -2;
+                out = 0;
+            } else if (this.isChildOf(other)) {
+            	return 2;
+            } else if (this.isParentOf(other)) {
+            	return -2;
             } else {
-                return 0;
+            	return 0;
             }
+//            } else if (_objectType.isAssignableFrom(otherType)) {
+//                out = 2;
+//            } else if (otherType.isAssignableFrom(_objectType)) {
+//                out = -2;
+//            } else {
+//                out = 0;
+//            }
+            return out;
         }
     } // End of OutlineTreeNode
 /////////////////////////////////////////////////////////////////////////////////////////

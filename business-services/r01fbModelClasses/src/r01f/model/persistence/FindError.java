@@ -29,16 +29,16 @@ public class FindError<T>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindError() {
-		// nothing
+		super(PersistenceRequestedOperation.FIND);
 	}
 	FindError(final Throwable th) {
-		super(Collection.class,
-			  PersistenceRequestedOperation.FIND,
+		super(PersistenceRequestedOperation.FIND,
+			  Collection.class,
 			  th);
 	}
 	FindError(final String errMsg,final PersistenceErrorType errorCode) {
-		super(Collection.class,
-			  PersistenceRequestedOperation.FIND,
+		super(PersistenceRequestedOperation.FIND,
+			  Collection.class,
 			  errMsg,errorCode);
 	}
 	FindError(final Class<T> entityType,

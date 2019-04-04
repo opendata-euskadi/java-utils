@@ -1,6 +1,6 @@
 package r01f.persistence.search.db;
 
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.search.SearchFilter;
 
 /**
@@ -12,9 +12,10 @@ public class IndexableFieldIDToDBEntityFieldTranslatorByDefault<F extends Search
 //  METHODS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public String dbEntityFieldNameFor(final IndexableFieldID fieldId,
+	public String dbEntityFieldNameFor(final FieldID fieldId,
 									   final F filter) {
 		String outFieldName = fieldId.getId();
+		if (!outFieldName.startsWith("_")) outFieldName = "_" + outFieldName;
 		return outFieldName;
 	}
 

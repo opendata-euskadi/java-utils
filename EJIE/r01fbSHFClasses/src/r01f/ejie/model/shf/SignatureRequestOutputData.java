@@ -25,17 +25,17 @@ public class SignatureRequestOutputData
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	public String asString(){
+	public String asString() {
 		return new String(Base64.decodeBase64(_ejgvSignature.getBody().getSign()));
 	}	
-	public String asBase64String(){
+	public String asBase64String() {
 		return _ejgvSignature.getBody().getSign();
 	}	
-	public Document asXMLDocument(){
+	public Document asXMLDocument() {
 		Document xml = null;
 		try{
 			xml = XMLUtils.parse(new ByteArrayInputStream(this.asString().getBytes()));
-		}catch(Exception e){
+		}catch(Exception e) {
 			 log.error("[SignatureService] > Error while decoding signature {}",e.getMessage(),e);
 		 }
 		return xml;

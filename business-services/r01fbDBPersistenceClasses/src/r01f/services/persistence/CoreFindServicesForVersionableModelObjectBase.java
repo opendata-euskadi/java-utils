@@ -10,13 +10,13 @@ import com.google.common.eventbus.EventBus;
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
 import r01f.model.persistence.FindResult;
 import r01f.objectstreamer.Marshaller;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.interfaces.FindServicesForVersionableModelObject;
-import r01f.xmlproperties.XMLPropertiesForAppComponent;
 
 
 /**
@@ -53,7 +53,7 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
  * @param <FD>
  */
 @Accessors(prefix="_")
-public abstract class CoreFindServicesForVersionableModelObjectBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+public abstract class CoreFindServicesForVersionableModelObjectBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 			  extends CoreFindServicesForModelObjectBase<O,M> 
 		   implements FindServicesForVersionableModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////

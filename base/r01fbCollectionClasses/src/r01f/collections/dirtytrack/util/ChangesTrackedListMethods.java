@@ -148,7 +148,7 @@ public class ChangesTrackedListMethods
 		// Add
 		boolean outResult = ((List<V>)currentEntries).addAll(fromIndex,c);
 		if (outResult) {
-			for(V v : c) {
+			for (V v : c) {
 				changesTracker.trackEntryInsertion(v);
 			}
 		}

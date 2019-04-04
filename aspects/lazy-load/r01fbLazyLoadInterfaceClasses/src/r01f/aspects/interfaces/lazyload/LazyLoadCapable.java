@@ -23,13 +23,11 @@ public @interface LazyLoadCapable {
 //			public Class<?> supplierFactory() default null;	//<-- this does not compile
 //		a trick is used: a DEFAULT_SUPPLIER_FACTORY type is returned 
 /////////////////////////////////////////////////////////////////////////////////////////
-	@SuppressWarnings("rawtypes")
-	static final class DEFAULT_SUPPLIER_FACTORY 
-	        implements LazyLoadedTypeSupplierFactory {
+	static final class DEFAULT_SUPPLIER_FACTORY<T> 
+	        implements LazyLoadedTypeSupplierFactory<T> {
 		@Override
-		public LazyLoadedTypeSupplier createSupplier() {
-			throw new IllegalStateException("This is the default supplier factory!");
+		public LazyLoadedTypeSupplier<T> createSupplier() {
+			throw new IllegalStateException("This is the default supplier factory!");	
 		}
-		
 	}
 }

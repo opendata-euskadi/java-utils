@@ -1,11 +1,13 @@
 package r01f.services.delegates;
 
 import com.google.common.eventbus.EventBus;
+import com.google.common.reflect.TypeToken;
 
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.events.HasEventBus;
+import r01f.generics.TypeRef;
 import r01f.services.interfaces.ServiceInterface;
 
 @Accessors(prefix="_")
@@ -51,8 +53,16 @@ public abstract class ServicesDelegateBase
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	@SuppressWarnings({ "unchecked","unused" })
+	@SuppressWarnings({ "unchecked" })
 	protected <S extends ServiceInterface> S getServiceImplAs(final Class<S> serviceInterfaceType) {
+		return (S)_serviceImpl;
+	}
+	@SuppressWarnings({ "unchecked" })
+	protected <S extends ServiceInterface> S getServiceImplAs(final TypeToken<S> serviceInterfaceType) {
+		return (S)_serviceImpl;
+	}
+	@SuppressWarnings({ "unchecked" })
+	protected <S extends ServiceInterface> S getServiceImplAs(final TypeRef<S> serviceInterfaceType) {
 		return (S)_serviceImpl;
 	}
 }

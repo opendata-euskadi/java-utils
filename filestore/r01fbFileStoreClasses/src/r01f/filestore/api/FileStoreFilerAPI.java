@@ -11,6 +11,13 @@ public interface FileStoreFilerAPI {
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * Returns a folder properties
+	 * @param path
+	 * @return
+	 * @throws IOException
+	 */
+	public FileProperties getFolderProperties(final Path path) throws IOException;
+	/**
 	 * Checks if a folder exists
 	 * @param path
 	 * @return
@@ -78,5 +85,4 @@ public interface FileStoreFilerAPI {
     public FileProperties[] listFolderContents(final Path folderPath,
     										   final FileFilter fileFilter,
     										   final boolean recursive) throws IOException;
-
 }

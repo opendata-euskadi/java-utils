@@ -1,10 +1,10 @@
 package r01f.aspects.interfaces.logging;
 
 /**
- * Enum que se utiliza en la anotación @LoggedMethodCalls para indicar dónde hay que hacer log:
+ * Used at @LoggedMethodCalls to set when to log
  */
 public enum LoggedMethodCallsWhen {
-	BEGIN,		// principio del método
-	END,		// final del método
-	AROUND;		// al principio y al final del método
+	BEGIN,		// begin of method invocation
+	END,		// end of method invocation
+	AROUND;		// arround method invocation
 }

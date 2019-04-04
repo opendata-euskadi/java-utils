@@ -24,7 +24,7 @@ public abstract class PersonWithContactInfoBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersonWithContactInfoBuilderPersonStep {
+	public final class PersonWithContactInfoBuilderPersonStep {
 		private final PersonWithContactInfo _modelObj;
 		
 		public PersonWithContactInfoBuilderContactStep noPerson() {
@@ -36,7 +36,7 @@ public abstract class PersonWithContactInfoBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersonWithContactInfoBuilderContactStep {
+	public final class PersonWithContactInfoBuilderContactStep {
 		private final PersonWithContactInfo _modelObj;
 		
 		public PersonWithContactInfoBuilderBuildStep noContactInfo() {
@@ -48,7 +48,7 @@ public abstract class PersonWithContactInfoBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersonWithContactInfoBuilderBuildStep {
+	public final class PersonWithContactInfoBuilderBuildStep {
 		private final PersonWithContactInfo _modelObj;
 		
 		public PersonWithContactInfo build() {

@@ -74,14 +74,14 @@ public class HttpClientRequestBuilderPOSTFileMethodStep
 					
 							// Send params
 							if (CollectionUtils.hasData(textParams)) {
-								for(final HttpRequestFormParameter param : textParams) {
+								for (final HttpRequestFormParameter param : textParams) {
 									dos.write(param._serializeFormParam(_targetServerCharset,
 																		true));
 								}
 							}
 							// Send the binary params in the second place; be carefull if there are more than one file
 							if (CollectionUtils.hasData(binaryParams)) {
-								for(final HttpRequestFormParameter param : binaryParams) {
+								for (final HttpRequestFormParameter param : binaryParams) {
 									dos.write(param._serializeFormParam(_targetServerCharset,
 																		true));
 								}

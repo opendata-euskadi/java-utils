@@ -1,6 +1,5 @@
 package r01f.objectstreamer;
 
-import java.net.URL;
 import java.util.Set;
 
 import javax.xml.stream.XMLInputFactory;

@@ -19,34 +19,18 @@ abstract class PersistenceOperationOnObjectOK<T>
 	@MarshallField(as="type",
 				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter @Setter protected Class<T> _objectType;
-	/**
-	 * The requested operation
-	 */
-	@MarshallField(as="requestedOperation",
-				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter protected PersistenceRequestedOperation _requestedOperation;
-	/**
-	 * The performed operation
-	 * Sometimes the requested operation is NOT the same as the requested operation since
-	 * for example, the client requests a create operation BUT an update operation is really 
-	 * performed because the record already exists at the persistence store
-	 */
-	@MarshallField(as="performedOperation",
-				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter protected PersistencePerformedOperation _performedOperation;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	public PersistenceOperationOnObjectOK() {
-		/* nothing */
+	public PersistenceOperationOnObjectOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation perfOp) {
+		super(reqOp,perfOp);
 	}
 	@SuppressWarnings("unchecked")
-	PersistenceOperationOnObjectOK(final Class<?> entityType,
-					  			   final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation performedOp) {
+	PersistenceOperationOnObjectOK(final PersistenceRequestedOperation reqOp,final PersistencePerformedOperation perfOp,
+								   final Class<?> entityType) {
+		this(reqOp,perfOp);
 		_objectType = (Class<T>)entityType;
 		_requestedOperation = reqOp;
-		_performedOperation = performedOp;
-		_requestedOperationName = reqOp.name();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

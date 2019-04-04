@@ -90,7 +90,7 @@ public class FieldMetaDataForPolymorphicType
 			 other.getSearchEngineIndexingConfig(),
 			 other.getDataType());
 	}
-	public FieldMetaDataForPolymorphicType(final IndexableFieldID fieldId,
+	public FieldMetaDataForPolymorphicType(final FieldID fieldId,
 									 	   final LanguageTexts name,final LanguageTexts description,
 									 	   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 									 	   final Class<?> baseType) {
@@ -99,7 +99,7 @@ public class FieldMetaDataForPolymorphicType
 			  searchEngineIndexingConfig,
 			  baseType);
 	}
-	public FieldMetaDataForPolymorphicType(final IndexableFieldID fieldId,
+	public FieldMetaDataForPolymorphicType(final FieldID fieldId,
 									 	   final LanguageTexts name,final LanguageTexts description,
 									 	   final Class<?> baseType) {
 		super(fieldId,

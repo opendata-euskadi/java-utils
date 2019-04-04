@@ -1,23 +1,17 @@
 package r01f.bootstrap.services.config.client;
 
 import java.util.Collection;
-import java.util.List;
-import java.util.Set;
 
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
+import com.google.inject.Module;
 
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
-import r01f.bootstrap.services.client.ServiceInterfaceTypesToImplOrProxyMappings;
 import r01f.bootstrap.services.client.ServicesClientAPIBootstrapGuiceModuleBase;
 import r01f.patterns.IsBuilder;
-import r01f.reflection.scanner.SubTypeOfScanner;
 import r01f.services.client.ClientAPI;
-import r01f.services.client.ServiceProxiesAggregator;
 import r01f.services.ids.ServiceIDs.ClientApiAppCode;
 import r01f.services.interfaces.ServiceInterface;
-import r01f.types.JavaPackage;
 import r01f.util.types.collections.CollectionUtils;
 
 
@@ -39,11 +33,11 @@ public abstract class ServicesClientBootstrapConfigBuilder
 					.new ServicesClientBootstrapConfigBuilderApiTypeStep(appCode);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  CLIENT API / SERVICE INTERFACES
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesClientBootstrapConfigBuilderApiTypeStep {
-		private final ClientApiAppCode _clientApiAppCode;
+	public final class ServicesClientBootstrapConfigBuilderApiTypeStep {
+		protected final ClientApiAppCode _clientApiAppCode;
 		
 		public ServicesClientBootstrapConfigBuilderServiceInterfacesStep exposingApi(Class<? extends ClientAPI> clientApiType) {
 			return new ServicesClientBootstrapConfigBuilderServiceInterfacesStep(_clientApiAppCode,
@@ -51,55 +45,93 @@ public abstract class ServicesClientBootstrapConfigBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesClientBootstrapConfigBuilderServiceInterfacesStep {
-		private final ClientApiAppCode _clientApiAppCode;
-		private final Class<? extends ClientAPI> _clientApiType;
+	public final class ServicesClientBootstrapConfigBuilderServiceInterfacesStep {
+		protected final ClientApiAppCode _clientApiAppCode;
+		protected final Class<? extends ClientAPI> _clientApiType;
 
-		public ServicesClientBootstrapConfigBuilderProxiesAggregatorStep ofServiceInterfacesExtending(final Class<? extends ServiceInterface> serviceInterfaceBaseType) {
-			return new ServicesClientBootstrapConfigBuilderProxiesAggregatorStep(_clientApiAppCode,
-																			     _clientApiType,
-																			     serviceInterfaceBaseType);
+		public ServicesClientBootstrapConfigBuilderCoreConfigStep ofServiceInterfacesExtending(final Class<? extends ServiceInterface> serviceInterfaceBaseType) {
+			return new ServicesClientBootstrapConfigBuilderCoreConfigStep(_clientApiAppCode,
+																		      _clientApiType,serviceInterfaceBaseType);
+		}
+		public ServicesClientBootstrapConfigBuilderCoreConfigStep doNotFindServiceInterfaces() {
+			return new ServicesClientBootstrapConfigBuilderCoreConfigStep(_clientApiAppCode,
+																		  _clientApiType,
+																		  null);	// no service interfacers
 		}
 	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  EXPOSITION
+/////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesClientBootstrapConfigBuilderProxiesAggregatorStep {
-		private final ClientApiAppCode _clientApiAppCode;
-		private final Class<? extends ClientAPI> _clientApiType;
-		private final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
+	public final class ServicesClientBootstrapConfigBuilderCoreConfigStep {
+		protected final ClientApiAppCode _clientApiAppCode;
+		protected final Class<? extends ClientAPI> _clientApiType;
+		protected final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
 		
-		public ServicesClientBootstrapConfigBuilderGuiceModuleStep withProxiesToCoreImplAggregatedAt(final Class<? extends ServiceProxiesAggregator> servicesProxiesAggregatorType) {
-			return new ServicesClientBootstrapConfigBuilderGuiceModuleStep(_clientApiAppCode,
-																		   _clientApiType,
-																		   _serviceInterfacesBaseType,
-																		   servicesProxiesAggregatorType);
+		public ServicesClientBootstrapConfigBuilderBuildStep bootstrappedWith(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+																			  final Module... moreClientBootstrapGuiceModules) {
+			return this.bootstrappedWith(clientBootstrapGuiceModuleType,
+										 CollectionUtils.hasData(moreClientBootstrapGuiceModules) ? Lists.newArrayList(moreClientBootstrapGuiceModules)
+												 												  : null);
 		}
-	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesClientBootstrapConfigBuilderGuiceModuleStep {
-		private final ClientApiAppCode _clientApiAppCode;
-		private final Class<? extends ClientAPI> _clientApiType;
-		private final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
-		private final Class<? extends ServiceProxiesAggregator> _servicesProxiesAggregatorType;
-		
-		public ServicesClientBootstrapConfigBuilderBuildStep bootstrappedWith(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType) {
-			Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> serviceInterfaceTypesToImplOrProxyMappingsType = _findServiceInterfaceToImplOrProxyMappingsFor(clientBootstrapGuiceModuleType);
+		public ServicesClientBootstrapConfigBuilderBuildStep bootstrappedWith(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+																			  final Collection<Module> moreClientBootrapGuiceModules) {
+			ServicesClientConfigForCoreModule<ServicesCoreModuleExpositionAsBeans,
+											  ServicesClientProxyForCoreBeanExposed> beanCoreModuleCfg = ServicesClientConfigForCoreModuleBuilder.of(null,null)
+											  																		.forCoreExposedAsBeans();
+			Collection<ServicesClientConfigForCoreModule<?,?>> coreModuleConfigs = Lists.<ServicesClientConfigForCoreModule<?,?>>newArrayList(beanCoreModuleCfg);
 			return new ServicesClientBootstrapConfigBuilderBuildStep(_clientApiAppCode,
-																	 _clientApiType,
-																	 _serviceInterfacesBaseType,
-																	 _servicesProxiesAggregatorType,
-																	 serviceInterfaceTypesToImplOrProxyMappingsType,
-																	 clientBootstrapGuiceModuleType);
+																	 _clientApiType,_serviceInterfacesBaseType,
+																	 coreModuleConfigs,
+																	 clientBootstrapGuiceModuleType,moreClientBootrapGuiceModules);
+		}
+		public ServicesClientBootstrapConfigBuilderGuiceModuleStep forCoreModules(final ServicesClientConfigForCoreModule<?,?>... clientCoreModuleCfgs) {
+			if (CollectionUtils.isNullOrEmpty(clientCoreModuleCfgs)) throw new IllegalArgumentException("No client config for core modules!");
+			return this.forCoreModules(Lists.newArrayList(clientCoreModuleCfgs));
+		}
+		public ServicesClientBootstrapConfigBuilderGuiceModuleStep forCoreModules(final Collection<ServicesClientConfigForCoreModule<?,?>> clientCoreModuleCfgs) {
+			if (CollectionUtils.isNullOrEmpty(clientCoreModuleCfgs)) throw new IllegalArgumentException("No client config for core modules!");
+			return new ServicesClientBootstrapConfigBuilderGuiceModuleStep(_clientApiAppCode,
+																	 	   _clientApiType,_serviceInterfacesBaseType,
+																	 	   clientCoreModuleCfgs);
 		}
 	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  BOOTSTRAP
+/////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesClientBootstrapConfigBuilderBuildStep {
-		private final ClientApiAppCode _clientApiAppCode;
-		private final Class<? extends ClientAPI> _clientApiType;
-		private final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
-		private final Class<? extends ServiceProxiesAggregator> _servicesProxiesAggregatorType;
-		private final Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> _serviceInterfaceTypesToImplOrProxyMappingsType;
-		private final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> _clientBootstrapGuiceModuleType;
-		private Collection<ServicesClientSubModuleBootstrapConfig<?>> _subModulesCfgs;
+	public final class ServicesClientBootstrapConfigBuilderGuiceModuleStep {
+		protected final ClientApiAppCode _clientApiAppCode;
+		protected final Class<? extends ClientAPI> _clientApiType;
+		protected final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
+		protected final Collection<ServicesClientConfigForCoreModule<?,?>> _coreModuleConfigs;
+		
+		public ServicesClientBootstrapConfigBuilderBuildStep bootstrappedWith(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+																			  final Module... moreClientBootstrapGuiceModules) {
+			return this.bootstrappedWith(clientBootstrapGuiceModuleType,
+										 CollectionUtils.hasData(moreClientBootstrapGuiceModules) ? Lists.newArrayList(moreClientBootstrapGuiceModules)
+												 												  : null);
+		}
+		public ServicesClientBootstrapConfigBuilderBuildStep bootstrappedWith(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType,
+																			  final Collection<Module> moreClientBootrapGuiceModules) {
+			return new ServicesClientBootstrapConfigBuilderBuildStep(_clientApiAppCode,
+																	 _clientApiType,_serviceInterfacesBaseType,
+																	 _coreModuleConfigs,
+																	 clientBootstrapGuiceModuleType,moreClientBootrapGuiceModules);
+		}
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  SUB-MODULES & BUILD
+/////////////////////////////////////////////////////////////////////////////////////////	
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	public final class ServicesClientBootstrapConfigBuilderBuildStep {
+		protected final ClientApiAppCode _clientApiAppCode;
+		protected final Class<? extends ClientAPI> _clientApiType;
+		protected final Class<? extends ServiceInterface> _serviceInterfacesBaseType;
+		protected final Collection<ServicesClientConfigForCoreModule<?,?>> _coreModuleConfigs;
+		protected final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> _clientBootstrapGuiceModuleType;
+		protected final Collection<Module> _moreClientBootrapGuiceModules;
+		protected Collection<ServicesClientSubModuleBootstrapConfig<?>> _subModulesCfgs;
 		
 		public ServicesClientBootstrapConfigBuilderBuildStep withSubModulesConfigs(final ServicesClientSubModuleBootstrapConfig<?>... subModulesCfgs) {
 			_subModulesCfgs = CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null;
@@ -107,27 +139,10 @@ public abstract class ServicesClientBootstrapConfigBuilder
 		}
 		public ServicesClientGuiceBootstrapConfig build() {
 			return new ServicesClientGuiceBootstrapConfigImpl(_clientApiAppCode,
-															  _clientApiType,
-															  _serviceInterfacesBaseType,
-															  _servicesProxiesAggregatorType,
-															  _serviceInterfaceTypesToImplOrProxyMappingsType,
-															  _clientBootstrapGuiceModuleType,
-															  _subModulesCfgs);
+								  			 		          _clientApiType,_serviceInterfacesBaseType,
+								  			 			      _clientBootstrapGuiceModuleType,_moreClientBootrapGuiceModules,
+								  			 			      _coreModuleConfigs,
+								  			 			      _subModulesCfgs);
 		}
-	}
-/////////////////////////////////////////////////////////////////////////////////////////
-//  
-/////////////////////////////////////////////////////////////////////////////////////////
-	private Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> _findServiceInterfaceToImplOrProxyMappingsFor(final Class<? extends ServicesClientAPIBootstrapGuiceModuleBase> clientBootstrapGuiceModuleType) {
-		List<JavaPackage> pckgs = Lists.newArrayListWithExpectedSize(2);
-		pckgs.add(JavaPackage.of(ServiceInterfaceTypesToImplOrProxyMappings.class));	// beware to include also the package where ServiceInterfaceTypesToImplOrProxyMappings is
-		pckgs.add(JavaPackage.of(clientBootstrapGuiceModuleType));
-		Set<Class<? extends ServiceInterfaceTypesToImplOrProxyMappings>> ts = SubTypeOfScanner.findSubTypesAt(ServiceInterfaceTypesToImplOrProxyMappings.class,
-																											  pckgs,
-																											  this.getClass().getClassLoader());
-		if (CollectionUtils.isNullOrEmpty(ts)) throw new IllegalStateException("Did NOT found a type extending " + ServiceInterfaceTypesToImplOrProxyMappings.class.getSimpleName() + " at " + JavaPackage.of(clientBootstrapGuiceModuleType));
-		if (ts.size() > 1) throw new IllegalStateException("There MUST be a single type extending " + ServiceInterfaceTypesToImplOrProxyMappings.class.getSimpleName() + " at " + JavaPackage.of(clientBootstrapGuiceModuleType) + " found: " + ts);
-		Class<? extends ServiceInterfaceTypesToImplOrProxyMappings> t = Iterables.getOnlyElement(ts);	
-		return t;
 	}
 }

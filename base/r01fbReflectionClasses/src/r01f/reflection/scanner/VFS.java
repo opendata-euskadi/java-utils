@@ -16,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
  * Provides a very simple API for accessing resources within an application server.
  * @see stripes framework: https://github.com/StripesFramework/stripes/blob/master/stripes/src/main/java/net/sourceforge/stripes/vfs/VFS.java 
  */
-
 @Slf4j
 public abstract class VFS {
 /////////////////////////////////////////////////////////////////////////////////////////

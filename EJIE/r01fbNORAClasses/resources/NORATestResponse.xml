@@ -1,0 +1,779 @@
+<?xml version="1.0" encoding="windows-1252"?>
+<soapenv:Envelope
+	xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+	<soapenv:Header />
+	<env:Body
+		xmlns:env="http://schemas.xmlsoap.org/soap/envelope/"
+		xmlns:soapenc="http://schemas.xmlsoap.org/soap/encoding/"
+		xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+		<m:provincia_getByDescResponse
+			xmlns:m="http://www.ejie.es/webServiceEJB/t17iApiWSWar">
+			<n1:result
+				xmlns:n1="http://www.ejie.es/webServiceEJB/t17iApiWSWar"
+				xmlns:n2="java:t17i.vo" xsi:type="n2:ArrayOfProvincia">
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla-La Mancha
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla-La Mancha
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>08</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Albacete</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>02</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Valenciana
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Valenciana</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>10</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Alicante/Alacant</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>03</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Almería</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>04</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Euskadi
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Euskadi</n2:esDescripcion>
+						<n2:euDescripcion>Euskal Herriko Elkarte Autonomoa
+						</n2:euDescripcion>
+						<n2:id>16</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Araba/Álava</n2:descripcionOficial>
+					<n2:esDescripcion>Álava</n2:esDescripcion>
+					<n2:euDescripcion>Araba</n2:euDescripcion>
+					<n2:id>01</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Principado de Asturias
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Principado de Asturias</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>03</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Asturias</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>33</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Avila</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>05</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Extremadura
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Extremadura
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>11</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Badajoz</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>06</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de las Illes Balears
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de las Islas Baleares
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>04</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Balears (Illes)</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>07</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Cataluña
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Cataluña
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>09</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Barcelona</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>08</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Euskadi
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Euskadi</n2:esDescripcion>
+						<n2:euDescripcion>Euskal Herriko Elkarte Autonomoa
+						</n2:euDescripcion>
+						<n2:id>16</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Bizkaia</n2:descripcionOficial>
+					<n2:esDescripcion>Bizkaia</n2:esDescripcion>
+					<n2:euDescripcion>Bizkaia</n2:euDescripcion>
+					<n2:id>48</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Burgos</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>09</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Extremadura
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Extremadura
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>11</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Cáceres</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>10</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Cádiz</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>11</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Cantabria
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Cantabria
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>06</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Cantabria</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>39</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Valenciana
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Valenciana</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>10</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Castellón/Castelló</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>12</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Ceuta</n2:descripcionOficial>
+						<n2:esDescripcion>Ceuta</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>18</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Ceuta</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>51</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla-La Mancha
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla-La Mancha
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>08</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Ciudad Real</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>13</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Córdoba</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>14</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Galicia
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Galicia</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>12</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Coruña (A)</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>15</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla-La Mancha
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla-La Mancha
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>08</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Cuenca</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>16</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Euskadi
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Euskadi</n2:esDescripcion>
+						<n2:euDescripcion>Euskal Herriko Elkarte Autonomoa
+						</n2:euDescripcion>
+						<n2:id>16</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Gipuzkoa</n2:descripcionOficial>
+					<n2:esDescripcion>Gipuzkoa</n2:esDescripcion>
+					<n2:euDescripcion>Gipuzkoa</n2:euDescripcion>
+					<n2:id>20</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Cataluña
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Cataluña
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>09</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Girona</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>17</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Granada</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>18</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla-La Mancha
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla-La Mancha
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>08</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Guadalajara</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>19</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Huelva</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>21</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Aragón
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Aragón</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>02</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Huesca</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>22</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Jaén</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>23</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>León</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>24</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Cataluña
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Cataluña
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>09</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Lleida</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>25</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Galicia
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Galicia</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>12</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Lugo</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>27</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad de Madrid</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad de Madrid</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>13</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Madrid</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>28</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Malaga</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>29</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Ceuta</n2:descripcionOficial>
+						<n2:esDescripcion>Ceuta</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>18</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Melilla</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>52</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Región de Murcia</n2:descripcionOficial>
+						<n2:esDescripcion>Región de Murcia</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>14</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Murcia</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>30</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Foral de Navarra
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Foral de Navarra</n2:esDescripcion>
+						<n2:euDescripcion>Nafarrako Foru Komunitatea</n2:euDescripcion>
+						<n2:id>15</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Navarra</n2:descripcionOficial>
+					<n2:esDescripcion>Navarra</n2:esDescripcion>
+					<n2:euDescripcion>Nafarroa</n2:euDescripcion>
+					<n2:id>31</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Galicia
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Galicia</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>12</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Ourense</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>32</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Palencia</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>34</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Canarias
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Canarias
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>05</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Palmas (Las)</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>35</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Galicia
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Galicia</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>12</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Pontevedra</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>36</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de La Rioja
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de La Rioja
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>17</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Rioja (La)</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>26</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Salamanca</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>37</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Canarias
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Canarias
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>05</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Santa Cruz de Tenerife
+					</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>38</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Segovia</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>40</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Andalucía
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Andalucía
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>01</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Sevilla</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>41</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Soria</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>42</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Cataluña
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Cataluña
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>09</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Tarragona</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>43</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Aragón
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Aragón</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>02</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Teruel</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>44</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla-La Mancha
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla-La Mancha
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>08</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Toledo</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>45</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Valenciana
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Valenciana</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>10</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Valencia/València</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>46</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Valladolid</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>47</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Castilla y León
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Castilla y León
+						</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>07</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Zamora</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>49</n2:id>
+				</n2:Provincia>
+				<n2:Provincia xsi:type="n2:Provincia">
+					<n2:autonomia xsi:type="n2:Autonomia">
+						<n2:descripcionOficial>Comunidad Autónoma de Aragón
+						</n2:descripcionOficial>
+						<n2:esDescripcion>Comunidad Autónoma de Aragón</n2:esDescripcion>
+						<n2:euDescripcion xsi:nil="true" />
+						<n2:id>02</n2:id>
+						<n2:pais xsi:nil="true" />
+					</n2:autonomia>
+					<n2:descripcionOficial>Zaragoza</n2:descripcionOficial>
+					<n2:esDescripcion xsi:nil="true" />
+					<n2:euDescripcion xsi:nil="true" />
+					<n2:id>50</n2:id>
+				</n2:Provincia>
+			</n1:result>
+		</m:provincia_getByDescResponse>
+	</env:Body>
+</soapenv:Envelope>

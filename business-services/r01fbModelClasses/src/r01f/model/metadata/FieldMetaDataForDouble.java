@@ -23,7 +23,7 @@ public class FieldMetaDataForDouble
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForDouble(final IndexableFieldID fieldId,
+	public FieldMetaDataForDouble(final FieldID fieldId,
 								  final LanguageTexts name,final LanguageTexts description,
 								  final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

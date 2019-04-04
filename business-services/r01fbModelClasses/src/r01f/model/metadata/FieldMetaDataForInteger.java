@@ -23,7 +23,7 @@ public class FieldMetaDataForInteger
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForInteger(final IndexableFieldID fieldId,
+	public FieldMetaDataForInteger(final FieldID fieldId,
 								   final LanguageTexts name,final LanguageTexts description,
 								   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

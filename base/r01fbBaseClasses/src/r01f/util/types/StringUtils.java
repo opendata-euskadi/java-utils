@@ -193,8 +193,8 @@ class StringUtils {
      * @since 2.5
      */
     public static String repeat(final String str,final String separator, int repeat) {
-        if(str == null || separator == null) {
-            return repeat(str, repeat);
+        if (str == null || separator == null) {
+            return repeat(str,repeat);
         } 
         // given that repeat(String, int) is quite optimized, better to rely on it than try and splice this into it
         String result = repeat(str + separator, repeat);

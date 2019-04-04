@@ -33,7 +33,7 @@ public enum OTPType
 	private static final EnumWithCodeAndLabelWrapper<Integer,OTPType> WRAPPER = EnumWithCodeAndLabelWrapper.wrapEnumWithCodeAndLabel(OTPType.class);
 
 	 OTPType(final int code, final String pattern) {
-		_code = new Integer(code);
+		_code = Integer.valueOf(code);
 		_pattern = pattern;
 	}
 

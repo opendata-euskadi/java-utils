@@ -16,43 +16,41 @@ public class BeanInstanceReflection {
 		_bean = bean;
 	}
 ///////////////////////////////////////////////////////////////////////////////
-//	METODOS
+//	METHODS
 ///////////////////////////////////////////////////////////////////////////////
     /**
-     * Busca el metodo que se pasa como parameto, recorriendo toda la jerarquia de
-     * herencia
-     * PROBLEMA:    class.getMethods()          devuelve solo metodos PUBLICOS
-     *              class.getDeclaredMethods()  devuelve metodos publicos y privados declarados
-     * @param methodName El nombre del metodo
-     * @return un wrapper para la invocación del metodo
-     * @throws ReflectionException NoSuchMethodException si no se encuentra el metodo
+     * Finds the given method crawling the type hierarchy
+     * PROBLEM:    class.getMethods()          returns only PUBLIC methods
+     *             class.getDeclaredMethods()  returns all public and non-public methods
+     * @param methodName 
+     * @return wrapper to invoke the method
+     * @throws ReflectionException NoSuchMethodException if method is not found
      */
-    public MethodInvokeReflection method(String methodName) {
+    public MethodInvokeReflection method(final String methodName) {
     	Method method = ReflectionUtils.method(_beanType,methodName,new Class[] {});
     	return new MethodInvokeReflection(_beanType,_bean,method);
     }		
     /**
-     * Busca el metodo que se pasa como parameto, recorriendo toda la jerarquia de
-     * herencia
-     * PROBLEMA:    class.getMethods()          devuelve solo metodos PUBLICOS
-     *              class.getDeclaredMethods()  devuelve metodos publicos y privados declarados
-     * @param methodName El nombre del metodo
-     * @param paramTypes Los tipos de los parametros
-     * @return un wrapper para la invocación del metodo
-     * @throws ReflectionException NoSuchMethodException si no se encuentra el metodo
+     * Finds the given method crawling th type hierarchy
+     * PROBLEM:    class.getMethods()          returns only PUBLIC methods
+     *             class.getDeclaredMethods()  returns all public and non-public methods
+     * @param methodName method name
+     * @param paramTypes param types
+     * @return wrapper to invoke the method
+     * @throws ReflectionException NoSuchMethodException if method is not found
      */
-    public MethodInvokeReflection method(String methodName,Class<?>... paramTypes) {
+    public MethodInvokeReflection method(final String methodName,Class<?>... paramTypes) {
     	Method method = ReflectionUtils.method(_beanType,methodName,paramTypes);
     	return new MethodInvokeReflection(_beanType,_bean,method);
     }
     /**
-     * Obtiene un wrapper para la invocación del método
+     * Gets a wrapper to invoke the given method
      */
-    public MethodInvokeReflection method(Method method) {
+    public MethodInvokeReflection method(final Method method) {
     	return new MethodInvokeReflection(_beanType,_bean,method);
     }
     /**
-     * Devuelve el bean instanciado
+     * Returns the instanced bean
      * @return
      */
     @SuppressWarnings("unchecked")
@@ -60,26 +58,26 @@ public class BeanInstanceReflection {
     	return (T)_bean;
     }
 ///////////////////////////////////////////////////////////////////////////////
-//	MIEMBROS
+//	FIELDS
 ///////////////////////////////////////////////////////////////////////////////
     /**
-     * Obtiene un campo (miembro) del bean
+     * Returns a bean's field
      */
-    public FieldReflection field(String fieldName) {
+    public FieldReflection field(final String fieldName) {
     	Field field = ReflectionUtils.field(_beanType,fieldName,true);
     	return new FieldReflection(_beanType,_bean,field);
     } 
     /**
-     * Obtiene un campo (miembro) del bean
+     * Returns a bean's field
      */
-    public FieldReflection field(Field field) {
+    public FieldReflection field(final Field field) {
     	return new FieldReflection(_beanType,_bean,field);
     }
     /**
-     * Devuelve todos los campos (miembro) del bean que son de un determinado tipo
-     * @param fieldType tipo de los miembros deseados
+     * Returns a bean's field with a given type
+     * @param fieldType 
      */
-    public FieldReflection[] fieldsOfType(Class<?> fieldType) {
+    public FieldReflection[] fieldsOfType(final Class<?> fieldType) {
     	Field[] fields = ReflectionUtils.fieldsOfType(_beanType,fieldType);
     	FieldReflection[] outFields = new FieldReflection[fields.length];
     	int i = 0;
@@ -91,11 +89,11 @@ public class BeanInstanceReflection {
     	return outFields;
     }
     /**
-     * Obtiene un campo (miembro) del bean anotado con una determinada anotacion
-     * @param annotationType anotación
+     * Returns a bean's field annotated with a given annotation
+     * @param annotationType 
      */
     @SuppressWarnings("unchecked")
-	public FieldAnnotatedReflection<? extends Annotation>[] fieldsAnnotatedWith(Class<? extends Annotation> annotationType) {
+	public FieldAnnotatedReflection<? extends Annotation>[] fieldsAnnotatedWith(final Class<? extends Annotation> annotationType) {
     	FieldAnnotated<? extends Annotation>[] fieldsAnnotated = ReflectionUtils.fieldsAnnotated(_beanType,annotationType);
     	
 		FieldAnnotatedReflection<? extends Annotation>[] outFields = null;

@@ -10,6 +10,7 @@ import lombok.experimental.Accessors;
 import r01f.concurrent.Threads;
 import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.ModelObjectRef;
 import r01f.model.ModelObjectReferenciable;
 import r01f.model.ModelObjectTracking;
@@ -17,6 +18,7 @@ import r01f.model.PersistableModelObject;
 import r01f.patterns.Factory;
 import r01f.services.client.api.delegates.ClientAPIDelegateForDependentModelObjectCRUDServices;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDServices;
+import r01f.test.api.TestAPIBase;
 import r01f.util.types.collections.CollectionUtils;
 
 /**
@@ -26,8 +28,8 @@ import r01f.util.types.collections.CollectionUtils;
  * @param <PR>
  */
 @Accessors(prefix="_")
-public class TestPersistableDependentModelObjectManager<O extends OID,M extends PersistableModelObject<O>,
-														PO extends OID,P extends PersistableModelObject<PO>> 
+public class TestPersistableDependentModelObjectManager<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
+														PO extends PersistableObjectOID,P extends PersistableModelObject<PO>> 
 	 extends TestPersistableModelObjectManagerBase<O,M> 
   implements ManagesTestMockDependentModelObjsLifeCycle<O,M,P> {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -63,8 +65,8 @@ public class TestPersistableDependentModelObjectManager<O extends OID,M extends 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FACTORY
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static <PO extends OID,P extends PersistableModelObject<PO>,
-				   O extends OID,M extends PersistableModelObject<O>> 
+	public static <PO extends PersistableObjectOID,P extends PersistableModelObject<PO>,
+				   O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 				  TestPersistableDependentModelObjectManager<O,M,PO,P> create(final ManagesTestMockModelObjsLifeCycle<PO,P> parentModelObjsMgr,
 																  		 	  final Class<M> modelObjType,final Factory<? extends M> mockObjectsFactory,
 																  		 	  final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,final ClientAPIDelegateForDependentModelObjectCRUDServices<O,M,P> clientApiDelegateForDependentObjsCRUD,
@@ -74,8 +76,8 @@ public class TestPersistableDependentModelObjectManager<O extends OID,M extends 
 																	 	crudAPI,clientApiDelegateForDependentObjsCRUD,
 																	 	milisToWaitForBackgroundJobs);
 	}
-	public static <PO extends OID,P extends PersistableModelObject<PO>,
-				   O extends OID,M extends PersistableModelObject<O>> 
+	public static <PO extends PersistableObjectOID,P extends PersistableModelObject<PO>,
+				   O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 				  TestPersistableDependentModelObjectManager<O,M,PO,P> create(final ManagesTestMockModelObjsLifeCycle<PO,P> parentModelObjsMgr,
 																  			  final Class<M> modelObjType,final Factory<M> mockObjectsFactory,
 																  			  final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,final ClientAPIDelegateForDependentModelObjectCRUDServices<O,M,P> clientApiDelegateForDependentObjsCRUD) {
@@ -99,7 +101,7 @@ public class TestPersistableDependentModelObjectManager<O extends OID,M extends 
 		_createdMockObjsOids = Sets.newLinkedHashSetWithExpectedSize(numOfObjsToCreate);
 		for (int i=0; i < numOfObjsToCreate; i++) {
 			M modelObjectToBeCreated = _mockObjectsFactory.create();
-			modelObjectToBeCreated.setTrackingInfo(new ModelObjectTracking(UserCode.forId("testUser"),new Date()));			// Ensure tracking info
+			modelObjectToBeCreated.setTrackingInfo(new ModelObjectTracking(TestAPIBase.TEST_USER,new Date()));			// Ensure tracking info
 			
 			M createdModelObj = _clientApiDelegateForDependentObjsCRUD.create(this.getParentModelObjectRef(),
 												  							  modelObjectToBeCreated);

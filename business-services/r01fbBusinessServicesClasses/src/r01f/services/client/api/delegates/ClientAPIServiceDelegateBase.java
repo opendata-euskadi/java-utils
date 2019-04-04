@@ -2,8 +2,11 @@ package r01f.services.client.api.delegates;
 
 import javax.inject.Provider;
 
+import com.google.common.reflect.TypeToken;
+
 import lombok.Getter;
 import lombok.experimental.Accessors;
+import r01f.generics.TypeRef;
 import r01f.model.ModelObject;
 import r01f.objectstreamer.HasMarshaller;
 import r01f.objectstreamer.Marshaller;
@@ -46,7 +49,15 @@ public abstract class ClientAPIServiceDelegateBase<S extends ServiceInterface>
 		return (U)_securityContextProvider.get();
 	}
 	@SuppressWarnings("unchecked")
-	public <T extends ServiceInterface> T getServiceProxyAs(@SuppressWarnings("unused") final Class<T> type) {
+	public <T extends ServiceInterface> T getServiceProxyAs(final Class<T> type) {
+		return (T)_serviceProxy;
+	}
+	@SuppressWarnings("unchecked")
+	public <T extends ServiceInterface> T getServiceProxyAs(final TypeToken<T> type) {
+		return (T)_serviceProxy;
+	}
+	@SuppressWarnings("unchecked")
+	public <T extends ServiceInterface> T getServiceProxyAs(final TypeRef<T> type) {
 		return (T)_serviceProxy;
 	}
 }

@@ -14,12 +14,6 @@ import lombok.RequiredArgsConstructor;
 import r01f.guids.OID;
 import r01f.model.PersistableModelObject;
 import r01f.model.SummarizedModelObject;
-import r01f.model.persistence.FindSummariesError;
-import r01f.model.persistence.FindSummariesOK;
-import r01f.model.persistence.FindSummariesResult;
-import r01f.model.persistence.PersistenceErrorType;
-import r01f.model.persistence.PersistencePerformedOperation;
-import r01f.model.persistence.PersistenceRequestedOperation;
 import r01f.patterns.IsBuilder;
 import r01f.persistence.db.DBEntity;
 import r01f.securitycontext.SecurityContext;
@@ -61,7 +55,7 @@ public class FindSummariesResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindSummariesResultBuilderEntityStep {
+	public final class FindSummariesResultBuilderEntityStep {
 		private final SecurityContext _securityContext;
 		
 		public <M extends PersistableModelObject<? extends OID>> 
@@ -74,7 +68,7 @@ public class FindSummariesResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindSummariesResultBuilderOperationStep<M extends PersistableModelObject<? extends OID>> {
+	public final class FindSummariesResultBuilderOperationStep<M extends PersistableModelObject<? extends OID>> {
 		protected final SecurityContext _securityContext;
 		protected final Class<M> _entityType;
 		
@@ -83,12 +77,31 @@ public class FindSummariesResultBuilder
 			return new FindSummariesResultBuilderForError<M>(_securityContext,
 														     _entityType);	
 		}
+		public FindSummariesError<M> errorFindingSummaries(final FindError<M> findError) {
+			if (findError.wasBecauseAClientError()) {
+				return this.errorFindingSummaries()
+						   .causedByClientBadRequest(findError.getErrorMessage());
+			} else {
+				return this.errorFindingSummaries()
+						   .causedBy(findError.getError());
+			}
+		}
 		// ---------- SUCCESS FINDING 
 		public <S extends SummarizedModelObject<M>>
 			   FindSummariesOK<M> foundSummaries(final Collection<S> summaries) {
 			return _modelObjectSummariesFrom(summaries,
 											 _entityType);
 		}
+		@GwtIncompatible
+		public FindSummariesResultBuilderModelObjectTransformStep<M> found(final Collection<M> modelObjs) {
+			return new FindSummariesResultBuilderModelObjectTransformStep<M>(_securityContext,
+																			 _entityType,
+																			 modelObjs);
+		}
+		@GwtIncompatible
+		public FindSummariesResultBuilderModelObjectTransformStep<M> found(final FindOK<M> findResult) {
+			return this.found(findResult.getOrThrow());
+		} 
 		@GwtIncompatible
 		public <DB extends DBEntity> FindSummariesResultBuilderDBEntityTransformStep<DB,M> foundDBEntities(final Collection<DB> dbEntities) {
 			return new FindSummariesResultBuilderDBEntityTransformStep<DB,M>(_securityContext,
@@ -104,10 +117,30 @@ public class FindSummariesResultBuilder
 			outFoundEntities.setOperationExecResult(summarizedCollection);
 			return outFoundEntities;
 		}
-	}	
+	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindSummariesResultBuilderDBEntityTransformStep<DB extends DBEntity,
-																 M extends PersistableModelObject<? extends OID>> {
+	public final class FindSummariesResultBuilderModelObjectTransformStep<M extends PersistableModelObject<? extends OID>> {
+		protected final SecurityContext _securityContext;
+		protected final Class<M> _entityType;
+		protected final Collection<M> _modelObjs;
+		
+		public <S extends SummarizedModelObject<M>>
+			   FindSummariesOK<M> transformedToSummarizedModelObjectUsing(final Function<M,S> transformer) {
+			Collection<? extends SummarizedModelObject<M>> summaries = null;
+			if (CollectionUtils.hasData(_modelObjs)) {
+				summaries = FluentIterable.from(_modelObjs)
+										  .transform(transformer)
+										  .toList();
+			} else {
+				summaries = Sets.newHashSet();
+			}
+			return _modelObjectSummariesFrom(summaries,
+											 _entityType);
+		}
+	}
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	public final class FindSummariesResultBuilderDBEntityTransformStep<DB extends DBEntity,
+																       M extends PersistableModelObject<? extends OID>> {
 		protected final SecurityContext _securityContext;
 		protected final Class<M> _entityType;
 		protected final Collection<DB> _dbEntities;
@@ -141,7 +174,7 @@ public class FindSummariesResultBuilder
 //  ERROR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindSummariesResultBuilderForError<M extends PersistableModelObject<? extends OID>> {
+	public final class FindSummariesResultBuilderForError<M extends PersistableModelObject<? extends OID>> {
 		protected final SecurityContext _securityContext;
 		protected final Class<M> _entityType;
 		

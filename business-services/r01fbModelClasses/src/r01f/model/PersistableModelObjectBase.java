@@ -11,6 +11,7 @@ import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
 import r01f.facets.Facet;
 import r01f.facets.util.Facetables;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.builders.facets.TrackableBuilder;
 import r01f.model.facets.DirtyStateTrackableModelObject;
 import r01f.model.facets.DirtyStateTrackableModelObject.HasDirtyStateTrackableModelObjectFacet;
@@ -22,7 +23,7 @@ import r01f.types.annotations.CompositionRelated;
 
 @ConvertToDirtyStateTrackable
 @Accessors(prefix="_")
-public abstract class PersistableModelObjectBase<O extends OID,
+public abstract class PersistableModelObjectBase<O extends PersistableObjectOID,
 												 SELF_TYPE extends PersistableModelObjectBase<O,SELF_TYPE>>
            implements PersistableModelObject<O>,					// can be persisted
            			  HasDirtyStateTrackableModelObjectFacet {		// Changes in state can be tracked
@@ -132,25 +133,25 @@ public abstract class PersistableModelObjectBase<O extends OID,
 /////////////////////////////////////////////////////////////////////////////////////////
 //  HasFacet
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	@Override @GwtIncompatible
 	public <F extends Facet> F asFacet(final Class<F> facet) {
 		return Facetables.asFacet(this,facet);
 	}
-	@Override
+	@Override @GwtIncompatible
 	public <F extends Facet> boolean hasFacet(final Class<F> facet) {
 		return Facetables.hasFacet(this,facet);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  DirtyStateTrackable facet accessor
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override @SuppressWarnings("unchecked")
+	@Override @SuppressWarnings("unchecked") @GwtIncompatible
 	public DirtyStateTrackableModelObject asDirtyStateTrackable() {
 		return new DirtyStateTrackableModelObjectDelegate<SELF_TYPE>((SELF_TYPE)this);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  TRACKABLE
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override @SuppressWarnings("unchecked")
+	@Override @SuppressWarnings("unchecked") @GwtIncompatible
 	public TrackableModelObject asTrackable() {
 		return new TrackableDelegate<SELF_TYPE>((SELF_TYPE)this);
 	}

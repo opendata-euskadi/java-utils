@@ -1,24 +1,30 @@
 package r01f.ejie;
 
 import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.XLNetsFuncion;
-import r01f.ejie.xlnets.XLNetsSession;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
-import r01f.ejie.xlnets.servlet.XLNetsAppCfg;
-import r01f.ejie.xlnets.servlet.XLNetsAuthCtx;
-import r01f.ejie.xlnets.servlet.XLNetsResourceAuthorization;
-import r01f.ejie.xlnets.servlet.XLNetsResourceCtx;
-import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceItemType;
+import n38c.exe.N38API;
+import r01f.ejie.xlnets.api.XLNetsAPI;
+import r01f.ejie.xlnets.api.XLNetsAPIBuilder;
+import r01f.ejie.xlnets.config.XLNetsAppCfg;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg.ResourceItemType;
+import r01f.ejie.xlnets.context.XLNetsAuthCtx;
+import r01f.ejie.xlnets.context.XLNetsResourceAuthorization;
+import r01f.ejie.xlnets.context.XLNetsResourceCtx;
+import r01f.ejie.xlnets.model.XLNetsFuncion;
+import r01f.ejie.xlnets.model.XLNetsSession;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.guids.CommonOIDs.AppComponent;
 import r01f.httpclient.HttpClient;
+import r01f.types.url.Url;
 import r01f.util.types.collections.CollectionUtils;
 import r01f.xml.XMLUtils;
 import r01f.xmlproperties.XMLPropertiesBuilder;
@@ -43,45 +49,56 @@ public class XLNetsTest {
 		log.warn(cfg.toString());
 	}
 	@Test @SuppressWarnings("static-method")
-	public void testXLNetsSessionHttpProvided() {
+	public void testXLNetsAppSession() {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForAppComponent(AppCode.forId("r01fb"),
-																			     		AppComponent.forId("xlnets.loginAppHttpProvided"))
+																			     		AppComponent.forId("test.xlnets.app"))
 														  		 .notUsingCache();
-		XLNetsAuthTokenProvider provider = new XLNetsAuthTokenProvider(props);
-		Document xlnetsSessionTokenDoc = provider.getXLNetsSessionTokenDoc();
+		XLNetsAPI xlNetsApi = XLNetsAPIBuilder.createAsDefinedAt(props,"");
+		Document xlnetsSessionTokenDoc = xlNetsApi.getXLNetsSessionTokenDoc();
 		Assert.assertNotNull(xlnetsSessionTokenDoc);
 		
-		System.out.println(XMLUtils.asString(xlnetsSessionTokenDoc));
+		log.warn("XLNets session:\n{}",XMLUtils.asString(xlnetsSessionTokenDoc));
 		
 		XLNetsSession xlnetsSessionToken = new XLNetsSession(xlnetsSessionTokenDoc);
 	}
 	@Test @SuppressWarnings("static-method")
-	public void testXLNetsSessionFileProvided() {
+	public void testXLNetsSessionHttpProvided() {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForAppComponent(AppCode.forId("r01fb"),
-																			     		AppComponent.forId("xlnets.fileUserToken"))
+																			     		AppComponent.forId("test.xlnets.httpprovided"))
 														  		 .notUsingCache();
-		XLNetsAuthTokenProvider provider = new XLNetsAuthTokenProvider(props);
-		Document xlnetsSessionTokenDoc = provider.getXLNetsSessionTokenDoc();
+		XLNetsAPI xlNetsApi = XLNetsAPIBuilder.createAsDefinedAt(props,"");
+		Document xlnetsSessionTokenDoc = xlNetsApi.getXLNetsSessionTokenDoc();
 		Assert.assertNotNull(xlnetsSessionTokenDoc);
 		
-		System.out.println(XMLUtils.asString(xlnetsSessionTokenDoc));
+		log.warn("XLNets session:\n{}",XMLUtils.asString(xlnetsSessionTokenDoc));
+		
+		XLNetsSession xlnetsSessionToken = new XLNetsSession(xlnetsSessionTokenDoc);
+	}
+	@Test @SuppressWarnings("static-method")
+	public void testXLNetsMockFileSession() {
+		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForAppComponent(AppCode.forId("r01fb"),
+																			     		AppComponent.forId("test.xlnets.mock"))
+														  		 .notUsingCache();
+		XLNetsAPI xlNetsApi = XLNetsAPIBuilder.createAsDefinedAt(props,"");
+		Document xlnetsSessionTokenDoc = xlNetsApi.getXLNetsSessionTokenDoc();
+		Assert.assertNotNull(xlnetsSessionTokenDoc);
+		
+		log.warn("XLNets session:\n{}",XMLUtils.asString(xlnetsSessionTokenDoc));
 		
 		XLNetsSession xlnetsSessionToken = new XLNetsSession(xlnetsSessionTokenDoc);
 		
     	// add the user name: issues another n38 api call to get the user info
-    	Document xlnetsUserInfoDoc = provider.getXLNetsUserDoc(null,
-    													   	   xlnetsSessionTokenDoc);
+    	Document xlnetsUserInfoDoc = xlNetsApi.getXLNetsUserDoc(xlnetsSessionTokenDoc);
     	Assert.assertNotNull(xlnetsUserInfoDoc);
     	xlnetsSessionToken.setUserInfo(xlnetsUserInfoDoc.getDocumentElement());
 
     	Assert.assertNotNull(xlnetsSessionToken.getUser());
     	Assert.assertNotNull(xlnetsSessionToken.getUser().getOid());
     	
-    	Document xlnetsAuthDoc = provider.getAuthorization(null,
-		                								   "AA14A-FN-0001",ResourceItemType.FUNCTION);
+    	Document xlnetsAuthDoc = xlNetsApi.getAuthorizationDoc("R01F-FN-0001",ResourceItemType.FUNCTION);
     	Assert.assertNotNull(xlnetsAuthDoc);
     	XLNetsFuncion func = new XLNetsFuncion(xlnetsAuthDoc.getDocumentElement());
-    	Assert.assertEquals(func.getItemSeguridad().getCommonName(),"AA14A-FN-0001");
+    	Assert.assertEquals(func.getItemSeguridad().getCommonName(),"R01F-FN-0001");
     	
     	
     	// Build the auth ctx
@@ -91,7 +108,7 @@ public class XLNetsTest {
 		Map<String,XLNetsResourceAuthorization> resAuth = resourceCtx.getAuthorizations();
 		if (CollectionUtils.hasData(resAuth)) {
 			for (Map.Entry<String,XLNetsResourceAuthorization> me : resAuth.entrySet()) {
-				System.out.println("===>" + me.getKey() + " > " + me.getValue().getProfileOid());
+				log.warn("===>{} > {}",me.getKey(),me.getValue().getProfileOid());
 			}
 		}
 	}

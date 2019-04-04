@@ -7,7 +7,7 @@ import javax.inject.Provider;
 
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.CommonOIDs.UserCode;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable;
 import r01f.model.persistence.FindOIDsResult;
@@ -23,7 +23,7 @@ import r01f.types.Range;
  * @param <M>
  */
 @Slf4j
-public abstract class ClientAPIDelegateForModelObjectFindServices<O extends OID,M extends PersistableModelObject<O>> 
+public abstract class ClientAPIDelegateForModelObjectFindServices<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 	          extends ClientAPIServiceDelegateBase<FindServicesForModelObject<O,M>> {
 
 /////////////////////////////////////////////////////////////////////////////////////////

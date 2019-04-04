@@ -114,7 +114,7 @@ class MessageHeader {
      *  It finds the first value that follows v. To iterate
      *  over all the values of a key use:
      *  <pre>
-     *          for(String v=h.findValue(k); v!=null; v=h.findNextValue(k, v)) {
+     *          for (String v=h.findValue(k); v!=null; v=h.findNextValue(k, v)) {
      *              ...
      *          }
      *  </pre>
@@ -313,10 +313,10 @@ class MessageHeader {
      * @param k the key to remove
      */
     public synchronized void remove(String k) {
-        if(k == null) {
+        if (k == null) {
             for (int i = 0; i < nkeys; i++) {
                 while (keys[i] == null && i < nkeys) {
-                    for(int j=i; j<nkeys-1; j++) {
+                    for (int j=i; j<nkeys-1; j++) {
                         keys[j] = keys[j+1];
                         values[j] = values[j+1];
                     }
@@ -326,7 +326,7 @@ class MessageHeader {
         } else {
             for (int i = 0; i < nkeys; i++) {
                 while (k.equalsIgnoreCase(keys[i]) && i < nkeys) {
-                    for(int j=i; j<nkeys-1; j++) {
+                    for (int j=i; j<nkeys-1; j++) {
                         keys[j] = keys[j+1];
                         values[j] = values[j+1];
                     }

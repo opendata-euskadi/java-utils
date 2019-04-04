@@ -161,7 +161,7 @@ public class TypeMetaDataInspector
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public <M extends MetaDataDescribable> TypeMetaData<M> getTypeMetaDataFor(final Class<M> hasMetaData) {
-		TypeMetaData<M> outTypeMetaData = (TypeMetaData<M>)this.inspect(hasMetaData);
+		TypeMetaData<M> outTypeMetaData = this.inspect(hasMetaData);
 		if (outTypeMetaData == null) throw new IllegalStateException("There's NO type metadata info for type " + hasMetaData);
 		return outTypeMetaData;
 	}
@@ -205,17 +205,15 @@ public class TypeMetaDataInspector
 	 *						 })
 	 * 		public class MyBusinessObjectType
 	 * 		  implements HasModelObjectMetaData {
-	 *				@MetaDataForField(id = "oid",
-	 *			   				      description = {
-	 *									@DescInLang(language=Language.SPANISH,value="Identificador único"),
-	 *									@DescInLang(language=Language.BASQUE,value="[eu] Identificador único"),
+	 *				@MetaDataForField(description = {
+	 *									@DescInLang(language=Language.SPANISH,value="Unique identifier"),
+	 *									@DescInLang(language=Language.BASQUE,value="[eu] Unique identifier"),
 	 *									@DescInLang(language=Language.ENGLISH,value="Unique identifier")
 	 *							     },
 	 *			   				     storage = @Storage(indexed=false))
 	 * 				private MyOID _oid;
 	 *
-	 *				@MetaDataForField(id = "otherField",
-	 *			   				      description = {
+	 *				@MetaDataForField(description = {
 	 *									@DescInLang(language=Language.SPANISH,value="Other field"),
 	 *									@DescInLang(language=Language.BASQUE,value="[eu] Other field"),
 	 *									@DescInLang(language=Language.ENGLISH,value="Other field")
@@ -233,7 +231,7 @@ public class TypeMetaDataInspector
 						type);
 	}
 	@SuppressWarnings("unchecked")
-	private <M extends MetaDataDescribable> TypeMetaData<M> _inspect(final IndexableFieldID fieldId,
+	private <M extends MetaDataDescribable> TypeMetaData<M> _inspect(final FieldID fieldId,
 								  									 final Class<M> type) {
 		// [0] - check the cache
 		TypeMetaData<M> outMetaData = (TypeMetaData<M>)_inspectedTypes.get(type);
@@ -241,9 +239,10 @@ public class TypeMetaDataInspector
 
 		// [1] - Build the type hierarchy outline
 		TypeOutline typeOutline = TypeOutline.from(type);
+		Collection<Class<?>> flatHierarchy = typeOutline.getNodesFromSpezializedToGeneralization();
 
 		// [2] - find the @ModelObjectData on the given type
-		ModelObjectData typeMetaDataRefAnnot = _findModelObjectMetaDataAnnot(typeOutline);
+		ModelObjectData typeMetaDataRefAnnot = _findModelObjectMetaDataAnnot(flatHierarchy);
 		if (typeMetaDataRefAnnot == null) {
 			log.warn("The {} model object type or a type in it's hierarchy (super types or implemented interfaces) MUST be annotated with {} specifying the model object's metadata",
 					 type,ModelObjectData.class);
@@ -259,14 +258,14 @@ public class TypeMetaDataInspector
 //																					 MetaDataForType.class));
 
 		// [3] - Build the facets inspecting the hierarchy recursively
-		// 3.1 - Filter all types annotated with @ModelObjectData in the hierarchy of the given type
-		Set<Class<?>> facetTypes = FluentIterable.from(typeOutline.getNodesFromSpezializedToGeneralization())
+		// 3.1 - Filter all types annotated with @ModelObjectData up in the hierarchy of the given type
+		Set<Class<?>> facetTypes = FluentIterable.from(flatHierarchy)
 												 .filter(new Predicate<Class<?>>() {
 																@Override
 																public boolean apply(final Class<?> superType) {
 																	return type != superType	//  beware to not include the type: stack overflow!!
 																		&& ReflectionUtils.typeAnnotation(superType,
-																										  ModelObjectData.class) != null;
+																										  ModelObjectData.class) != null;	// has ModelObjectData annotation
 																}
 														})
 												 .toSet();
@@ -282,15 +281,16 @@ public class TypeMetaDataInspector
 																					 			})
 																					.toSet();
 
-		final TypeMetaData<M> typeMetaData = new TypeMetaData<M>(type,				// the metadata-described model object type
+		final TypeMetaData<M> typeMetaData = new TypeMetaData<M>(type,					// the metadata-described model object type
 														   		 TypeToken.of(hasMetaDataType),		// the annotated type that contains the model object's metadata
-														   		 typeMetaDataAnnot,	// the annotation info
+														   		 typeMetaDataAnnot,		// the annotation info
 														   		 facetsTypeMetaData);	// the type facets' metadata
 
 		// [3] - Introspect fields of the type containing the metadata
 		//		 (consider all fields, including those in the type hierarchy)
-		TypeSet hasMetaDataTypeSet = TypeToken.of(hasMetaDataType).getTypes();
-		Iterator<TypeToken<?>> typeTokenIt = (Iterator<TypeToken<?>>)hasMetaDataTypeSet.iterator();
+		TypeSet hasMetaDataTypeSet = TypeToken.of(hasMetaDataType)
+											  .getTypes();
+		Iterator<TypeToken<?>> typeTokenIt = hasMetaDataTypeSet.iterator();
 		for (; typeTokenIt.hasNext(); ) {
 			final TypeToken<?> hasMetaDataTypeToken = typeTokenIt.next();
 
@@ -330,7 +330,7 @@ public class TypeMetaDataInspector
 																						public TypeFieldMetaData apply(final Method method) {
 																							FieldMetaDataAnnotated<Method> an = new FieldMetaDataAnnotated<Method>(hasMetaDataTypeToken,
 																																								   method);
-																							return _fieldMetaDataFor(fieldId,		// the type that contains the type being inspected
+																							return _fieldMetaDataFor(fieldId,		// the field that contains the type being inspected
 																													 typeMetaData,	// metadata about the type that contains the field
 																													 hasMetaDataTypeToken,an);		// the meta-data type containing the field + field
 																						}
@@ -342,13 +342,13 @@ public class TypeMetaDataInspector
 		}	// for
 
 		// [4] - Cache
-		if (typeMetaData != null) _inspectedTypes.putIfAbsent(type,typeMetaData);
+		_inspectedTypes.putIfAbsent(type,typeMetaData);
 
 		// [5] - Return
 		return typeMetaData;
 	}
 	@SuppressWarnings("unchecked")
-	private TypeFieldMetaData _fieldMetaDataFor(final IndexableFieldID parentFieldId,		// recursive calls only: the field that contains a MetaDataDescribable object one of whose fields is being processed
+	private TypeFieldMetaData _fieldMetaDataFor(final FieldID parentFieldId,		// recursive calls only: the field that contains a MetaDataDescribable object one of whose fields is being processed
 												final TypeMetaData<? extends MetaDataDescribable> typeMetaData,
 											    final TypeToken<?> fieldContainerMetaDataType,final FieldMetaDataAnnotated<?> field) {
 		// [1] - field id
@@ -356,18 +356,18 @@ public class TypeMetaDataInspector
 		//				- id={fieldId} 				> fields directly defined at the type that contains the meta-data
 		//											  or at an r01 meta-data container type for a facet (ie: HasMetaDataForHasOIDModelObject)
 		//				- id={facetId}.{fieldId}	> fields defined at a meta-data container type for a facet
-		IndexableFieldID id = null;
+		FieldID id = null;
 //		MetaDataForType fieldContainerMetaDataTypeAnnot = fieldContainerMetaDataType.getRawType()
 //																					.getAnnotation(MetaDataForType.class);
 //		if (fieldContainerMetaDataTypeAnnot == null) throw new IllegalStateException(String.format("%s MUST be annotated with @%s",
 //																								   fieldContainerMetaDataType,MetaDataForType.class.getSimpleName()));
 		if (parentFieldId != null) {
 			// it's a recursive call (a MetaDataDescribable field of another MetaDataDescribable object)
-			id = IndexableFieldID.forId(Strings.customized("{}.{}",
+			id = FieldID.forId(Strings.customized("{}.{}",
 														   parentFieldId,
 														   field.getId()));
 		} else {
-			id = IndexableFieldID.forId(Strings.customized("{}",
+			id = FieldID.forId(Strings.customized("{}",
 														   field.getId()));
 		}
 		// [2] - field type
@@ -461,12 +461,10 @@ public class TypeMetaDataInspector
 	 * @param typeOutline
 	 * @return
 	 */
-	private static ModelObjectData _findModelObjectMetaDataAnnot(final TypeOutline typeOutline) {
+	private static ModelObjectData _findModelObjectMetaDataAnnot(final Collection<Class<?>> flatHierarchy) {
 		// recursively finds a ModelObjectData annotation:
 		//		- If the object is NOT annotated with ModelObjectData annotation, all it's directly implemented interfaces are checked
 		//		- ... if the ModelObjectData annotation is NOT found, it's super-type is checked recursively
-		Collection<Class<?>> flatHierarchy = typeOutline.getNodesFromSpezializedToGeneralization();
-
 		ModelObjectData outModelObjectData = null;
 		for (Class<?> hierarchyType : flatHierarchy) {
 			if (hierarchyType.isAnnotationPresent(ModelObjectData.class)) {

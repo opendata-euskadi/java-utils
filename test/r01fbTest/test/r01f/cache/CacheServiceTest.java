@@ -38,7 +38,7 @@ public class CacheServiceTest  {
 /////////////////////////////////////////////////////////////////////////////////////////
 	static Injector GUICE_INJECTOR = null;
 
-	private static DistributedCacheService _getDistributedCacheService(){
+	private static DistributedCacheService _getDistributedCacheService() {
 		return GUICE_INJECTOR.getInstance(DistributedCacheService.class);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

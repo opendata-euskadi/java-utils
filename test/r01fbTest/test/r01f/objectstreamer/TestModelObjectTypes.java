@@ -12,7 +12,7 @@ import com.google.common.reflect.TypeToken;
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.locale.Language;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.persistence.CRUDResult;
 import r01f.model.persistence.CRUDResultBuilder;
 import r01f.model.persistence.FindResult;
@@ -133,7 +133,7 @@ public class TestModelObjectTypes
 			    new TypeToken<EqualsQueryClause<String>>() { /* nothing */ }, 
 				_buildObjEqualsChecker(new TypeToken<EqualsQueryClause<String>>() { /* nothing */ }));
 		// appcode
-		EqualsQueryClause<AppCode> clause2 = EqualsQueryClause.forField(IndexableFieldID.forId("theValue"))
+		EqualsQueryClause<AppCode> clause2 = EqualsQueryClause.forField(FieldID.forId("theValue"))
 															  .of(AppCode.forId("r01fb"));
 		_doTest(clause2,
 			    new TypeToken<EqualsQueryClause<AppCode>>() { /* nothing */ }, 
@@ -185,37 +185,37 @@ public class TestModelObjectTypes
 //	QUERY CLAUSES BUILDING
 /////////////////////////////////////////////////////////////////////////////////////////
 	private EqualsQueryClause<String> _buildEqualsQueryClause() {
-		EqualsQueryClause<String> outClause = EqualsQueryClause.forField(IndexableFieldID.forId("theValue"))
+		EqualsQueryClause<String> outClause = EqualsQueryClause.forField(FieldID.forId("theValue"))
 																   .of("aha!!<adf&asp;asf");
 		return outClause;
 	}
 	private HasDataQueryClause _buildHasDataQueryClause() {
-		HasDataQueryClause outClause = HasDataQueryClause.forField(IndexableFieldID.forId("theValue"));
+		HasDataQueryClause outClause = HasDataQueryClause.forField(FieldID.forId("theValue"));
 		return outClause;
 	}
 	private ContainsTextQueryClause _buildContainsTextQueryClause() {
-		ContainsTextQueryClause outClause = ContainsTextQueryClause.forField(IndexableFieldID.forId("theText"))
+		ContainsTextQueryClause outClause = ContainsTextQueryClause.forField(FieldID.forId("theText"))
 																   .at(ContainedTextAt.CONTENT)
 																   .text("aha!!<adf&asp;asf")
 																   .in(Language.ENGLISH);
 		return outClause;
 	}
 	private ContainedInQueryClause<Integer> _buildContainedInQueryClause() {
-		ContainedInQueryClause<Integer> outClause = ContainedInQueryClause.<Integer>forField(IndexableFieldID.forId("theText"))
+		ContainedInQueryClause<Integer> outClause = ContainedInQueryClause.<Integer>forField(FieldID.forId("theText"))
 																   .within(new Integer[] {1,2,3});
 		return outClause;
 	}
 	private RangeQueryClause<Date> _buildRangeQueryClause() {
-		RangeQueryClause<Date> outClause = RangeQueryClause.forField(IndexableFieldID.forId("theDate"))
+		RangeQueryClause<Date> outClause = RangeQueryClause.forField(FieldID.forId("theDate"))
 														   .closed(Dates.fromFormatedString("1971/03/25","yyyy/MM/dd"),
 																   new Date());
 		return outClause;
 	}
 	private BooleanQueryClause _buildBooleanQueryClause() {
 		BooleanQueryClause boolQry = BooleanQueryClause.create()
-										   			.field(IndexableFieldID.forId("myField")).must().beEqualTo(new Date())
-										   			.field(IndexableFieldID.forId("myField2")).should().beInsideLast(5).minutes()
-										   			.field(IndexableFieldID.forId("myField3")).mustNOT().beWithin(10D,12D,11D)
+										   			.field(FieldID.forId("myField")).must().beEqualTo(new Date())
+										   			.field(FieldID.forId("myField2")).should().beInsideLast(5).minutes()
+										   			.field(FieldID.forId("myField3")).mustNOT().beWithin(10D,12D,11D)
 													.build();
 		return boolQry;
 	}

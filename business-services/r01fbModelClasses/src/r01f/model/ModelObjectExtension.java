@@ -2,8 +2,7 @@ package r01f.model;
 
 
 
-public interface ModelObjectExtension<M extends ExtensibleModelObject<?>>
-		 extends HasAPI {	// a model object's extension always contains an API reference
+public interface ModelObjectExtension<M extends ExtensibleModelObject<?>> {
 	/**
 	 * Extends a model object that implements {@link ExtensibleModelObject}
 	 * @param extensible 

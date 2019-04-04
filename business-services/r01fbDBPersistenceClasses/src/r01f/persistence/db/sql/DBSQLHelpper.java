@@ -70,7 +70,7 @@ public final class DBSQLHelpper {
     							final String table) {
     	StringBuilder sbOut = null;
 
-    	if(insertData!=null && !insertData.isEmpty()) {
+    	if (insertData!=null && !insertData.isEmpty()) {
     		StringBuilder sbCols = new StringBuilder("");
         	StringBuilder sbValues = new StringBuilder("");
 
@@ -116,7 +116,7 @@ public final class DBSQLHelpper {
     							final String table,
     							final String where) {
         StringBuilder sb = null;
-        if(updateData != null && !updateData.isEmpty()) {
+        if (updateData != null && !updateData.isEmpty()) {
         	sb = new StringBuilder(15);
 
         	sb.append("UPDATE ");
@@ -160,7 +160,7 @@ public final class DBSQLHelpper {
     							final String where) {
     	StringBuilder sb = null;
 
-    	if(!Strings.isNullOrEmpty(table)) {
+    	if (!Strings.isNullOrEmpty(table)) {
     		sb = new StringBuilder(15);
 	        sb.append("DELETE FROM ");
 	        sb.append(table);
@@ -175,9 +175,9 @@ public final class DBSQLHelpper {
     }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS PRIVADOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Método que escapa un string (escapa las comillas internas).
      * @param str La cadena a escapar.
@@ -200,7 +200,7 @@ public final class DBSQLHelpper {
      */
     private static String _listToCommaDelimitedString(List<String> list) {
         StringBuilder sb = null;
-        if(list != null && !list.isEmpty()) {
+        if (list != null && !list.isEmpty()) {
 	        sb = new StringBuilder("");
 
 	        int size = list.size();
@@ -216,7 +216,7 @@ public final class DBSQLHelpper {
     }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CLASE QUE MODELA LOS DATOS DE UNA COLUMNA
 //////////////////////////////////////////////////////////////////////////////////////////
     /**
@@ -227,7 +227,7 @@ public final class DBSQLHelpper {
         String value;
         boolean isNumeric;
 
-        public DBData(String inColumnName, String inValue, boolean inIsNumeric){
+        public DBData(String inColumnName, String inValue, boolean inIsNumeric) {
             this.columnName = inColumnName;
             this.value = inValue;
             this.isNumeric = inIsNumeric;
@@ -236,9 +236,9 @@ public final class DBSQLHelpper {
             this(inColumnName,inValue,false);
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CLASE AUXILIAR PARA LA CONSTRUCCIÓN DE UNA LISTA DE objetos DBData
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Inner class para la creación de una lista de objetos DBData.<br>
      * Simplemente hacer:
@@ -264,9 +264,9 @@ public final class DBSQLHelpper {
             return _dbDataList;
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS PARA CREAR OBJETOS DBData
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Creación de un objeto columna-valor para generar las sentencias SQL.
      * @param columnName Nombre del campo de la tabla de base de datos.

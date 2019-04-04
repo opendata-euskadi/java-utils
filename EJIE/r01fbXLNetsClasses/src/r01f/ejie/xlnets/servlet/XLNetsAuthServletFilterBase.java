@@ -21,12 +21,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
-import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.servlet.XLNetsTargetCfg.ResourceAccess;
+import r01f.ejie.xlnets.api.XLNetsAPI;
+import r01f.ejie.xlnets.api.XLNetsAPIBuilder;
+import r01f.ejie.xlnets.config.XLNetsAppCfg;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg;
+import r01f.ejie.xlnets.config.XLNetsTargetCfg.ResourceAccess;
+import r01f.ejie.xlnets.config.XLNetsTokenSource;
+import r01f.ejie.xlnets.context.XLNetsAuthCtx;
+import r01f.ejie.xlnets.context.XLNetsTargetCtx;
 import r01f.exceptions.Throwables;
-import r01f.guids.CommonOIDs.AppCode;
+import r01f.patterns.FactoryFrom;
 import r01f.types.url.Url;
 import r01f.types.url.UrlPath;
 import r01f.types.url.UrlQueryString;
@@ -131,32 +137,27 @@ import r01f.xmlproperties.XMLPropertiesForAppComponent;
 public abstract class XLNetsAuthServletFilterBase
   implements Filter {
 /////////////////////////////////////////////////////////////////////////////////////////
-//  CONSTANTES
+//  CONSTANTS
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static final String AUTHCTX_SESSIONATTR = "XLNetsAuthCtx";	// Contexto de usuario en la sesion
 	public static final String AUTHCTX_REQUESTATTR = "XLNetsAuthCtx";	// Contexto de usuario en la request
 /////////////////////////////////////////////////////////////////////////////////////////
-//
+//	FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Código de aplicación
+	 * The session token source
 	 */
-	private final AppCode _appCode;
+	private final XLNetsTokenSource _tokenSource;
 	/**
 	 * XLNets config
 	 */
-	@SuppressWarnings("unused")
-	private final XMLPropertiesForAppComponent _props;
-	/**
-	 * Configuración de seguridad de la aplicacion
-	 */
 	private final XLNetsAppCfg _appCfg;
 	/**
-	 * Provider de autenticación
+	 * Auth provide
 	 */
-	@Getter protected final XLNetsAuthProvider _authProvider;
+	private final FactoryFrom<HttpServletRequest,XLNetsAuthProvider> _authProviderFactory;
 	/**
-	 * Configuración del filtro (web.xml)
+	 * web.xml config
 	 */
 	private FilterConfig _servletFilterConfig = null;
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -164,14 +165,28 @@ public abstract class XLNetsAuthServletFilterBase
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
 	public XLNetsAuthServletFilterBase(@XMLPropertiesComponent("xlNets") final XMLPropertiesForAppComponent props) {
-		_props = props;
-		_appCode = props.getAppCode();
-		_appCfg = new XLNetsAppCfg(props);	// Cargar la configuración de autorización del fichero properties de la aplicación
-		_authProvider = new XLNetsAuthProvider(props);
+		_tokenSource = props.propertyAt("/xlnets/@token")
+						   .asEnumFromCode(XLNetsTokenSource.class,
+										   XLNetsTokenSource.N38API);		// default value
+		log.warn("[XLNetsAuthServletFilter]: token source: {}");
+		
+		_appCfg = new XLNetsAppCfg(props);
+		_authProviderFactory = new FactoryFrom<HttpServletRequest,XLNetsAuthProvider>() {
+										@Override
+										public XLNetsAuthProvider from(final HttpServletRequest req) {
+											XLNetsAPI outApi = null;
+											if (_tokenSource == XLNetsTokenSource.N38API) {
+												outApi = XLNetsAPIBuilder.createFrom(req); 
+											} else {
+												outApi = XLNetsAPIBuilder.createAsDefinedAt(props,"");
+											}
+											return new XLNetsAuthProvider(outApi);
+										}
+							   };
 	}
-///////////////////////////////////////////////////////////////////////////////////////////
-//  METODOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//  METHODS
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public void destroy() {
 		_servletFilterConfig = null;
@@ -184,76 +199,83 @@ public abstract class XLNetsAuthServletFilterBase
 	public void doFilter(final ServletRequest request,final ServletResponse response,
 						 final FilterChain chain) throws IOException,
 						 								 ServletException {
-		log.warn(">>>>>>>>>> Inicio: Filtro de Autorizacion >>>>>>>>>>>>>>>>>>>>>>");
+		log.warn("XLNetsAuthServletFilter: Init >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		try {
 			HttpServletRequest req = (HttpServletRequest)request;
 			HttpServletResponse res = (HttpServletResponse)response;
 
-	        // Obtener la URI solicitada y ver si la url a la que se quiere acceder verifica
-	        // alguno de los patrones establecidos en la configuracion de autorizacion
+	        // Get the requested url and see if it matches one of the patterns defined at the auth config
 	        UrlPath urlPath = UrlPath.from(_fullURI(req));//getRequestURI only returns URL BEFORE query string -- UrlPath.from(req.getRequestURI());
-	        log.warn("[XLNetsAuth]-req.getRequestURI(): {}", req.getRequestURI());
-	        log.trace("[XLNetsAuth]-UrlPath: {}", urlPath);
+	        log.warn("requested url: {} > path: {}",
+	        		 req.getRequestURI(),urlPath);
 	        XLNetsTargetCfg targetCfg = _resourceThatFirstMatches(_appCfg,
 	        													  urlPath);
-	        if (targetCfg == null) throw new ServletException(Throwables.message("El filtro de seguridad XLNetsAuthServletFilter NO ha verificado ningún patron para la uri '{}'.\nRevisa la seccion <authCfg> del fichero {}.xlnets.properties.xml",
-	        												   					 urlPath,_appCode));
-	        log.warn( "Resource that first match {}", targetCfg.toString());
+	        if (targetCfg == null) throw new ServletException(Throwables.message("NO authorized resource matches uri '{}'.\nCheck <authCfg> section at xlnets config file {appCode}.xlnets.properties.xml",
+	        												   					 urlPath));
+	        log.warn("Resource that first matches {}: {}",
+	        		 targetCfg.toString(),
+	        		 _appCfg.isOverride() ? "Auth is NOT checked (override=true)"
+		    							  : "checking auth...");
 
 		    XLNetsAuthCtx authCtx = null;
-		    log.warn("{}",(_appCfg.isOverride() ? "NO se comprueba la autorizacion: Parametro override=true"
-		    									: "Comprobando autorizacion...") );
 		    if (!_appCfg.isOverride()
 		     && targetCfg.getKind() == ResourceAccess.RESTRICT ) {
 
-		    	log.warn("La url {} tiene el acceso protegido: authCfg.override={} targetCfg.kind={}",
+		    	log.warn("url {} is restricted: authCfg.override={} targetCfg.kind={}",
 	            		 urlPath,_appCfg.isOverride(),targetCfg.getKind());
 
-				// Obtener el contexto de la sesión (si hay sesión)
-		    	authCtx = _retrieveSessionStoredAuthCtx(_appCfg,req);		// Contexto de autorizacion
+				// Get the session context (if there's session)
+		    	authCtx = _retrieveSessionStoredAuthCtx(_appCfg,req);		// Auth context
 
-			    // No hay información de contexto de autorizacion. Pueden pasar dos cosas
-			    //		1.- El usuario se ha autenticado y es la primera vez que entra al target
-			    //		2.- El usuario NO se ha autenticado
+		    	// Create the auth provider
+				final XLNetsAuthProvider authProvider = _authProviderFactory.from(req);
+		    	
+			    // NO auth context info due to:
+			    //		1.- The user has just authenticated and it's the first time he/she is entering the restricted target
+			    //		2.- User is not authenticated
 				if (authCtx == null) {
-				    log.warn("No hay contexto de autorizacion:[1]- Es la primera vez o [2]- No hay autenticacion");
+				    log.warn("There's NO auth context: [1]- It's the first time the user is accessing [2]- There's NO auth info");
 				    // create a new auth context
-				    authCtx = _authProvider.getAuthContext(req);
+				    authCtx = authProvider.getAuthContext(req);
 				    if (authCtx == null) {
-				        // No hay sesión de usuario: Redirigir a la página de login indicando la url a la que se quiere acceder ahora
-				        log.warn("El usuario NO se ha autenticado, redirigir a la pagina de login");
-				        _redirToLoginPage(_authProvider,
+				        // NO user session: redirect to login page (attach the url where the user should be redirected after successful login)
+				        log.warn("User is NOT authenticated: redirect to login page");
+				        _redirToLoginPage(authProvider,
 				        				  req,res);
-	                    return;		// FIN!!
+	                    return;		// END!!
 	                }
 				}
-				log.warn(" Auth Context from  Session {}", authCtx.toString() );
-				// Aquí ya hay un contexto de usuario, bien porque ya estaba en la sesión, bien porque se ha creado nuevo
-				log.warn("El usuario ya está autenticado y tiene los perfiles {}.\n ===> Comprobar la autorización de acceso para la uri: {}",
+				log.warn("Auth Context from Session {}",
+						 authCtx.toString() );
+				// Now there's an user context whether it was at the server session, whether it has just been created
+				log.warn("User is authenticated. It has the following profiles: {}.\n ===> Check auth for url: {}",
 						 authCtx.getUserProfiles(),urlPath);
 
-				XLNetsTargetCtx targetCtx = authCtx.getTargetAuth(targetCfg.getUrlPathPattern().pattern());	// La información de autorización para el target puede estar en YA en el contexto de autorización
+				XLNetsTargetCtx targetCtx = authCtx.getTargetAuth(targetCfg.getUrlPathPattern());	// Auth info for target can already be at the auth context
 
-
-
-				if (targetCtx == null) targetCtx = _authorize(targetCfg,
+				if (targetCtx == null) targetCtx = _authorize(authProvider,
+															  targetCfg,
 															  authCtx,
 															  req,res);
 
 
-				// Aqui ya hay informacion de autorizacion y todo el mondongo
-	            if (targetCtx == null || CollectionUtils.isNullOrEmpty(targetCtx.getAuthorizedResources()) ) {
-	            	// No se ha podido obtener la informacion de autorizacion o bien no se tiene acceso
-			        log.warn("NO se ha podido cargar la info de autorizacion del recurso: [1.-] No hay acceso [2.-] El provider de autorizacion no ha funcionado");
-			        res.sendError(HttpServletResponse.SC_FORBIDDEN,
-			        			  "El filtro de seguridad R01F NO ha permitido el acceso al recurso!");
-			        return;		// A la porra!!!
+				// Now the auth info is available
+	            if (targetCtx == null 
+	             || CollectionUtils.isNullOrEmpty(targetCtx.getAuthorizedResources()) ) {
+	            	if (targetCtx != null
+	            	 && targetCtx.getTargetCfg().containsAnyNonMandatoryResource()) {	            		
+	            		log.warn("User does NOT have any authorization to any resource, BUT at least a non-mandatory resource exists... so let the user in");
+	            	} else {
+		            	// The auth info could not be retrieved or just the user does NOT have access
+				        log.warn("Resource auth info could not be retrieved: [1.-] The user does NOT have access [2.-] The auth provider has failed");
+				        res.sendError(HttpServletResponse.SC_FORBIDDEN,
+				        			  "Security filter does NOT allow resource access!");
+				        return;	
+	            	}
 	            }
 
-			    // Antes de pasar el testigo al recurso que toca si se utiliza session, poner el contexto de
-			    // autorizacion en session.
-			    // En cualquier caso, tanto si se utiliza session el contexto se pasa al recurso como un atributo
-			    // de la request
+			    // Before chaing to the resource being accessed, if server session is used, store there the auth 
+			    // Anyway, whether server session is used or not, the auth contest is attached to the request as an attribute
 	            log.warn("Guardando el contexto de autenticación en sesión... {}",authCtx.toString());
 		    	req.setAttribute(AUTHCTX_REQUESTATTR,
 		    					 authCtx);
@@ -263,24 +285,23 @@ public abstract class XLNetsAuthServletFilterBase
 			        				 authCtx);
 		    	}
 
-
 			} else {
-			    // Dado que no se comprueba la autorizacion, hay que crear unos contextos 'virtuales'
-			    // El recurso al que se llama debería comprobar el parametro appCfg.override para comprobar si se está chequeando la autorizacion
-	            log.warn("NO se ha comprobado la seguridad: appCfg.override={} targetCfg.kind={}: " +
-	                     "El atributo override=true o bien para el target que machea {} se ha configurado kind={}",
+			    // Auth is NOT checked, a virtual context is created
+			    // Resource being accessed should ched appCfg.override parameter in order to check if auth is being checked
+	            log.warn("Auth access is NOT checked: appCfg.override={} targetCfg.kind={}: " +
+	                     "override=true or target matching {} is kind={}",
 	                     _appCfg.isOverride(),targetCfg.getKind(),urlPath,ResourceAccess.ALLOW);
 			    authCtx = new XLNetsAuthCtx();
 			}
 
-		    // Permitir el acceso...
-	    	log.warn("Autorizado!!!!");
+		    // access allowed
+	    	log.warn("Authorized!");
 
-		    //__________________________ PASAR EL TESTIGO ________________________________
-		    // Siguiente eslabon de la cadena.....
+		    // chain
 	    	_attachBusinessModelObjectToLocalThreadIfNeeed(req); //Attach some businnes modell object to a local thread
 		    chain.doFilter(request,response);
-			log.warn(">>>>>>>>>> Fin: Filtro de Autorizacion >>>>>>>>>>>>>>>>>>>>>>\n\n\n\n");
+			log.warn("XLNetsAuthServletFilter: End >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n\n\n\n");
+			
 		} finally {
 			_doFinallyAfterFilter();
 		}
@@ -289,14 +310,14 @@ public abstract class XLNetsAuthServletFilterBase
 		return _servletFilterConfig.getInitParameter(s);
 	}
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //	METHODS TO IMPLEMENT
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	protected abstract void _attachBusinessModelObjectToLocalThreadIfNeeed(final HttpServletRequest request);
 	protected abstract void _doFinallyAfterFilter();
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  PRIVATE METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	private static XLNetsAuthCtx _retrieveSessionStoredAuthCtx(final XLNetsAppCfg authCfg,
 										   		 			   final HttpServletRequest req) {
 		log.debug("_retrieveSessionStoredAuthCtx for {}", authCfg.toString());
@@ -306,61 +327,57 @@ public abstract class XLNetsAuthServletFilterBase
 			if (ses != null) {
                 authCtx = (XLNetsAuthCtx)ses.getAttribute(AUTHCTX_SESSIONATTR);
 
-                log.warn("Contexto de seguridad obtenido de la sesión web {}!",ses.getId());
+                log.warn("Auth context is present in server session {}!",
+                		 ses.getId());
             } else {
-                log.warn("NO existe el contexto de seguridad en la sesión web!");
+                log.warn("NO auth context present in servers session");
             }
 		} else {
-		    log.warn("La informacion de autorizacion NO se guarda en session http");
+		    log.warn("Auth context is NOT being stored in servers session");
 		}
-		return authCtx;		// devuelve null si NO se utiliza sesión
+		return authCtx;		// null if servers session is not used
 	}
-	private XLNetsTargetCtx _authorize(final XLNetsTargetCfg targetCfg,
+	private XLNetsTargetCtx _authorize(final XLNetsAuthProvider authProvider,
+									   final XLNetsTargetCfg targetCfg,
 									   final XLNetsAuthCtx authCtx,
 									   final HttpServletRequest req,final HttpServletResponse res) {
-
-		log.warn("Checking access for URI {}",
+		log.warn("Checking access for url: {}",
 				 req.getRequestURI());
 
-	    XLNetsTargetCtx targetCtx = _authProvider.authorize(authCtx,
+	    XLNetsTargetCtx targetCtx = authProvider.authorize(authCtx,
 	    								   				   targetCfg,
 	    								   				   _appCfg.isOverride(),
 	    								   				   req);
 
-        // Añadir el contexto de autorizacion del recurso en el contexto de autorización de la aplicacion,
-	    // así está disponible para futuras llamadas.
+        // Add the auth context to the server session (if it can be used)
 	    if (targetCtx != null) {
-	        log.warn("Introducir la informacion de autorizacion para el patrón de url {} en el contexto de autorizacion global en sesion",
-	        		 targetCtx.getTargetCfg().getUrlPathPattern());
+	        log.warn("Store the auth context at the server session");
 	        if (authCtx.getAuthorizedTargets() == null)  authCtx.setAuthorizedTargets(new HashMap<String,XLNetsTargetCtx>());
-	        log.warn(" [>>>>>>>>>>>>>>>>>>>>>>>>>] Setting {} pattern as authorized !!!", targetCtx.getTargetCfg().getUrlPathPattern().pattern());
-	        authCtx.getAuthorizedTargets().put(targetCtx.getTargetCfg().getUrlPathPattern().pattern(),
+	        authCtx.getAuthorizedTargets().put(targetCtx.getTargetCfg().getUrlPathPattern(),
 	        								   targetCtx);
 	    }
-
-        // Devolver el contexto del destino
         return targetCtx;
 	}
 	private void _redirToLoginPage(final XLNetsAuthProvider authProvider,
 								   final HttpServletRequest req,final HttpServletResponse res) {
-        // primer intento: configuración de seguridad de la aplicación
-		System.out.println("XLNetsAuthServletFilterBase._redirToLoginPage");
+        // first attempt: app config
         Url loginPage = _appCfg.getLoginUrl();
-        // segundo intento: parametro del filtro
+        // second attempt: a filter param
         if (loginPage == null) {
         	String filterConfigLoginUrlParam = _servletFilterConfig.getInitParameter("xlnetsLoginURL");
         	if (Strings.isNOTNullOrEmpty(filterConfigLoginUrlParam)) loginPage = Url.from(filterConfigLoginUrlParam.trim());
         }
-       log.warn("Login Page {} ",loginPage);
+       log.warn("Login Page {} ",
+    		    loginPage);
         // ERROR
         if ( loginPage == null ) {
-            log.warn("NO se ha podido encontrar la url de login. El orden de búsqueda ha sido: (1)-Propiedad xlNets/authCfg/provider/loginPage de la aplicacion, (2)-Parametro xlnetsLoginURL de la configuración del filtro en el fichero web.xml");
+            log.warn("Login page url was NOT found. It was looked after at 'xlNets/authCfg/provider/loginPage' app property and then at 'xlnetsLoginURL' web.xml param");
         } else {
-            // ÑAPA: XLNets necesita el parametro N38API con la url a la que se quiere ir...
-
+            // Dirty trick: XLNets needs N38API param with the target url (the url to be redirected to after login)
             Url theLoginPage = loginPage.joinWith(UrlQueryString.fromParams(UrlQueryStringParam.of("N38API",
             																					   _fullURI(req))));
-            log.warn("redirecting to login page: {}",theLoginPage);
+            log.warn("redirecting to login page: {}",
+            		 theLoginPage);
             authProvider.redirectToLogin(res,
             							 theLoginPage);
         }
@@ -370,32 +387,31 @@ public abstract class XLNetsAuthServletFilterBase
     	UrlPath theUrlPath = urlPath;
         if (theUrlPath == null) {
             theUrlPath = UrlPath.from("/");
-            log.warn("La uri suministrada es nula... se toma una uri dummy, así que se macheará unicamente el target con uriPattern * (si lo hay)");
+            log.warn("Url is null.. a dummy url is used");
         }
-        log.warn("Intentando casar la URI: {} con los patrones de uri especificados en el fichero de properties",theUrlPath);
+        log.warn("... trying to match url={} with properties file-configured target patterns",
+        		 theUrlPath);
 
         XLNetsTargetCfg outTargetCfg = null;
         if (CollectionUtils.hasData(appCfg.getTargets())) {
             for (XLNetsTargetCfg cfg : appCfg.getTargets() ) {
+            	Pattern p = Pattern.compile(cfg.getUrlPathPattern());
                 if ( _matches(theUrlPath,
-                			  cfg.getUrlPathPattern()) ) {
-                    // Se ha encontrado una configuración de seguridad para la uri a la que se quiere acceder
+                			  p) ) {
                     log.warn("pattern: {} MATCHES!!!",cfg.getUrlPathPattern());
                     outTargetCfg = cfg;
                     break;
                 }
             }
         }
-
-        if (outTargetCfg == null)
-        	log.warn("No se ha encontrado ningun patron para la uri {}",theUrlPath.asAbsoluteString());
-        log.warn("outTargetCfg {}", outTargetCfg.toString());
+        if (outTargetCfg == null) log.warn("NO pattern matches url={}",
+        			 					   theUrlPath.asAbsoluteString());
+        log.warn("outTargetCfg {}", 
+        		 outTargetCfg != null ? outTargetCfg.toString() : null);
         return outTargetCfg;
     }
 	private static boolean _matches(final UrlPath urlPath,
 									final Pattern pattern) {
-		// Utilizar expresiones regulares para machear la uri recibida
-	    // con la especificada en el fichero de propìedades
 		Matcher m = pattern.matcher(urlPath.asAbsoluteString());
 		boolean matches = m.find();
 		return matches;

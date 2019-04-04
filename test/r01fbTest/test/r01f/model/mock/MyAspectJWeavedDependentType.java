@@ -2,7 +2,7 @@ package r01f.model.mock;
 
 import java.util.Collection;
 
-import com.google.appengine.repackaged.com.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

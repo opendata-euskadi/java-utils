@@ -47,7 +47,8 @@ public class ClientAPIModelObjectChangesTrack {
 	private static <R> void _startTrackingChangesOn(final R record,
 										   		    final boolean newRecord) {
 		// Sets loaded record tracking status (not new, not dirty...)
-		if (record != null && record instanceof DirtyStateTrackable) {
+		if (record != null
+		 && record instanceof DirtyStateTrackable) {
 			DirtyStateTrackable trackable = DirtyTrackAdapter.adapt(record);
 			trackable.resetDirty();									// The object's state is clean... no modifications
 			trackable.startTrackingChangesInState(true);			// Start tracking changes in state

@@ -41,9 +41,9 @@ public class StringCustomizeUtils {
         if (p1 < inStr.length()) outBuff.append(inStr.substring(p1));
         return outBuff.toString();
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  VARIABLE INTERPOLATION USING String.replaceAll()
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Interpolates vas inside a string with their values
      * The vars are delimited by a marker char like $varName$
@@ -141,7 +141,7 @@ public class StringCustomizeUtils {
                                
                 if (interpolateVarValues) {	// the var values might also contain variables  
                 	int varDelimStartPos = currVarValue.indexOf(varDelimStart);
-                	int varDelimEndPos = currVarValue.indexOf(varDelimEnd); 
+                	int varDelimEndPos = currVarValue.lastIndexOf(varDelimEnd); 
 					if (varDelimStartPos >= 0 && varDelimEndPos > varDelimStartPos+1) {
 	                    // Interpolate the var value
 	                    currVarValue = StringCustomizeUtils.replaceVariableValues(currVarValue,

@@ -45,7 +45,7 @@ public class DirtyTrackingStatusImpl
 //  THIS OBJECT NEW
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public void setThisNew(boolean newObj) {
+	public void setThisNew(final boolean newObj) {
 		_thisNew = newObj;
 	}
 	@Override
@@ -56,7 +56,7 @@ public class DirtyTrackingStatusImpl
 //  THIS OBJECT DIRTY
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public void setThisDirty(boolean thisDirty) {
+	public void setThisDirty(final boolean thisDirty) {
 		_thisDirty = thisDirty;
 	}
 	@Override
@@ -64,7 +64,7 @@ public class DirtyTrackingStatusImpl
 		return _thisDirty;
 	}
 	@Override
-	public void setThisDirtyTracking(boolean dirtyTrack) {
+	public void setThisDirtyTracking(final boolean dirtyTrack) {
 		_thisDirtyTracking = dirtyTrack;
 	}
 	@Override
@@ -75,7 +75,7 @@ public class DirtyTrackingStatusImpl
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public void setThisCheckIfValueChanges(boolean check) {
+	public void setThisCheckIfValueChanges(final boolean check) {
 		_thisCheckIfValueChanges = check;
 	}
 	@Override
@@ -92,7 +92,7 @@ public class DirtyTrackingStatusImpl
 		DirtyStatusModifier.resetDirtyStatus(trck,true);
 	}
 	@Override
-	public boolean _isThisDirty(DirtyStateTrackable trck) {
+	public boolean _isThisDirty(final DirtyStateTrackable trck) {
 		// If changes are not being tracked... do not check anything else, return false
 		if (!_thisDirtyTracking) return false;
 		boolean outDirty = false;

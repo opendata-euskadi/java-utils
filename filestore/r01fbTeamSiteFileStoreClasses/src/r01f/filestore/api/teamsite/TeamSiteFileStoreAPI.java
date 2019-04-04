@@ -44,9 +44,9 @@ public class TeamSiteFileStoreAPI
 	 extends TeamSiteFileStoreAPIBase
   implements FileStoreAPI {
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	FILESYSTEM STATIC INIT
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
 	public TeamSiteFileStoreAPI(final TeamSiteAuthData authData) throws IOException {
 		this(TeamSiteCSSDKClientWrapper.createCachingClient(authData));
@@ -119,7 +119,7 @@ public class TeamSiteFileStoreAPI
 								   false);		// do NOT overwrite if the file exists!
 
 		// [0] - Get the workarea & workArea relative path
-      	TeamSiteWorkAreaAndWorkAreaRelativePath srcWAandWARelPath = _workAreaAndWorkAreaRelativePathFor(dstFileId);
+      	TeamSiteWorkAreaAndWorkAreaRelativePath srcWAandWARelPath = _workAreaAndWorkAreaRelativePathFor(srcFileId);
       	TeamSiteWorkAreaAndWorkAreaRelativePath dstWAandWARelPath = _workAreaAndWorkAreaRelativePathFor(dstFileId);
 
       	// [1] - rename

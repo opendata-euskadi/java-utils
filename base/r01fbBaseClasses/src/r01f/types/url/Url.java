@@ -193,13 +193,18 @@ public class Url
 		String theUrlPathStr = theUrlPath != null ? theUrlPath.asAbsoluteString() : "" ;
 		String theUrlQryStr = theUrlQueryString != null ? "?" + theUrlQueryString.asString() : "";
 		String theAnchorStr = theAnchor != null ? "#" + theAnchor : "";
-		if (theHostStr == null) {			
-			_url = String.format("%s%s%s",theUrlPathStr,theUrlQryStr,theAnchorStr);
+		if (theHostStr == null) {
+			_url = Strings.customized("{}{}{}",theUrlPathStr,theUrlQryStr,theAnchorStr);
+//			_url = String.format("%s%s%s",theUrlPathStr,theUrlQryStr,theAnchorStr);
 		} else {	
-			_url = String.format("%s://%s:%s%s%s%s",
-							     theProto != null ? theProto.asString() : StandardUrlProtocol.HTTP.getCode(),theHostStr,port,
-						         theUrlPathStr,
-						         theUrlQryStr,theAnchorStr);
+			_url = Strings.customized("{}://{}:{}{}{}{}",
+									  theProto != null ? theProto.asString() : StandardUrlProtocol.HTTP.getCode(),theHostStr,port,
+									  theUrlPathStr,
+									  theUrlQryStr,theAnchorStr);
+//			_url = String.format("%s://%s:%s%s%s%s",
+//							     theProto != null ? theProto.asString() : StandardUrlProtocol.HTTP.getCode(),theHostStr,port,
+//						         theUrlPathStr,
+//						         theUrlQryStr,theAnchorStr);
 		}
 		// do not forget to set the parser
 		_urlParser = _createUrlParserFor(_url);
@@ -399,7 +404,7 @@ public class Url
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CLONE
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	@Override @GwtIncompatible
 	protected Object clone() throws CloneNotSupportedException {
 		return Url.from(_url.toString());
 	}

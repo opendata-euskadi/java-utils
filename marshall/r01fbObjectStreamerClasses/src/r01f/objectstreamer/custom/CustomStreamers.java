@@ -8,6 +8,10 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -243,6 +247,7 @@ public class CustomStreamers {
 	    	if (_property != null) {
 	    		// a) serialize the object being a field of a container object
 	    		if (gen instanceof ToXmlGenerator) {
+	    			// --- XML
 	    			ToXmlGenerator xgen = (ToXmlGenerator)gen;
 	    			MarshallField fmAnn = _property.getAnnotation(MarshallField.class);
 	    			if (fmAnn != null
@@ -260,9 +265,12 @@ public class CustomStreamers {
 	    								 		gen);
 	    			}
 	    		} else {
-	    			// serialize the object itself [propName] = { typeId=[typeId],rangeSpec=[value] }
-			    	_writeRangeTypedWrapped(rangeDataTypeId,rangeSpec,
-			    					 		gen);
+	    			// --- JSON
+		    		gen.writeString(String.format("%s:%s",
+						   		     			  rangeDataTypeId,rangeSpec));
+//	    			// serialize the object itself [propName] = { typeId=[typeId],rangeSpec=[value] }
+//			    	_writeRangeTypedWrapped(rangeDataTypeId,rangeSpec,
+//			    					 		gen);
 	    		}
 	    	}
 	    	else {
@@ -300,7 +308,16 @@ public class CustomStreamers {
 	    	}
 	    }
 	}
-	private static final Pattern RANGE_XML_ATTR_PATTERN = Pattern.compile("(Date|Integer|Long|Short|Double|Float):(.+)");
+	private static final Pattern RANGE_XML_ATTR_PATTERN = Pattern.compile("(" + Date.class.getSimpleName() + "|" +
+																				LocalDate.class.getSimpleName() + "|" +
+																				LocalDateTime.class.getSimpleName() + "|" +
+																				LocalTime.class.getSimpleName() + "|" +
+																				Integer.class.getSimpleName() + "|" +
+																				Long.class.getSimpleName() + "|" +
+																				Short.class.getSimpleName() + "|" +
+																				Double.class.getSimpleName() + "|" +
+																				Float.class.getSimpleName() +
+																			"):(.+)");
 	public static class RangeDeserializer<T extends Comparable<T>>
 		 	    extends StdDeserializer<Range<T>>
     		 implements ContextualDeserializer {	// needed to know which field is being deserialized
@@ -373,17 +390,23 @@ public class CustomStreamers {
 		private Range<T> _createRange(final String rangeSpec,
 									  final String rangeTypeId) {
 			Class<?> rangeDataType = null;
-			if (rangeTypeId.equals("Date")) {
+			if (rangeTypeId.equals(Date.class.getSimpleName())) {
 				rangeDataType = Date.class;
-			} else if (rangeTypeId.equals("Integer")) {
+			} else if (rangeTypeId.equals(LocalDate.class.getSimpleName())) {
+				rangeDataType = LocalDate.class;
+			} else if (rangeTypeId.equals(LocalDateTime.class.getSimpleName())) {
+				rangeDataType = LocalDateTime.class;
+			} else if (rangeTypeId.equals(LocalTime.class.getSimpleName())) {
+				rangeDataType = LocalTime.class;
+			} else if (rangeTypeId.equals(Integer.class.getSimpleName())) {
 				rangeDataType = Integer.class;
-			} else if (rangeTypeId.equals("Long")) {
+			} else if (rangeTypeId.equals(Long.class.getSimpleName())) {
 				rangeDataType = Long.class;
-			} else if (rangeTypeId.equals("Short")) {
+			} else if (rangeTypeId.equals(Short.class.getSimpleName())) {
 				rangeDataType = Short.class;
-			} else if (rangeTypeId.equals("Double")) {
+			} else if (rangeTypeId.equals(Double.class.getSimpleName())) {
 				rangeDataType = Double.class;
-			} else if (rangeTypeId.equals("Float")) {
+			} else if (rangeTypeId.equals(Float.class.getSimpleName())) {
 				rangeDataType = Float.class;
 			}
 			Range<T> outRange = Range.parse(rangeSpec,

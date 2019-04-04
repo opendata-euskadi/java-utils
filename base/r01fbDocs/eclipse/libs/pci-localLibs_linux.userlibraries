@@ -35,7 +35,7 @@
     <library name="LIB_SHF" systemlibrary="false">
         <archive path="/home/develop/eclipse/local_libs/shf/nshf_client-2014.10.jar"/>
     </library>
-    <library name="LIB_WL11" systemlibrary="false">
+    <library name="LIB_WL" systemlibrary="false">
         <archive path="/home/develop/eclipse/local_libs/weblogic11/weblogic.jar"/>
         <archive path="/home/develop/eclipse/local_libs/weblogic11/webserviceclient.jar"/>
     </library>

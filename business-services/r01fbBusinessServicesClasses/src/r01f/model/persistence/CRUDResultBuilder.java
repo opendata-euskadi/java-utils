@@ -75,7 +75,7 @@ public class CRUDResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class CRUDResultBuilderEntityStep {
+	public final class CRUDResultBuilderEntityStep {
 		private final SecurityContext _securityContext;
 		
 		public <T> CRUDResultBuilderOperationStep<T> on(final Class<T> entityType) {
@@ -112,15 +112,15 @@ public class CRUDResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	private class CRUDResultBuilderOperationStepBase<T> {
+	private abstract class CRUDResultBuilderOperationStepBase<T> {
 		protected final SecurityContext _securityContext;
 		protected final Class<T> _entityType;
 		
 		//  --------- ERROR
 		public CRUDResultBuilderForErrorAboutStep<T> badClientRequestData(final PersistenceRequestedOperation reqOp,
 																		  final String msg,final Object... vars) {
-			CRUDError<T> err = new CRUDError<T>(_entityType,
-												reqOp,
+			CRUDError<T> err = new CRUDError<T>(reqOp,
+												_entityType,
 												Strings.customized(msg,vars),PersistenceErrorType.BAD_REQUEST_DATA);
 			return new CRUDResultBuilderForErrorAboutStep<T>(_securityContext,
 														     err);

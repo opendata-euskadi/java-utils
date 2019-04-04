@@ -1,11 +1,9 @@
 package r01f.types.url;
 
-import com.google.common.annotations.GwtIncompatible;
-
 import r01f.patterns.Provider;
 import r01f.util.types.Strings;
 
-@GwtIncompatible
+
 public class Urls {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

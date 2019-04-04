@@ -34,6 +34,7 @@ import java.net.UnknownHostException;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
 
 import javax.crypto.Cipher;
 import javax.crypto.NoSuchPaddingException;
@@ -283,7 +284,7 @@ class NTLMAuthentication extends AuthenticationInfo {
 
         byte[] msg = new byte [32 + hlen + dlen];
         System.arraycopy (type1, 0, msg, 0, 32 + hlen + dlen);
-        String result = "NTLM " + (new B64Encoder()).encode (msg);
+        String result = "NTLM " + Arrays.toString(new B64Encoder().encode(msg));
         return result;
     }
 

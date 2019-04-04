@@ -44,6 +44,17 @@ public class HDFSFileProperties
 													   hdfsStatus.getPermission().getStickyBit()));		
 		return outProperties;
     }
+    public static FileProperties fromOrNull(final FileStatus hdfsStatus) {
+		FileProperties outProps = null;
+		try {
+			outProps = HDFSFileProperties.from(hdfsStatus);
+		} catch(IOException ioEx) {
+			log.error("Error creating a {} from {}: {}",
+					  HDFSFileProperties.class,hdfsStatus.getPath(),
+					  ioEx.getMessage(),ioEx);
+		}
+		return outProps;
+    }
 /////////////////////////////////////////////////////////////////////////////////////////
 //  OTHER
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -52,7 +63,6 @@ public class HDFSFileProperties
 		log.debug("HDFS does NOT stores the creation time stamp");
 		return 0;
 	}
-
 	@Override
 	public void setCreateTimeStamp(final long ts) {
 		log.debug("HDFS does NOT stores the creation time stamp");

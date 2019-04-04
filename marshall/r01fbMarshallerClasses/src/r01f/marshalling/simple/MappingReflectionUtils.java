@@ -74,9 +74,9 @@ class MappingReflectionUtils {
 							   .load(constructorArgs)
 							   .<T>instance();
 		} catch(Throwable th) {
-			throw ReflectionException.of(th); 
+			throw ReflectionException.of(th);
 		}
-		if (outObj == null) throw ReflectionException.instantiationException(newBeanMap.getDataType().getType(),constructorArgsTypes); 
+		if (outObj == null) throw ReflectionException.instantiationException(newBeanMap.getDataType().getType(),constructorArgsTypes);
 		return outObj;
 	}
 	/**
@@ -94,7 +94,7 @@ class MappingReflectionUtils {
 		return outFieldValue;
 	}
 	/**
-	 * Obtiene los elementos de una colecci�n, independientemente de que la 
+	 * Obtiene los elementos de una colecci�n, independientemente de que la
 	 * colecci�n sea un mapa, una lista o un array
 	 * 		- Si es una lista o un array se devuelve una colecci�n con los objetos
 	 * 		- Si es un mapa se devuelve una colecci�n de Map.Entry
@@ -104,13 +104,13 @@ class MappingReflectionUtils {
 	static Collection<?> getCollectionElements(final Object colObj) {
 		if (colObj == null) return null;
 		Collection<?> outEls = null;
-		
+
 		if (CollectionUtils.isCollection(colObj.getClass())) {
 			outEls = (Collection<?>)colObj;
-			
+
 		} else if (CollectionUtils.isMap(colObj.getClass())) {
 			outEls = ((Map<?,?>)colObj).entrySet();		// values()
-			
+
 		} else if (colObj.getClass().isArray()) {
 			//Class<?> elType = colObj.getClass().getComponentType();
 			//int length = Array.getLength(colObj);
@@ -128,42 +128,42 @@ class MappingReflectionUtils {
      * @throws ReflectionException si ocurre alg�n error al obtener la instancia
 	 */
 	static void setFieldValue(final Object obj,final FieldMap fieldMap,
-							  final Object value) throws ReflectionException {		
+							  final Object value) throws ReflectionException {
 		if (value == null) return;
 
-	    // Utilizar reflection para establecer el valor de la variable member en el objeto tarjetObj.  
+	    // Utilizar reflection para establecer el valor de la variable member en el objeto tarjetObj.
         // Hay 2 casos:
         //      CASO 1: El miembro es un objeto simple (String, Integer, int, etc)
         //      CASO 2: El miembro es una colecci�n/mapa de objetos complejos
         //      CASO 3: El miembro es un objeto complejo
 		Object valueObj = null;
-					
-		if (value instanceof StringBuilder) {	
+
+		if (value instanceof StringBuilder) {
         	// [CASO 1]:  objeto simple (String, Integer, int, etc)
         	valueObj = MappingReflectionUtils.simpleObjFromString(fieldMap.getDataType(),
         														  value.toString());
 		} else if (value instanceof ArrayList) {
-			// [CASO 2]: Se trata de una colecci�n 
-			DataType dataType = fieldMap.getDataType();				
-			
+			// [CASO 2]: Se trata de una colecci�n
+			DataType dataType = fieldMap.getDataType();
+
 			@SuppressWarnings("unchecked")
 			List<BeanInstance> instances = (List<BeanInstance>)value;
-			
+
 			// [Collections] ------
 			if (dataType.isCollection()) {
 				Collection<Object> listInstance = null;
 				if (dataType.getTypeDef() == DataTypeEnum.ARRAY) {
 					listInstance = new ArrayList<Object>(instances.size());
-					
+
 				} else {
 					// Create a collection instance with the correct size if possible
 					if (!COLLECTION_TYPES_WITHOUT_SIZE_CONSTRUCTOR.contains(dataType.getType())) {
 						listInstance = ReflectionUtils.createInstanceOf(dataType.getType(),							 // tipo de lista
 										  							    new Class[] {int.class},					 // tama�o de la lista
-																		new Object[] {new Integer(instances.size())},// 
+																		new Object[] {Integer.valueOf(instances.size())},//
 																		true);										 // forzar la creaci�n
 					} else {
-						listInstance = ReflectionUtils.createInstanceOf(dataType.getType());	// tipo de lista	
+						listInstance = ReflectionUtils.createInstanceOf(dataType.getType());	// tipo de lista
 					}
 				}
 				// Every bean instance
@@ -173,7 +173,7 @@ class MappingReflectionUtils {
 					if (colElsType.isSimple()) {
 						StringBuilder sb = beanInstance.get();
 						colElInstance = MappingReflectionUtils.simpleObjFromString(colElsType,sb.toString());
-					} else {	
+					} else {
 						colElInstance = beanInstance.get();
 					}
 					if (colElInstance != null) listInstance.add(colElInstance);
@@ -182,19 +182,19 @@ class MappingReflectionUtils {
 														   			   : listInstance;
 			}
 			// [Maps] -------
-			else if (dataType.isMap()) {	
+			else if (dataType.isMap()) {
 				Map<Object,Object> mapInstance = ReflectionUtils.createInstanceOf(dataType.getType(),							// tipo de mapa
                                                 								  new Class[] {int.class},						// tama�o del mapa
-                                                								  new Object[] {new Integer(instances.size())},	// 
+                                                								  new Object[] {Integer.valueOf(instances.size())},	//
                                                 								  true);										// forzar la creaci�n
 				int i = 1;
 				for (BeanInstance beanInstance : instances) {
 					Object mapEntryKeyInstance = null;
 					Object mapEntryValueInstance = null;
-					
+
 					DataType mapKeysType = dataType.asMap().getKeyElementsDataType();
 					DataType mapValuesType = dataType.asMap().getValueElementsDataType();
-					
+
 					// -- Mapa de tipos simples (String, long, etc)
 					if (mapValuesType.isSimple()) {
 						// [Key]
@@ -202,7 +202,7 @@ class MappingReflectionUtils {
 							// Se trata de un mapa de Language,String (LangText)
 							if (beanInstance.getEffectiveNodeName().length() == 2) {
 								// es, eu, en
-								mapEntryKeyInstance = Languages.fromContentLangVersionFolder(beanInstance.getEffectiveNodeName());
+								mapEntryKeyInstance = Languages.fromCountryCodeLowercase(beanInstance.getEffectiveNodeName());
 							} else {
 								// SPANISH, BASQUE, etc
 								mapEntryKeyInstance = Language.fromName(beanInstance.getEffectiveNodeName());
@@ -215,10 +215,10 @@ class MappingReflectionUtils {
 						// [Value]
 						StringBuilder sb = (StringBuilder)beanInstance.get();
 						mapEntryValueInstance = simpleObjFromString(mapValuesType,sb.toString());
-						
+
 					}
 					// -- Mapa de tipos complejo
-					else {	
+					else {
 						// [Key]
 						if (mapKeysType.getType() == Language.class) {
 							// Mapa indexado por Language
@@ -230,7 +230,7 @@ class MappingReflectionUtils {
 								mapEntryKeyInstance = Language.fromName(beanInstance.getEffectiveNodeName());
 							}
 						} else {
-							// Mapa indexado por el oid del tipo complejo 
+							// Mapa indexado por el oid del tipo complejo
 							FieldMap oidFieldMap = beanInstance.getMapping().getOidField();
 							if (oidFieldMap != null) {
 								mapEntryKeyInstance = ReflectionUtils.fieldValue(beanInstance.get(),oidFieldMap.getName(),
@@ -251,14 +251,14 @@ class MappingReflectionUtils {
 					}
 					i++;
 				} // for map elements
-				
+
 				// Si se trata de un Map<Language,String> el miembro PUEDE ser un LanguageTexts
 				// ... en otro caso es un simple Mapa
-				if (dataType.asMap().getKeyElementsType().equals(Language.class) 
+				if (dataType.asMap().getKeyElementsType().equals(Language.class)
 				 && dataType.asMap().getValueElementsType().equals(String.class)) {
 					LanguageTexts langTexts = new LanguageTextsMapBacked(mapInstance.size(),
 																		 LangTextNotFoundBehabior.RETURN_NULL);
-					for(Map.Entry<Object,Object> me : mapInstance.entrySet()) {					
+					for (Map.Entry<Object,Object> me : mapInstance.entrySet()) {
 						langTexts.add((Language)me.getKey(),
 									  (String)me.getValue());
 					}
@@ -268,15 +268,15 @@ class MappingReflectionUtils {
 				else {
 					valueObj = mapInstance;
 				}
-			}		
-			
+			}
+
 		}
 		// [Objects] -----
 		else {
             // Se trata de otro objeto el valor ya est� en el objeto que se pasa como par�metro
-			valueObj = value;			
+			valueObj = value;
 		}
-				
+
         // Establecer el valor utilizando reflection
 		if (valueObj != null) {
 	        ReflectionUtils.setFieldValue(obj,fieldMap.getName(),
@@ -293,21 +293,21 @@ class MappingReflectionUtils {
 	static String formatAsString(final FieldMap fieldMap,
 								 final Object value) {
 		if (value == null) return null;
-		
+
 		String outStrValue = null;
         if (!fieldMap.getDataType().isObject()) {
         	// it's a simple (primitive) type
         	outStrValue = MappingReflectionUtils.formatAsString(fieldMap.getDataType(),value);
-        	
+
         } else if (fieldMap.getDataType() != null && fieldMap.getDataType().getBeanMap() != null
         		&& CollectionUtils.isNullOrEmpty(fieldMap.getDataType().getBeanMap().getFields())) {
         	// if the field's bean has NO fields (ie a path)...
         	outStrValue = value.toString();
-        	
+
         } else if (fieldMap.getDataType().isObject()) {
         	// it's an object
         	// CustomXMLTransformers
-        	if (fieldMap.getDataType().getBeanMap() != null 
+        	if (fieldMap.getDataType().getBeanMap() != null
         	 && fieldMap.getDataType().getBeanMap().isCustomXmlTransformed()) {
         		outStrValue = fieldMap.getDataType().getBeanMap().getCustomXMLTransformers()
         														 .getXmlWriteTransformer()
@@ -315,51 +315,51 @@ class MappingReflectionUtils {
         																 	  value);
         	} else if (MappingReflectionUtils.isSimple(value)) {
         		outStrValue = MappingReflectionUtils.formatAsString(fieldMap.getDataType(),value);
-        	} 
+        	}
         }
-        return outStrValue;		
+        return outStrValue;
 	}
 	/**
 	 * Formatea el valor de un miembro como un String, PERO SOLO en el caso de que
 	 * el objeto sea un tipo "simple" (String, Long, StringBuilder, Date, etc)
-	 * @param dataType el tipo de dato 
+	 * @param dataType el tipo de dato
 	 * @param value el valor del miembro
 	 * @return el miembro formateado como un String o null si NO el miembro no es un tipo simple
 	 */
 	static String formatAsString(final DataType dataType,
 								 final Object value) {
 		if (value == null) return null;
-		
+
 		String outStrValue = null;
         if (value instanceof Integer) {
             outStrValue = ((Integer)value).toString();
-            
+
         } else if (value instanceof Long) {
             outStrValue = ((Long)value).toString();
-            
+
         } else if (value instanceof Double) {
             outStrValue = ((Double)value).toString();
 
         } else if (value instanceof Float) {
             outStrValue = ((Float)value).toString();
-            
+
         } else if (value instanceof Boolean) {
             outStrValue = ((Boolean)value).toString();
-            
+
         } else if (value instanceof java.util.Date || value instanceof java.sql.Date) {
         	String dateFormat = dataType.asDate().getDateFormat();
 			outStrValue = Dates.format((java.util.Date)value,dateFormat);
-			
+
         } else if (ReflectionUtils.isImplementing(value.getClass(),CharSequence.class)) {
             outStrValue = value.toString();		// String, StringBuffer, StringBuilder, etc
-            
+
         } else if (value instanceof Enum) {
         	outStrValue = ((Enum<?>)value).name();
-        	
+
         } else if (value instanceof Class) {
         	/* nothing */
         }
-        return outStrValue;		
+        return outStrValue;
 	}
 	/**
 	 * Devuelve si un objeto es simple o no viendo si es una instancia simple
@@ -368,13 +368,13 @@ class MappingReflectionUtils {
 	 */
 	static boolean isSimple(final Object value) {
 		boolean outSimple = false;
-        if (value instanceof Integer || value instanceof Long || value instanceof Double || value instanceof Float || value instanceof Boolean 
-         || value instanceof java.util.Date || value instanceof java.sql.Date 
-         || ReflectionUtils.isImplementing(value.getClass(),CharSequence.class) 
+        if (value instanceof Integer || value instanceof Long || value instanceof Double || value instanceof Float || value instanceof Boolean
+         || value instanceof java.util.Date || value instanceof java.sql.Date
+         || ReflectionUtils.isImplementing(value.getClass(),CharSequence.class)
          || value instanceof Enum) {
         	outSimple = true;
         }
-        return outSimple;		
+        return outSimple;
 	}
 	/**
 	 * @return el tipo del dataType representado por esta clase
@@ -383,52 +383,52 @@ class MappingReflectionUtils {
 		Class<?> outType = null;
         if (dataType.getTypeDef() == DataTypeEnum.STRING || dataType.getTypeDef() == DataTypeEnum.XML) {
         	outType = String.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.STRINGBUFFER) {
         	outType = StringBuffer.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.STRINGBUILDER) {
         	outType = StringBuilder.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.INTEGER || dataType.getTypeDef() == DataTypeEnum.INTEGER_P) {
         	outType = Integer.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.LONG || dataType.getTypeDef() == DataTypeEnum.LONG_P) {
         	outType = Long.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.DOUBLE || dataType.getTypeDef() == DataTypeEnum.DOUBLE_P) {
         	outType = Double.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.FLOAT || dataType.getTypeDef() == DataTypeEnum.FLOAT_P) {
         	outType = Float.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.NUMBER) {
         	outType = Number.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.BOOLEAN || dataType.getTypeDef() == DataTypeEnum.BOOLEAN_P) {
-        	
+
         	outType = Boolean.class;
-        } else if (dataType.isDate()) {   
+        } else if (dataType.isDate()) {
         	outType = Date.class;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.ENUM) {
 			outType = Reflection.of(dataType.asEnum().getEnumTypeName()).getType();
-			
+
         } else if (dataType.isObject()) {
         	outType = Reflection.of(dataType.asObject().getName()).getType();
-        	
+
         } else if (dataType.isCollection()) {
         	String colTypeName = dataType.getName();
         	if (colTypeName.equals("List")) colTypeName = LinkedList.class.getCanonicalName();
 			outType = Reflection.of(colTypeName).getType();
-			if (ReflectionUtils.isInterface(outType)) outType = outType.isAssignableFrom(Set.class) ? LinkedHashSet.class 
+			if (ReflectionUtils.isInterface(outType)) outType = outType.isAssignableFrom(Set.class) ? LinkedHashSet.class
 																									: LinkedList.class;
 		} else if (dataType.isMap()) {
         	String mapTypeName = dataType.getName();
         	if (mapTypeName.equals("Map")) mapTypeName = LinkedHashMap.class.getCanonicalName();
 			outType = Reflection.of(mapTypeName).getType();
 			if (ReflectionUtils.isInterface(outType)) outType = LinkedHashMap.class;	// Por defecto cuando no se indica el tipo concreto, se instancia un Map
-			
+
 		} else if (dataType.isJavaType()) {
 			outType = Class.class;
 		}
@@ -444,64 +444,64 @@ class MappingReflectionUtils {
 	static Object simpleObjFromString(final DataType dataType,
 									  final CharSequence valueStr) {
 		if (!dataType.isInstanciable()) throw new IllegalStateException(dataType.getType() + " is NOT instanciable... it cannot be created from the string '" + valueStr.toString() + "'");
-		
-		boolean ignoreWhiteSpace = true;	
+
+		boolean ignoreWhiteSpace = true;
 
 		Object outValueObj = null;
 		String theValueStr = ignoreWhiteSpace ? valueStr.toString().trim()
 											  : valueStr.toString();
         // Dependiendo del tipo de dato, hacer las transformaciones correspondientes..
         if (dataType.getTypeDef() == DataTypeEnum.STRING || dataType.getTypeDef() == DataTypeEnum.XML) {
-        	outValueObj = theValueStr;	
-        	
+        	outValueObj = theValueStr;
+
         } else if (dataType.getTypeDef() == DataTypeEnum.STRINGBUFFER) {
         	outValueObj = new StringBuffer(theValueStr);
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.STRINGBUILDER) {
         	outValueObj = new StringBuilder(theValueStr);
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.INTEGER || dataType.getTypeDef() == DataTypeEnum.INTEGER_P) {
-        	outValueObj = new Integer(theValueStr);
-        	
+        	outValueObj = Integer.valueOf(theValueStr);
+
         } else if (dataType.getTypeDef() == DataTypeEnum.LONG || dataType.getTypeDef() == DataTypeEnum.LONG_P) {
-        	outValueObj = new Long(theValueStr);
-        	
+        	outValueObj = Long.valueOf(theValueStr);
+
         } else if (dataType.getTypeDef() == DataTypeEnum.DOUBLE || dataType.getTypeDef() == DataTypeEnum.DOUBLE_P) {
-        	outValueObj = new Double(theValueStr);
-        	
+        	outValueObj = Double.valueOf(theValueStr);
+
         } else if (dataType.getTypeDef() == DataTypeEnum.FLOAT || dataType.getTypeDef() == DataTypeEnum.FLOAT_P) {
-        	outValueObj = new Float(theValueStr);
-        	
+        	outValueObj = Float.valueOf(theValueStr);
+
         } else if (dataType.getTypeDef() == DataTypeEnum.NUMBER) {
         	if (Numbers.isInteger(theValueStr)) {
-        		outValueObj = new Integer(theValueStr);
+        		outValueObj = Integer.valueOf(theValueStr);
         	} else if (Numbers.isLong(theValueStr)) {
-        		outValueObj = new Long(theValueStr);
+        		outValueObj = Long.valueOf(theValueStr);
         	} else if (Numbers.isDouble(theValueStr)) {
-        		outValueObj = new Double(theValueStr);
+        		outValueObj = Double.valueOf(theValueStr);
         	} else if (Numbers.isFloat(theValueStr)) {
-        		outValueObj = new Float(theValueStr);
+        		outValueObj = Float.valueOf(theValueStr);
         	}
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.BOOLEAN || dataType.getTypeDef() == DataTypeEnum.BOOLEAN_P) {
             if (theValueStr.equalsIgnoreCase("1") || theValueStr.equalsIgnoreCase("true")) {
                 theValueStr = "true";
             } else if (theValueStr.equalsIgnoreCase("0") || theValueStr.equalsIgnoreCase("false")) {
                 theValueStr = "false";
             }
-        	outValueObj = new Boolean(theValueStr); 
-        	
-        } else if (dataType.isDate()) {   
+        	outValueObj = Boolean.valueOf(theValueStr);
+
+        } else if (dataType.isDate()) {
         	// Obtener la mascara de formateo de fechas
         	String format = dataType.asDate().getDateFormat();
         	Date date = Dates.fromFormatedString(theValueStr,format);
         	outValueObj = date;
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.ENUM || dataType.getType().isEnum()) {
         	// Obtener un enum a partir del valor
 			Class<? extends Enum> enumType = (Class<? extends Enum>)dataType.getType();
         	outValueObj = Enum.valueOf(enumType,theValueStr);
-        	
+
         } else if (dataType.getTypeDef() == DataTypeEnum.JAVACLASS) {
         	// Se trata de una definici�n de un tipo java
         	// ej	private Class<?> _myJavaType
@@ -514,7 +514,7 @@ class MappingReflectionUtils {
         } else if (dataType.isCanBeCreatedFromString()) { //(ReflectionUtils.canBeCreatedFromString(dataType.getType()))
         	// Try to create the object using a single String param constructor or a valueOf(String) static method
         	outValueObj = ReflectionUtils.createInstanceFromString(dataType.getType(),
-        														   theValueStr); 
+        														   theValueStr);
         } else if (dataType.isObject()
         	    && dataType.asObject().isImmutable()							// iImmutable object
 	        	&& dataType.asObject().hasOnlyOneFinalSimpleField()) {			// field to hold the id
@@ -524,11 +524,11 @@ class MappingReflectionUtils {
     									   .getSingleFinalSimpleField();
     		Class<?> finalFieldType = argDataType.getType();
     		Object finalFieldInstance = MappingReflectionUtils.simpleObjFromString(argDataType,
-    																			   theValueStr);    		
+    																			   theValueStr);
     		// - Create the out object
     		outValueObj = ReflectionUtils.createInstanceOf(dataType.getType(),
     													   new Class<?>[] {finalFieldType},new Object[] {finalFieldInstance});
-        } else if (dataType.isObject() 
+        } else if (dataType.isObject()
 	        	&& dataType.asObject().hasOnlyOneSimpleField()) {
         	// An object with a single field
         	// - Create the field
@@ -544,6 +544,6 @@ class MappingReflectionUtils {
         	log.error("An object of type {} was tried to be created from a String {} but it was NOT possilbe",
         			  dataType.getType(),valueStr.toString());
         }
-        return outValueObj;        				
+        return outValueObj;
 	}
 }

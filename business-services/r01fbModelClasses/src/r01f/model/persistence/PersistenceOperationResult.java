@@ -10,6 +10,10 @@ public interface PersistenceOperationResult {
 //  OPERATION NAME
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * @return the requested operation
+	 */
+	public PersistenceRequestedOperation getRequestedOperation();
+	/**
  	 * @return the requested operation in a human-friendly format
 	 */
 	public String getRequestedOperationName();

@@ -73,9 +73,9 @@ public class DBEntityToModelObjectTransformerBuilder
 									}
 								}
 								return outModelObj;
-							}catch(Exception ex){
+							}catch(Exception ex) {
 								log.error("DBEntityToModelObjectTransformerBuilder error :{}",ex.getMessage(),ex);
-							}catch(Throwable ex){
+							}catch(Throwable ex) {
 								log.error("DBEntityToModelObjectTransformerBuilder error :{}",ex.getMessage(),ex);
 							}																	
 							return null;//Return null if any exception happens, so must be applied a not null filtering!

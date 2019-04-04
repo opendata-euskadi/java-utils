@@ -3,12 +3,12 @@ package r01f.test.persistence;
 import java.util.Collection;
 
 import r01f.debug.Debuggable;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.patterns.Factory;
 import r01f.services.client.api.delegates.ClientAPIDelegateForModelObjectCRUDServices;
 
-public interface ManagesTestMockModelObjsLifeCycle<O extends OID,M extends PersistableModelObject<O>> 
+public interface ManagesTestMockModelObjsLifeCycle<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 		 extends Debuggable {
 	/**
 	 * @return the managed model object type

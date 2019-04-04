@@ -12,8 +12,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.annotations.Immutable;
-import r01f.model.metadata.IndexableFieldID;
-import r01f.model.metadata.SearchableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 import r01f.objectstreamer.annotations.MarshallType;
@@ -74,21 +73,18 @@ public class RangeQueryClause<T extends Comparable<T>>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	RangeQueryClause(final IndexableFieldID fieldId,
+	RangeQueryClause(final FieldID fieldId,
 					 final Range<T> range) {
 		super(fieldId);
 		_range = range;
 	}
 	@SuppressWarnings("unused")
-	private RangeQueryClause(final IndexableFieldID metaDataId,
+	private RangeQueryClause(final FieldID metaDataId,
 							 final com.google.common.collect.Range<T> range) {
 		super(metaDataId);
 		_range = new Range<T>(range);
 	}
-	public static <ID extends SearchableFieldID> RangeQueryClauseBuilder forField(final ID id) {
-		return RangeQueryClause.forField(id.getFieldId());
-	}
-	public static RangeQueryClauseBuilder forField(final IndexableFieldID fieldId) {
+	public static RangeQueryClauseBuilder forField(final FieldID fieldId) {
 		return new RangeQueryClauseBuilder(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -121,7 +117,7 @@ public class RangeQueryClause<T extends Comparable<T>>
 		if (obj == this) return true;
 		if (!(obj instanceof RangeQueryClause)) return false;
 		
-		if (!super.equals(obj)) return false;
+		if (!super.equals(obj)) return false;	// checks fieldId
 		
 		RangeQueryClause<?> otherRange = (RangeQueryClause<?>)obj;
 		return _range != null ? otherRange.getRange() != null ? _range.equals(otherRange.getRange())
@@ -138,7 +134,7 @@ public class RangeQueryClause<T extends Comparable<T>>
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class RangeQueryClauseBuilder {
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		
 		//  -------------------------- Dates ranges
 		/**

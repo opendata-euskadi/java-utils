@@ -197,9 +197,9 @@ public class MapsWrappers {
 														: null;
 		}
 		/**
-		 * Comprueba si el mapa contiene TODAS las claves que se pasan
-		 * @param keys las claves a comprobar
-		 * @return true si TODAS están contenidas en el mapa
+		 * Checks if the map contains ALL given keys
+		 * @param keys 
+		 * @return 
 		 */
 		public boolean containsAllTheseKeys(final K... keys) {
 			boolean outContains = true;

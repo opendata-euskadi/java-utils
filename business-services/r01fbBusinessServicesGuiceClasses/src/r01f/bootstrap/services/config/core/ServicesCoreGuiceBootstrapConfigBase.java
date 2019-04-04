@@ -5,11 +5,6 @@ import java.util.Collection;
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.ServicesBootstrapConfigBuilder;
-import r01f.bootstrap.services.config.core.ServicesClientProxyToCoreServices;
-import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigBase;
-import r01f.bootstrap.services.config.core.ServicesCoreModuleEventsConfig;
-import r01f.bootstrap.services.config.core.ServicesCoreModuleExposition;
-import r01f.bootstrap.services.config.core.ServicesCoreSubModuleBootstrapConfig;
 import r01f.bootstrap.services.core.ServicesCoreBootstrapGuiceModule;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
 import r01f.services.ids.ServiceIDs.CoreModule;
@@ -19,10 +14,9 @@ import r01f.util.types.Strings;
  * @see ServicesBootstrapConfigBuilder
  */
 @Accessors(prefix="_")
-abstract class ServicesCoreGuiceBootstrapConfigBase<E extends ServicesCoreModuleExposition,
-											   		P extends ServicesClientProxyToCoreServices> 
-	   extends ServicesCoreBootstrapConfigBase<E,P> 
-    implements ServicesCoreGuiceBootstrapConfig<E,P> {
+abstract class ServicesCoreGuiceBootstrapConfigBase
+	   extends ServicesCoreBootstrapConfigBase
+    implements ServicesCoreGuiceBootstrapConfig {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
@@ -39,14 +33,10 @@ abstract class ServicesCoreGuiceBootstrapConfigBase<E extends ServicesCoreModule
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	public ServicesCoreGuiceBootstrapConfigBase(final CoreAppCode coreAppCode,final CoreModule coreModule,
-												final E exposition,final P clientProxyConfig,
-											    final ServicesCoreModuleEventsConfig eventHandling,
+												final Class<? extends ServicesCoreBootstrapGuiceModule> coreBootstrapGuiceModuleType,
 											    final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesConfig,
-											    final Class<? extends ServicesCoreBootstrapGuiceModule> coreBootstrapGuiceModuleType,
 											    final boolean isolate) {
 		super(coreAppCode,coreModule,
-			  exposition,clientProxyConfig,
-			  eventHandling,
 			  subModulesConfig);
 		_coreBootstrapGuiceModuleType = coreBootstrapGuiceModuleType;
 		_isolate = isolate;

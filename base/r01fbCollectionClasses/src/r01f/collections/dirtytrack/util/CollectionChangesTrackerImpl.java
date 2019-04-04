@@ -146,10 +146,7 @@ public class CollectionChangesTrackerImpl<K>
 /////////////////////////////////////////////////////////////////////////////////////////
 //	ADD NEW OR DELETED ENTRIES 
 /////////////////////////////////////////////////////////////////////////////////////////
-	/**
-	 * Add a new entry 
-	 * @param 
-	 */
+	@Override
 	public void trackEntryInsertion(final K key) {
 		if (!_tracking) return;	
 		
@@ -166,10 +163,7 @@ public class CollectionChangesTrackerImpl<K>
 		}
 		_dirty = true;	// the map was modified
 	}
-	/**
-	 * Add a new deleted entry
-	 * @param 
-	 */
+	@Override
 	public void trackEntryRemoval(final K key) {
 		if (!_tracking) return;		
 		
@@ -186,11 +180,7 @@ public class CollectionChangesTrackerImpl<K>
 		}
 		_dirty = true;
 	}
-	/**
-	 * Returns the Set of current keys from the original keys
-	 * @param originalKeys
-	 * @return
-	 */
+	@Override
 	public Set<K> currentKeys(final Set<K> originalKeys) {
 		Set<K> originalPlusNew = _newEntries != null && _newEntries.size() > 0 ? Sets.union(originalKeys,_newEntries)
 																			   : originalKeys;
@@ -204,9 +194,9 @@ public class CollectionChangesTrackerImpl<K>
 																							         : originalPlusNew;
 		return originalPlusNewWithoutRemoved;
 	}
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 //	DIRTY
-///////////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public DirtyTrackingStatus getTrackingStatus() {
 		return _trackingStatus;

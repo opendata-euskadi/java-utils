@@ -54,7 +54,7 @@ public class TeamSiteFileStoreFindUtils {
             CSStore[] stores = root.getStores();
             for (int i = 0; i < stores.length; i++) {
                 outServer = stores[i];
-                if (outServer.getName().equals(server)) {
+                if (outServer.getName().equals(server.getId())) {
                     break;
                 }
             }
@@ -84,7 +84,7 @@ public class TeamSiteFileStoreFindUtils {
 
             CSBranch[] stores = server.getBranches();
             for (int i = 0; i < stores.length; i++) {
-                if (stores[i].getName().equals(store)) {
+                if (stores[i].getName().equals(store.getId())) {
                 	outStore = stores[i];
                     break;
                 }
@@ -165,7 +165,7 @@ public class TeamSiteFileStoreFindUtils {
     public static CSFile findFolderOrFile(final CSWorkarea csWorkArea,
     									  final TeamSiteWorkAreaRelativePath waRelPath) throws TeamSiteFileStoreException {
 
-        if (null == csWorkArea || null == csWorkArea) throw new IllegalArgumentException("Area and area relative path are mandatory");
+        if (null == csWorkArea || null == waRelPath) throw new IllegalArgumentException("Area and area relative path are mandatory");
         try {
             log.trace("\t...find file or folder {} at {}",
             		  waRelPath,csWorkArea.getVPath());

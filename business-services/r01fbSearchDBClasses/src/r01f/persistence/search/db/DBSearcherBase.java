@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.TypedQuery;
 
 import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -103,16 +104,21 @@ public abstract class DBSearcherBase<F extends SearchFilter,I extends SearchResu
 		log.debug("Total number of results: {}",totalItems);
 		
 		// [2] - Get the page results
-		TypedQuery<DB> qry = _searchQueryFactory.create()
-												.getResultsQuery(filter,
-																 ordering);
-		qry.setFirstResult(firstRowNum);
-		qry.setMaxResults(numberOfRows);
-		Collection<DB> pageEntities = qry.getResultList();
-		log.debug("JPA RETRIEVE Query: {}",qry.toString());
-		log.debug("{} Page results from {} to {}: {}",
-				  numberOfRows,firstRowNum,(firstRowNum + numberOfRows),pageEntities.size());	
-		if (totalItems > 0 && pageEntities.size() == 0) throw new IllegalStateException(Throwables.message("DBSearcher error: the count query returned {} items BUT the search query returned 0",totalItems));
+		Collection<DB> pageEntities = null;
+		if (totalItems > 0) {
+			TypedQuery<DB> qry = _searchQueryFactory.create()
+													.getResultsQuery(filter,
+																	 ordering);
+			qry.setFirstResult(firstRowNum);
+			qry.setMaxResults(numberOfRows);
+			pageEntities = qry.getResultList();
+			log.debug("JPA RETRIEVE Query: {}",qry.toString());
+			log.debug("{} Page results from {} to {}: {}",
+					  numberOfRows,firstRowNum,(firstRowNum + numberOfRows),pageEntities.size());	
+			if (totalItems > 0 && pageEntities.size() == 0) throw new IllegalStateException(Throwables.message("DBSearcher error: the count query returned {} items BUT the search query returned 0",totalItems));
+		} else {
+			pageEntities = Lists.newArrayList();
+		}
 		
 		// [3] - Compose the search results
 		final Language uiLang = filter.getUILanguage();

@@ -129,6 +129,7 @@ class QueryClauseSerializerUtils {
 			outSerializedValue = object.toString();
 		} 
 		else if (object instanceof com.google.common.collect.Range) {
+			@SuppressWarnings("rawtypes")
 			Range<?> r01fRange = new Range((com.google.common.collect.Range<?>)object);
 			outSerializedValue = r01fRange.toString();
 			System.out.println("----->" + outSerializedValue);

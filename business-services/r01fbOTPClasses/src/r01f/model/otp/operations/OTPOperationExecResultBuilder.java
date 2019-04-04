@@ -42,7 +42,7 @@ public class OTPOperationExecResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class OTPOperationExecResultBuilderReturnedObjStep {
+	public final class OTPOperationExecResultBuilderReturnedObjStep {
 
 		protected final String _requestedOpName;
 
@@ -58,7 +58,7 @@ public class OTPOperationExecResultBuilder
 //  ERROR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class OTPOperationExecResultBuilderErrorStep {
+	public final class OTPOperationExecResultBuilderErrorStep {
 		protected final String _requestedOpName;
 
 

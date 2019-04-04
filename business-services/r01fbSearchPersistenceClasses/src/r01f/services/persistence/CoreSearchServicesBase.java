@@ -71,7 +71,7 @@ public abstract class CoreSearchServicesBase<F extends SearchFilter,I extends Se
 /////////////////////////////////////////////////////////////////////////////////////////
 //  SEARCH
 /////////////////////////////////////////////////////////////////////////////////////////
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public int countRecords(final SecurityContext securityContext,
 							final F filter) {
 		return  this.forSecurityContext(securityContext)
@@ -79,7 +79,7 @@ public abstract class CoreSearchServicesBase<F extends SearchFilter,I extends Se
 							.countRecords(securityContext,
 										  filter);
 	}
-	@Override
+	@Override @SuppressWarnings("unchecked")
 	public SearchResults<F,I> filterRecords(final SecurityContext securityContext,
 	                    		 			final F filter,final Collection<SearchResultsOrdering> ordering,
 	                    		 			final int firstRowNum,final int numberOfRows) {

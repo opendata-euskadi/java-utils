@@ -15,9 +15,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Sets;
 
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -26,12 +24,13 @@ import r01f.enums.EnumExtendedWrapper;
 import r01f.generics.TypeRef;
 import r01f.guids.OID;
 import r01f.locale.Language;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.search.query.ContainsTextQueryClause.ContainedTextAt;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 import r01f.objectstreamer.annotations.MarshallFrom;
+import r01f.objectstreamer.annotations.MarshallIgnoredField;
 import r01f.objectstreamer.annotations.MarshallType;
 import r01f.types.Range;
 import r01f.util.types.Strings;
@@ -53,7 +52,6 @@ import r01f.util.types.collections.CollectionUtils;
 @MarshallType(as="booleanQuery")
 @GwtIncompatible
 @Accessors(prefix="_")
-@NoArgsConstructor @AllArgsConstructor
 public class BooleanQueryClause 
   implements QueryClause {	
 
@@ -61,14 +59,31 @@ public class BooleanQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
+	// a field used to identify the boolean query (not mandatory)
+	@MarshallIgnoredField
+	@Getter @Setter private transient String _internalId; 
+	
 	@MarshallField(as="clauses")
 	@Getter @Setter private Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
-
+/////////////////////////////////////////////////////////////////////////////////////////
+//	CONSTRUCTOR
+/////////////////////////////////////////////////////////////////////////////////////////	
+	public BooleanQueryClause() {
+		// default no-args constructo
+	}
+	public BooleanQueryClause(final Set<QualifiedQueryClause<? extends QueryClause>> clauses) {
+		_clauses = clauses;
+	}
+	public BooleanQueryClause(final String id,
+							  final Set<QualifiedQueryClause<? extends QueryClause>> clauses) {
+		this(clauses);
+		_internalId = id;
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	public BooleanQueryClauseStep0Builder predicates() {
-		return new BooleanQueryClauseStep0Builder(_clauses);
+		return new BooleanQueryClauseStep0Builder(_internalId,_clauses);
 	}
 	public <Q extends QueryClause> void add(final QualifiedQueryClause<Q> clause) {
 		if (_clauses == null) _clauses = new HashSet<QualifiedQueryClause<? extends QueryClause>>();
@@ -78,7 +93,7 @@ public class BooleanQueryClause
 		QualifiedQueryClause<Q> qClause = new QualifiedQueryClause<Q>(clause,occur);
 		this.add(qClause);
 	}
-	public boolean removeAllFor(final IndexableFieldID fieldId) {
+	public boolean removeAllFor(final FieldID fieldId) {
 		if (CollectionUtils.isNullOrEmpty(_clauses)) return false;
 		Set<QualifiedQueryClause<? extends QueryClause>> clausesToBeRemoved = Sets.newHashSet();
 		for (QualifiedQueryClause<? extends QueryClause> clause : _clauses) {
@@ -91,7 +106,7 @@ public class BooleanQueryClause
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public IndexableFieldID getFieldId() {
+	public FieldID getFieldId() {
 		throw new UnsupportedOperationException("BooleanQueryClauses are NOT aplicable to fields");
 	}
 	@Override
@@ -164,11 +179,33 @@ public class BooleanQueryClause
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
+	 * Finds a BooleanQueryClause identified by the given id
+	 * (note that the BooleanQueryClause id is NOT mandatory)
+	 * @param id
+	 * @return
+	 */
+	@SuppressWarnings("unchecked")
+	public QualifiedQueryClause<BooleanQueryClause> findBooleanQueryClause(final String id) {
+		if (CollectionUtils.isNullOrEmpty(_clauses)) return null;
+		QualifiedQueryClause<BooleanQueryClause> outQClause = null;
+		for (QualifiedQueryClause<? extends QueryClause> qClause : _clauses) {
+			if (!(qClause.getClause() instanceof BooleanQueryClause)) continue;	
+			
+			BooleanQueryClause boolQryClause = (BooleanQueryClause)qClause.getClause();
+			if (boolQryClause.getInternalId() != null
+			 && boolQryClause.getInternalId().equals(id)) {
+				outQClause = (QualifiedQueryClause<BooleanQueryClause>)qClause;
+				break;
+			}
+		}
+		return outQClause;
+	}
+	/**
 	 * Finds a qualified query clause
 	 * @param fieldId
 	 * @return
 	 */
-	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClause(final IndexableFieldID fieldId) {
+	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClause(final FieldID fieldId) {
 		if (CollectionUtils.isNullOrEmpty(_clauses)) return null;
 		QualifiedQueryClause<? extends QueryClause> outQClause = null;
 		for (QualifiedQueryClause<? extends QueryClause> qClause : _clauses) {
@@ -187,7 +224,7 @@ public class BooleanQueryClause
 	 * @param occur
 	 * @return
 	 */
-	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClause(final IndexableFieldID fieldId,final QueryClauseOccur occur) {
+	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClause(final FieldID fieldId,final QueryClauseOccur occur) {
 		if (CollectionUtils.isNullOrEmpty(_clauses)) return null;
 		QualifiedQueryClause<? extends QueryClause> outQClause = null;
 		for (QualifiedQueryClause<? extends QueryClause> qClause : _clauses) {
@@ -206,7 +243,7 @@ public class BooleanQueryClause
 	 * @param clauseType
 	 * @return
 	 */
-	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClauseOfType(final IndexableFieldID fieldId,
+	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClauseOfType(final FieldID fieldId,
 											 								 		  final Class<? extends QueryClause> clauseType) {
 		if (CollectionUtils.isNullOrEmpty(_clauses)) return null;
 		QualifiedQueryClause<? extends QueryClause> outQClause = null;
@@ -225,7 +262,7 @@ public class BooleanQueryClause
 	 * @param clauseType
 	 * @return
 	 */
-	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClauseOfType(final IndexableFieldID fieldId,
+	public QualifiedQueryClause<? extends QueryClause> findQualifiedQueryClauseOfType(final FieldID fieldId,
 											 										  final Class<? extends QueryClause> clauseType,
 											 										  final QueryClauseOccur occur) {
 		if (CollectionUtils.isNullOrEmpty(_clauses)) return null;
@@ -248,7 +285,7 @@ public class BooleanQueryClause
 	 * @param fieldId
 	 * @return
 	 */
-	public QueryClause findQueryClause(final IndexableFieldID fieldId) {
+	public QueryClause findQueryClause(final FieldID fieldId) {
 		QualifiedQueryClause<? extends QueryClause> qClause = this.findQualifiedQueryClause(fieldId);
 		return qClause != null ? qClause.getClause() : null;
 	}
@@ -258,7 +295,7 @@ public class BooleanQueryClause
 	 * @param occur
 	 * @return
 	 */
-	public QueryClause findQueryClause(final IndexableFieldID fieldId,final QueryClauseOccur occur) {
+	public QueryClause findQueryClause(final FieldID fieldId,final QueryClauseOccur occur) {
 		QualifiedQueryClause<? extends QueryClause> qClause = this.findQualifiedQueryClause(fieldId,occur);
 		return qClause != null ? qClause.getClause() : null;
 	}
@@ -268,7 +305,7 @@ public class BooleanQueryClause
 	 * @param clauseType
 	 * @return
 	 */
-	public QueryClause findQueryClauseOfType(final IndexableFieldID fieldId,
+	public QueryClause findQueryClauseOfType(final FieldID fieldId,
 											 final Class<? extends QueryClause> clauseType) {
 		QualifiedQueryClause<? extends QueryClause> qClause = this.findQualifiedQueryClauseOfType(fieldId,
 																								  clauseType);
@@ -280,7 +317,7 @@ public class BooleanQueryClause
 	 * @param clauseType
 	 * @return
 	 */
-	public QueryClause findQueryClauseOfType(final IndexableFieldID fieldId,
+	public QueryClause findQueryClauseOfType(final FieldID fieldId,
 											 final Class<? extends QueryClause> clauseType,
 											 final QueryClauseOccur occur) {
 		QualifiedQueryClause<? extends QueryClause> qClause = this.findQualifiedQueryClauseOfType(fieldId,
@@ -294,7 +331,7 @@ public class BooleanQueryClause
 	 * @return
 	 */
 	@SuppressWarnings("unchecked")
-	public EqualsQueryClause<Language> findLanguageQueryClause(final IndexableFieldID fieldId) {
+	public EqualsQueryClause<Language> findLanguageQueryClause(final FieldID fieldId) {
 		EqualsQueryClause<Language> outLangClause = null;
 		QueryClause langClause = this.findQueryClause(fieldId);
 		if (langClause instanceof EqualsQueryClause) {
@@ -312,6 +349,12 @@ public class BooleanQueryClause
 		if (!(obj instanceof BooleanQueryClause)) return false;
 		
 		BooleanQueryClause otherBool = (BooleanQueryClause)obj;
+		if (!(_internalId == null && otherBool.getInternalId() == null)) {
+			boolean idEq = _internalId != null && otherBool.getInternalId() != null
+								? _internalId.equals(otherBool.getInternalId())
+								: false;		// one null anothoer not
+			if (idEq) return true;	// if same id, both equals
+		}
 		return _clauses != null ? otherBool.getClauses() != null ? _clausesEqs(_clauses,otherBool.getClauses())
 							    							     : false
 							    : true;		// both null
@@ -326,57 +369,70 @@ public class BooleanQueryClause
 	}
 	@Override
 	public int hashCode() {
-		return Objects.hashCode(this.getFieldId(),
-								this.getClauses());	
+		return _internalId != null ? _internalId.hashCode()					// use the id hash
+								   : Objects.hashCode(this.getClauses());	
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static BooleanQueryClauseStep0Builder create() {
-		return new BooleanQueryClauseStep0Builder(new LinkedHashSet<QualifiedQueryClause<? extends QueryClause>>());
+		return BooleanQueryClause.create(null);		// no id
+	}
+	public static BooleanQueryClauseStep0Builder create(final String id) {
+		return new BooleanQueryClauseStep0Builder(id,
+												  new LinkedHashSet<QualifiedQueryClause<? extends QueryClause>>());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PROTECTED)
 	public static class BooleanQueryClauseStep0Builder {
+		private final String _id;
 		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
 		
-		public BooleanQueryClauseStep1Builder field(final IndexableFieldID fieldId) {
-			return new BooleanQueryClauseStep1Builder(_clauses,fieldId);
+		public BooleanQueryClauseStep1Builder field(final FieldID fieldId) {
+			return new BooleanQueryClauseStep1Builder(_id,_clauses,fieldId);
 		}
 		public BooleanQueryClause build() {
-			return new BooleanQueryClause(_clauses);
+			return new BooleanQueryClause(_id,
+										  _clauses);
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class BooleanQueryClauseStep1Builder {
+		private final String _id;
 		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
-		private final IndexableFieldID _fieldId;
+		private final FieldID _fieldId;
 		public BooleanQueryClauseStep2Builder must() {
-			return new BooleanQueryClauseStep2Builder(_clauses,_fieldId,QueryClauseOccur.MUST);
+			return new BooleanQueryClauseStep2Builder(_id,_clauses,
+													  _fieldId,QueryClauseOccur.MUST);
 		}
 		public BooleanQueryClauseStep2Builder should() {
-			return new BooleanQueryClauseStep2Builder(_clauses,_fieldId,QueryClauseOccur.SHOULD);
+			return new BooleanQueryClauseStep2Builder(_id,_clauses,
+													  _fieldId,QueryClauseOccur.SHOULD);
 		}
 		public BooleanQueryClauseStep2Builder mustNOT() {
-			return new BooleanQueryClauseStep2Builder(_clauses,_fieldId,QueryClauseOccur.MUST_NOT);
+			return new BooleanQueryClauseStep2Builder(_id,_clauses,
+													  _fieldId,QueryClauseOccur.MUST_NOT);
 		}
 		public BooleanQueryClauseStep2Builder occur(final QueryClauseOccur occur) {
-			return new BooleanQueryClauseStep2Builder(_clauses,_fieldId,occur);
+			return new BooleanQueryClauseStep2Builder(_id,_clauses,
+													  _fieldId,occur);
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class BooleanQueryClauseStep2Builder {
+		private final String _id;
 		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
-		private final IndexableFieldID _fieldId;
+		
+		private final FieldID _fieldId;
 		private final QueryClauseOccur _occur;
 		
 		// ----- Sub
 		public BooleanQueryClauseStep0Builder applyTo(final BooleanQueryClause other) {
 			if (other != null) _clauses.add(new QualifiedQueryClause<BooleanQueryClause>(other,
 																			  		     _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		
 		// ----- Contained in
@@ -384,49 +440,49 @@ public class BooleanQueryClause
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<OID>>(ContainedInQueryClause.<OID>forField(_fieldId)
 																									 .within(spectrum),
 																			   _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public <E extends Enum<E>> BooleanQueryClauseStep0Builder beWithin(final E... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<E>>(ContainedInQueryClause.<E>forField(_fieldId)
 																								   .within(spectrum),
 																			 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final Integer... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<Integer>>(ContainedInQueryClause.<Integer>forField(_fieldId)
 																										 .within(spectrum),
 																				   _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final Long... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<Long>>(ContainedInQueryClause.<Long>forField(_fieldId)
 																									  .within(spectrum),
 																				 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final Double... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<Double>>(ContainedInQueryClause.<Double>forField(_fieldId)
 																										.within(spectrum),
 																				  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final Float... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<Float>>(ContainedInQueryClause.<Float>forField(_fieldId)
 																									   .within(spectrum),
 																				 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final String... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<String>>(ContainedInQueryClause.<String>forField(_fieldId)
 																										.within(spectrum),
 																				  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beWithin(final Character... spectrum) {
 			_clauses.add(new QualifiedQueryClause<ContainedInQueryClause<Character>>(ContainedInQueryClause.<Character>forField(_fieldId)
 																										   .within(spectrum),
 																				     _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		
 		// ----- Equals
@@ -434,31 +490,31 @@ public class BooleanQueryClause
 			if (en != null) _clauses.add(new QualifiedQueryClause<EqualsQueryClause<E>>(EqualsQueryClause.forField(_fieldId)
 																								 .of(en),
 																						_occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public <O extends OID> BooleanQueryClauseStep0Builder beEqualTo(final O oid) {
 			if (oid != null) _clauses.add(new QualifiedQueryClause<EqualsQueryClause<O>>(EqualsQueryClause.forField(_fieldId)
 																					     				  .of(oid),
 																					     _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final String str) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<String>>(EqualsQueryClause.forField(_fieldId)
 																					          .of(str),
 																			 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final Character character) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Character>>(EqualsQueryClause.forField(_fieldId)
 																					             .of(character),
 																			    _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final Date date) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Date>>(EqualsQueryClause.forField(_fieldId)
 																							.of(date),
 																			  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public <N extends Number> BooleanQueryClauseStep0Builder beEqualTo(final N num) {
 			if (num != null) {
@@ -473,31 +529,31 @@ public class BooleanQueryClause
 				}
 				throw new IllegalArgumentException();
 			}
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final int number) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Integer>>(EqualsQueryClause.forField(_fieldId)
 																							   .of(number),
 																			  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final long number) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Long>>(EqualsQueryClause.forField(_fieldId)
 																							.of(number),
 																		   _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final double number) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Double>>(EqualsQueryClause.forField(_fieldId)
 																							  .of(number),
 																			 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beEqualTo(final float number) {
 			_clauses.add(new QualifiedQueryClause<EqualsQueryClause<Float>>(EqualsQueryClause.forField(_fieldId)
 																							 .of(number),
 																			_occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		
 		// ------ Range
@@ -505,55 +561,56 @@ public class BooleanQueryClause
 			_clauses.add(new QualifiedQueryClause<RangeQueryClause<Integer>>(RangeQueryClause.forField(_fieldId)
 																							 .of(range),
 																			 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beInsideLongRange(final Range<Long> range) {
 			_clauses.add(new QualifiedQueryClause<RangeQueryClause<Long>>(RangeQueryClause.forField(_fieldId)
 																						  .of(range),
 																		  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beInsideDateRange(final Range<Date> range) {
 			_clauses.add(new QualifiedQueryClause<RangeQueryClause<Date>>(RangeQueryClause.forField(_fieldId)
 																				    	  .of(range),
 																		  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder beInsideMilisecondsRange(final Range<Long> rangeMilis) {
 			_clauses.add(new QualifiedQueryClause<RangeQueryClause<Date>>(RangeQueryClause.forField(_fieldId)
 																						  .ofMilis(rangeMilis),
 																				 _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public InsideLastXDateQueryClauseStepBuilder beInsideLast(final int ammount) {
-			return new InsideLastXDateQueryClauseStepBuilder(this,ammount);
+			return new InsideLastXDateQueryClauseStepBuilder(_id,_clauses,
+															 _fieldId,_occur,ammount);
 		}
 		// ------ Contains Text
 		public ContainsTextQueryClauseStep1Builder beginWithText(final String str) {
-			return new ContainsTextQueryClauseStep1Builder(this,
-														   str,ContainedTextAt.BEGINING);
+			return new ContainsTextQueryClauseStep1Builder(_id,_clauses,
+														   _fieldId,_occur,str,ContainedTextAt.BEGINING);
 		}
 		public ContainsTextQueryClauseStep1Builder endWithText(final String str) {
-			return new ContainsTextQueryClauseStep1Builder(this,
-														   str,ContainedTextAt.ENDING);
+			return new ContainsTextQueryClauseStep1Builder(_id,_clauses,
+														   _fieldId,_occur,str,ContainedTextAt.ENDING);
 		}
 		public ContainsTextQueryClauseStep1Builder containText(final String str) {
-			return new ContainsTextQueryClauseStep1Builder(this,
-														   str,ContainedTextAt.CONTENT);
+			return new ContainsTextQueryClauseStep1Builder(_id,_clauses,
+														   _fieldId,_occur,str,ContainedTextAt.CONTENT);
 		}
 		public ContainsTextQueryClauseStep1Builder containFullText(final String str) {
-			return new ContainsTextQueryClauseStep1Builder(this,
-														   str,ContainedTextAt.FULL);
+			return new ContainsTextQueryClauseStep1Builder(_id,_clauses,
+														   _fieldId,_occur,str,ContainedTextAt.FULL);
 		}
 		public ContainsFullTextQueryClauseStep1Builder containsAnyTextOf(final String... terms) {
-			return new ContainsFullTextQueryClauseStep1Builder(this,
-															   CollectionUtils.of(terms));
+			return new ContainsFullTextQueryClauseStep1Builder(_id,_clauses,
+															   _fieldId,_occur,CollectionUtils.of(terms));
 		}
 		// ------ Has Data
 		public BooleanQueryClauseStep0Builder haveData() {
 			_clauses.add(new QualifiedQueryClause<HasDataQueryClause>(HasDataQueryClause.forField(_fieldId),
 																	  _occur));
-			return new BooleanQueryClauseStep0Builder(_clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -561,19 +618,23 @@ public class BooleanQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainsTextQueryClauseStep1Builder {
-		private final BooleanQueryClauseStep2Builder _step2Builder;
+		private final String _id;
+		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
+		
+		private final FieldID _fieldId;
+		private final QueryClauseOccur _occur;
 		private final String _text;
 		private final ContainedTextAt _position;
 		
 		public BooleanQueryClauseStep0Builder in(final Language lang) {
 			if (Strings.isNOTNullOrEmpty(_text)) {
-				_step2Builder._clauses.add(new QualifiedQueryClause<ContainsTextQueryClause>(ContainsTextQueryClause.forField(_step2Builder._fieldId)
-																													.at(_position)
-																				  					  	  			.text(_text)
-																				  					  	  			.in(lang),
-																				   _step2Builder._occur));
+				_clauses.add(new QualifiedQueryClause<ContainsTextQueryClause>(ContainsTextQueryClause.forField(_fieldId)
+																									  .at(_position)
+																  					  	  			  .text(_text)
+																  					  	  			  .in(lang),
+																				_occur));
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder languageIndependent() {
 			return this.in(null);	// no language 
@@ -581,7 +642,11 @@ public class BooleanQueryClause
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class ContainsFullTextQueryClauseStep1Builder {
-		private final BooleanQueryClauseStep2Builder _step2Builder;
+		private final String _id;
+		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
+		
+		private final FieldID _fieldId;
+		private final QueryClauseOccur _occur;
 		private final Collection<String> _texts;
 		
 		public BooleanQueryClauseStep0Builder in(final Language lang) {
@@ -589,16 +654,16 @@ public class BooleanQueryClause
 				// [1] - Create a "child" BooleanQueryClause that "joins" individual NumberEqualsQueryClauses as SHOULD
 				BooleanQueryClauseStep0Builder childBoolQryClause = BooleanQueryClause.create();			// all the individual items -globally-
 				for (String term : _texts) {
-					childBoolQryClause.field(_step2Builder._fieldId)
+					childBoolQryClause.field(_fieldId)
 									  .occur(QueryClauseOccur.SHOULD)	// OR = any --> individual item	
 									  .containText(term)
 									  .in(lang);
 				}
 				// [2] - Add the "child" BooleanQueryClause to the "parent" BooleanQueryClause
-				_step2Builder._clauses.add(new QualifiedQueryClause<BooleanQueryClause>(childBoolQryClause.build(),
-						 											  	  				_step2Builder._occur));
+				_clauses.add(new QualifiedQueryClause<BooleanQueryClause>(childBoolQryClause.build(),
+						 											  	  _occur));
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder languageIndependent() {
 			return this.in(null);	// no language
@@ -609,7 +674,11 @@ public class BooleanQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 	public static class InsideLastXDateQueryClauseStepBuilder {
-		private final BooleanQueryClauseStep2Builder _step2Builder;
+		private final String _id;
+		private final Set<QualifiedQueryClause<? extends QueryClause>> _clauses;
+		
+		private final FieldID _fieldId;
+		private final QueryClauseOccur _occur;
 		private final int _ammount;
 		
 		public BooleanQueryClauseStep0Builder minutes() {
@@ -617,36 +686,44 @@ public class BooleanQueryClause
 				DateTime now = new DateTime();
 				DateTime nowMinusX = now.minusMinutes(_ammount);
 				Range<Date> range = Range.closed(nowMinusX.toDate(),now.toDate());
-				return _step2Builder.beInsideDateRange(range);
+				return new BooleanQueryClauseStep2Builder(_id,_clauses,
+														  _fieldId,_occur)
+								.beInsideDateRange(range);
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder days() {
 			if (_ammount > 0) {
 				DateTime now = new DateTime();
 				DateTime nowMinusX = now.minusDays(_ammount);
 				Range<Date> range = Range.closed(nowMinusX.toDate(),now.toDate());
-				return _step2Builder.beInsideDateRange(range);
+				return new BooleanQueryClauseStep2Builder(_id,_clauses,
+														  _fieldId,_occur)
+								.beInsideDateRange(range);
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder months() {
 			if (_ammount > 0) {
 				DateTime now = new DateTime();
 				DateTime nowMinusX = now.minusMonths(_ammount);
 				Range<Date> range = Range.closed(nowMinusX.toDate(),now.toDate());
-				return _step2Builder.beInsideDateRange(range);
+				return new BooleanQueryClauseStep2Builder(_id,_clauses,
+														  _fieldId,_occur)
+								.beInsideDateRange(range);
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 		public BooleanQueryClauseStep0Builder years() {
 			if (_ammount > 0) {
 				DateTime now = new DateTime();
 				DateTime nowMinusX = now.minusYears(_ammount);
 				Range<Date> range = Range.closed(nowMinusX.toDate(),now.toDate());
-				return _step2Builder.beInsideDateRange(range);
+				return new BooleanQueryClauseStep2Builder(_id,_clauses,
+														  _fieldId,_occur)
+								.beInsideDateRange(range);
 			}
-			return new BooleanQueryClauseStep0Builder(_step2Builder._clauses);
+			return new BooleanQueryClauseStep0Builder(_id,_clauses);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -702,6 +779,7 @@ public class BooleanQueryClause
 			if (obj == this) return true;
 			if (!(obj instanceof QualifiedQueryClause)) return false;
 			
+			@SuppressWarnings("unchecked")
 			QualifiedQueryClause<? extends QueryClause> otherQClause = (QualifiedQueryClause<? extends QueryClause>)obj;
 			boolean occursEq = _occur != null ? otherQClause.getOccur() != null ? _occur.equals(otherQClause.getOccur())
 																				: false

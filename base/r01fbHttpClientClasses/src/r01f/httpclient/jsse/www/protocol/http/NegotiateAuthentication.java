@@ -28,6 +28,7 @@ package r01f.httpclient.jsse.www.protocol.http;
 import java.io.IOException;
 import java.net.PasswordAuthentication;
 import java.net.URL;
+import java.util.Arrays;
 import java.util.HashMap;
 import org.apache.commons.codec.binary.Base64;
 
@@ -176,8 +177,8 @@ class NegotiateAuthentication extends AuthenticationInfo {
                // incoming = new BASE64Decoder().decodeBuffer(parts[1]);
             	  incoming =  Base64.decodeBase64(parts[1]);
             }
-            response = scheme + " " + new B64Encoder().encode(
-                        incoming==null?firstToken():nextToken(incoming));
+            response = scheme + " " + Arrays.toString(new B64Encoder().encode(
+            											incoming==null ? firstToken() : nextToken(incoming)));
 
             conn.setAuthenticationProperty(getHeaderName(), response);
             return true;

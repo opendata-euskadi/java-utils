@@ -42,7 +42,7 @@ public class FieldMetaDataForDependentObject
 			 other.getDataType(),
 			 other.getChildMetaData());
 	}
-	public FieldMetaDataForDependentObject(final IndexableFieldID fieldId,
+	public FieldMetaDataForDependentObject(final FieldID fieldId,
 								   		   final LanguageTexts name,final LanguageTexts description,
 								   		   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								   		   final Class<?> type,
@@ -78,7 +78,7 @@ public class FieldMetaDataForDependentObject
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public IndexableFieldID getIndexableFieldId() {
+	public FieldID getIndexableFieldId() {
 		throw new IllegalStateException(Throwables.message("{} is a compound metaData",FieldMetaDataForDependentObject.class));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

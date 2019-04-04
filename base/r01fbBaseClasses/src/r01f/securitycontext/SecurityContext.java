@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.Date;
 
 import r01f.guids.CommonOIDs.AppCode;
+import r01f.guids.CommonOIDs.SecurityToken;
 import r01f.guids.CommonOIDs.UserCode;
 
 /**
@@ -37,7 +38,19 @@ public interface SecurityContext
 	 */
 	public boolean isForUser();
 	/**
+	 * @return true if the authenticated user is anonymous
+	 */
+	public boolean isAnonymousUser();
+	/**
+	 * @return true if the security context is for the MASTER user (an internal user will all privileges)
+	 */
+	public boolean isMasterUser();
+	/**
 	 * @return the Date when this user context was created
 	 */
 	public Date getCreateDate();
+	/**
+	 * @return a {@link SecurityToken} associated with this context
+	 */
+	public SecurityToken getSecurityToken();
 }

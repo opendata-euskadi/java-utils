@@ -3,14 +3,11 @@ package r01f.types.url;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.google.common.annotations.GwtIncompatible;
-
 import r01f.exceptions.Throwables;
 import r01f.types.url.UrlProtocol.StandardUrlProtocol;
 import r01f.util.types.Strings;
 import r01f.util.types.collections.CollectionUtils;
 
-@GwtIncompatible("uses regexp")
 public class UrlParserRegExpBased
 	 extends UrlParserBase {
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -10,6 +10,7 @@ import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanEx
 import r01f.events.PersistenceOperationEvents.PersistenceOperationErrorEvent;
 import r01f.events.PersistenceOperationEvents.PersistenceOperationOKEvent;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
@@ -27,7 +28,7 @@ import r01f.services.interfaces.CRUDServicesForVersionableModelObject;
 import r01f.util.types.collections.CollectionUtils;
 
 @Slf4j
-public abstract class CRUDServicesForVersionableModelObjectDelegateBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+public abstract class CRUDServicesForVersionableModelObjectDelegateBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 	          extends CRUDServicesForModelObjectDelegateBase<O,M>
 		   implements CRUDServicesForVersionableModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////

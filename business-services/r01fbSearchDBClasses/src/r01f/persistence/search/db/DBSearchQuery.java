@@ -113,8 +113,7 @@ public class DBSearchQuery<F extends SearchFilter,
 		// [2] - Create the JPA query & set the params
 		TypedQuery<Long> countQry = _entityManager.createQuery(countJPQL.toString(),
 												   			   Long.class);
-		_searchQueryToJpq.setJPAQueryParameters(countQry,
-							   					filter);
+		_searchQueryToJpq.setJPAQueryParameters(filter,countQry);
 		return countQry;
 	}
 	public TypedQuery<DB> getResultsQuery(final F filter,
@@ -125,8 +124,7 @@ public class DBSearchQuery<F extends SearchFilter,
 		// [2] - Create the JPA query & set the params
 		TypedQuery<DB> qry = _entityManager.createQuery(jpql.toString(),
 														_dbEntityType);
-		_searchQueryToJpq.setJPAQueryParameters(qry,
-			   				   					filter);
+		_searchQueryToJpq.setJPAQueryParameters(filter,qry);
 		return qry;
 	}
 	public Query getOidsQuery(final F filter) {
@@ -135,7 +133,7 @@ public class DBSearchQuery<F extends SearchFilter,
 		
 		// [2] - Create the JPA query & set the params
 		Query outQry = _entityManager.createQuery(jpql);
-		_searchQueryToJpq.setJPAQueryParameters(outQry,filter); 
+		_searchQueryToJpq.setJPAQueryParameters(filter,outQry); 
 		return outQry;
 	}
 }

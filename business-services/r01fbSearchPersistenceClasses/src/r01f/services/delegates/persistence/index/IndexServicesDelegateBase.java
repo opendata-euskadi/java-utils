@@ -8,7 +8,7 @@ import com.google.common.eventbus.EventBus;
 
 import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.IndexableModelObject;
 import r01f.model.persistence.PersistenceException;
 import r01f.persistence.index.Indexer;
@@ -28,7 +28,7 @@ import r01f.util.types.collections.CollectionUtils;
  * Service layer delegated type for index operations
  */
 @Slf4j
-public abstract class IndexServicesDelegateBase<O extends OID,M extends IndexableModelObject>
+public abstract class IndexServicesDelegateBase<O extends PersistableObjectOID,M extends IndexableModelObject>
 		   implements IndexServicesForModelObject<O,M>,
 					  SuppliesJobOID {
 /////////////////////////////////////////////////////////////////////////////////////////

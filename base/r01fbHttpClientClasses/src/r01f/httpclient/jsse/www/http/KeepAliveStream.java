@@ -157,7 +157,7 @@ class KeepAliveStream extends MeteredStream implements Hurryable {
 
     @SuppressWarnings({ "unchecked", "rawtypes" })
 	private static synchronized void queueForCleanup(KeepAliveCleanerEntry kace) {
-        if(queue != null && !kace.getQueuedForCleanup()) {
+        if (queue != null && !kace.getQueuedForCleanup()) {
             if (!queue.offer(kace)) {
                 kace.getHttpClient().closeServer();
                 return;

@@ -25,19 +25,20 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Range;
 
 import r01f.locale.Language;
+import r01f.types.datetime.MonthOfYear;
 import r01f.util.types.locale.Languages;
 
 /**
  * Date utils
  * (see http://www.odi.ch/prog/design/datetime.php)
  */
-@GwtIncompatible
 public abstract class Dates {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTANTS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     public static final String ES_DEFAULT_FORMAT = "dd/MM/yyyy";
     public static final String EU_DEFAULT_FORMAT = "yyyy/MM/dd";
     public static final String EPOCH = "MMM dd yyyy HH:mm:ss.SSS zzz";
@@ -87,6 +88,7 @@ public abstract class Dates {
     /**
      * @return the time now
      */
+	@GwtIncompatible
     public static Date now() {
     	return Calendar.getInstance().getTime();
     }
@@ -115,6 +117,7 @@ public abstract class Dates {
      * @param epochTimeStamp
      * @return
      */
+    @GwtIncompatible
     public static String epochTimeStampAsString(long epochTimeStamp) {
     	String date = new SimpleDateFormat(Dates.EPOCH)
     							.format(new Date(epochTimeStamp*1000));
@@ -125,6 +128,7 @@ public abstract class Dates {
      * @param epochTimeStampAsString
      * @return
      */
+    @GwtIncompatible
     public static long epochTimeStampFromString(final String epochTimeStampAsString) {
     	long epoch = 0;
     	try {
@@ -135,9 +139,9 @@ public abstract class Dates {
     	}
     	return epoch;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  AUX METODOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Gets the date format pattern depending on the provided language
      * @param lang the language
@@ -154,9 +158,9 @@ public abstract class Dates {
         if (fmt == null) fmt = DEFAULT_FORMAT;
         return fmt;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CONVERSION METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      *
      * Returns the Date as milis
@@ -180,6 +184,7 @@ public abstract class Dates {
      * @param date the Date
      * @return the returned Calendar
      */
+    @GwtIncompatible
     public static GregorianCalendar asCalendar(final Date date) {
     	if (date == null) return null;
     	GregorianCalendar outCal = new GregorianCalendar();
@@ -217,13 +222,14 @@ public abstract class Dates {
      * @param cal
      * @return
      */
+    @GwtIncompatible
     public static Date fromCalendar(final Calendar cal) {
     	if (cal == null) return null;
     	return cal.getTime();
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FORMAT METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Returns a date formated as ISO8601 (yyyy-MM-dd'T'HH:mm'Z') GMT (greenwich meridian time) / UTC (coordinate universal time) time
      * (see http://www.timeanddate.com/time/gmt-utc-time.html and http://stackoverflow.com/questions/3914404/how-to-get-current-moment-in-iso-8601-format
@@ -231,6 +237,7 @@ public abstract class Dates {
      * @param date
      * @return
      */
+    @GwtIncompatible
     public static String formatAsISO8601(final Date date) {
     	TimeZone tz = TimeZone.getTimeZone("UTC");
     	DateFormat df = new SimpleDateFormat(Dates.ISO8601);
@@ -238,6 +245,7 @@ public abstract class Dates {
     	String outISODate = df.format(date);
     	return outISODate;
     }
+    @GwtIncompatible
     public static String formatAsUTC(final Date date) {
     	return Dates.formatAsISO8601(date);
     }
@@ -246,6 +254,7 @@ public abstract class Dates {
      * @param date
      * @return
      */
+    @GwtIncompatible
     public static String formatAsEpochTimeStamp(final Date date) {
     	return Dates.epochTimeStampAsString(date.getTime());
     }
@@ -262,6 +271,7 @@ public abstract class Dates {
      * @param fmt
      * @return
      */
+    @GwtIncompatible
     public static String format(final Date date,final String fmt) {
 
         return Dates.format(date,fmt,Locale.getDefault());
@@ -272,6 +282,7 @@ public abstract class Dates {
      * @param fmt
      * @return
      */
+    @GwtIncompatible
     public static String format(final long milis,final String fmt) {
     	Date date = Dates.fromMillis(milis);
     	return Dates.format(date,fmt);
@@ -289,6 +300,7 @@ public abstract class Dates {
      * @param locale format language. For Locale.English the timeZone is set to GMT (RSS uses this).
      * @return
      */
+    @GwtIncompatible
     public static String format(final Date date,final String fmt,
     							final Locale locale) {
         Date theDate = date != null ? date : new Date();
@@ -331,22 +343,25 @@ public abstract class Dates {
      * @param langFormats map with the language-dependent date formats
      * @return
      */
+    @GwtIncompatible
     public static String format(final Date date,final Language lang,
     							final Map<Language,String> langFormats) {
         String fmt = Dates.langFormat(lang,langFormats);
         return Dates.format(date,fmt);
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	FORMAT METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Gets a date from it's ISO representation
      * @param dateStr
      * @return
      */
+    @GwtIncompatible
     public static Date fromISO8601FormattedString(final String dateStr) {
     	return Dates.fromFormatedString(dateStr,"iso");
     }
+    @GwtIncompatible
     public static Date fromUTC(final String dateStr) {
     	return Dates.fromFormatedString(dateStr,"iso");
     }
@@ -361,7 +376,7 @@ public abstract class Dates {
      * @param format
      * @return
      */
-	@SuppressWarnings("null")
+    @GwtIncompatible @SuppressWarnings("null")
 	public static Date fromFormatedString(final String dateStr,final String format) {
         if (dateStr == null) return null;
     	String theDateStr = new String(dateStr);
@@ -403,15 +418,16 @@ public abstract class Dates {
      * @param langFormats the language date formats
      * @return the parsed date of null if the date cannot be parsed
      */
+    @GwtIncompatible
     public static java.util.Date fromLanguageFormatedString(final String dateStr,final Language lang,
     														final Map<Language,String> langFormats) {
         if (dateStr == null) return null;
         String fmt = Dates.langFormat(lang,langFormats);
         return fromFormatedString(dateStr,fmt);
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  OTHER METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Reformats a date as string to another format
      * @param dateStr the date in the source format
@@ -419,6 +435,7 @@ public abstract class Dates {
      * @param targetFormat the target format
      * @return
      */
+    @GwtIncompatible
     public static String reformat(final String dateStr,
     							  final String sourceFormat,final String targetFormat) {
         String theOldFmt = Strings.isNullOrEmpty(sourceFormat) ? DEFAULT_FORMAT : sourceFormat;
@@ -428,9 +445,9 @@ public abstract class Dates {
         Date newDate = Dates.fromFormatedString(theDateStr,theOldFmt);
         return Dates.format(newDate,theNewFmt);
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FORMATTING
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Returns the current date as a String
      * @param language El lenguaje 0=Castellano, 1=Euskara
@@ -451,14 +468,14 @@ public abstract class Dates {
                 outDate = new StringBuilder()
                 				 .append(_getDayOfWeekName(dayOfWeek,Language.SPANISH)).append(", ")
                 				 .append(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH))).append(" de ")
-                				 .append(_getMonthName(monthOfYear,Language.SPANISH)).append(" de ")
+                				 .append(getMonthName(monthOfYear,Language.SPANISH)).append(" de ")
                 				 .append(Integer.toString(year)).toString();
                 break;
             case BASQUE:
                 outDate = new StringBuilder()
                 				 .append(_getDayOfWeekName(dayOfWeek,Language.BASQUE)).append(", ")
                 				 .append(Integer.toString(year)).append("-ko ")
-                				 .append(_getMonthName(monthOfYear,Language.BASQUE)).append("ren ")
+                				 .append(getMonthName(monthOfYear,Language.BASQUE)).append("ren ")
                 				 .append(Integer.toString(calendar.get(Calendar.DAY_OF_MONTH))).toString();
                 break;
             case ENGLISH:
@@ -499,7 +516,10 @@ public abstract class Dates {
         }
         return outDayName;
     }
-    private static String _getMonthName(final int month,final Language language) {
+    public static String getMonthName(final MonthOfYear month,final Language language) {
+    	return Dates.getMonthName(month.asInteger(),language);
+    }
+    public static String getMonthName(final int month,final Language language) {
     	String outMonthName = null;
         switch(language) {
             case SPANISH:
@@ -588,9 +608,9 @@ public abstract class Dates {
         }
         return outMonthName;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  OTROS METODOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Pasa una fecha al maximo, es decir si la fecha suministrada es 25/03/07 11:44:00 pasa
      * a 25/03/07 23:59:999
@@ -609,6 +629,7 @@ public abstract class Dates {
      * @param date la fecha
      * @return otra fecha en el primer mili
      */
+    @GwtIncompatible
     public static Date rollDateToMinimum(final Date date) {
         Calendar theCal = Calendar.getInstance();
         theCal.setTime(date);
@@ -635,6 +656,7 @@ public abstract class Dates {
      * @param theCal la fecha
      * @return otra fecha en el primer mili
      */
+    @GwtIncompatible
     public static Calendar rollCalendarToMinimum(final Calendar theCal) {
         Calendar cal = Calendar.getInstance();
         cal.setTime(theCal.getTime());
@@ -652,6 +674,7 @@ public abstract class Dates {
 	 * @param date
 	 * @return
 	 */
+    @GwtIncompatible
 	public static Interval dayIntervalOf(final Date date) {
 		DateTime dayStart = Dates.dayStartOf(date);
 		DateTime nextDayStart = Dates.nextDayStartOf(date);
@@ -663,6 +686,7 @@ public abstract class Dates {
 	 * @param date
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime dayStartOf(final Date date) {
 		DateTime dateTime = new DateTime(date,
 										 DateTimeZone.getDefault());
@@ -674,6 +698,7 @@ public abstract class Dates {
 	 * @param date
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime nextDayStartOf(final Date date) {
 		DateTime dateTime = new DateTime(date,
 										 DateTimeZone.getDefault());
@@ -687,6 +712,7 @@ public abstract class Dates {
 	 * @param weekOfYear
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime weekFirstInstant(final int year,final int weekOfYear) {
 		Partial weekFirstInstant = new Partial(
                    new DateTimeFieldType[] {DateTimeFieldType.weekyear(),DateTimeFieldType.weekOfWeekyear(),DateTimeFieldType.dayOfWeek(),
@@ -701,6 +727,7 @@ public abstract class Dates {
 	 * @param weekOfYear
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime weekLastInstant(final int year,final int weekOfYear) {
 		return Dates.weekFirstInstant(year,weekOfYear)
 						.plusWeeks(1)
@@ -712,6 +739,7 @@ public abstract class Dates {
 	 * @param monthOfYear
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime monthFirstInstant(final int year,final int monthOfYear) {
 		Partial monthFirstInstant = new Partial(
                    new DateTimeFieldType[] {DateTimeFieldType.weekyear(),DateTimeFieldType.monthOfYear(),DateTimeFieldType.dayOfMonth(),
@@ -726,9 +754,22 @@ public abstract class Dates {
 	 * @param monthOfYear
 	 * @return
 	 */
+    @GwtIncompatible
 	public static DateTime monthLastInstant(final int year,final int monthOfYear) {
 		return Dates.monthFirstInstant(year,monthOfYear)
 						.plusMonths(1)
 						.minusMillis(2);
 	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  RANGES
+/////////////////////////////////////////////////////////////////////////////////////////
+    /**
+     * Returns a Range object for a day
+     * @param date
+     * @return
+     */
+    public static Range<Date> dayDateRangeOf(final Date date) {
+    	Interval dayInterval = Dates.dayIntervalOf(date);
+		return Range.closed(dayInterval.getStart().toDate(),dayInterval.getEnd().toDate());
+    }
 }

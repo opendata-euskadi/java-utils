@@ -33,18 +33,18 @@ public class FindSummariesError<M extends PersistableModelObject<? extends OID>>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindSummariesError() {
-		// nothing
+		super(PersistenceRequestedOperation.FIND);
 	}
 	FindSummariesError(final Class<M> entityType,
 			  		   final Throwable th) {
-		super(entityType,
-			  PersistenceRequestedOperation.FIND,
+		super(PersistenceRequestedOperation.FIND,
+			  entityType,
 			  th);
 	}
 	FindSummariesError(final Class<M> entityType,
 			  		   final String errMsg,final PersistenceErrorType errorCode) {
-		super(entityType,
-			  PersistenceRequestedOperation.FIND,
+		super(PersistenceRequestedOperation.FIND,
+			  entityType,
 			  errMsg,errorCode);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.Accessors;
 import r01f.generics.TypeRef;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallField;
 import r01f.objectstreamer.annotations.MarshallField.MarshallFieldAsXml;
 
@@ -27,7 +27,7 @@ public abstract class QueryClauseBase
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallField(as="forMetaData",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-    @Getter @Setter private IndexableFieldID _fieldId;
+    @Getter @Setter private FieldID _fieldId;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////

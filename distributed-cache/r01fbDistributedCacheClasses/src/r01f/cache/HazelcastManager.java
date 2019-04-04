@@ -34,10 +34,9 @@ public class HazelcastManager {
 	 * @param config
 	 * @return
 	 */
-	@SuppressWarnings("unused")
 	public static HazelcastInstance getOrCreateHazelcastInstance(final Config config) {
 		if (config == null) throw new IllegalArgumentException("Configuration for creating HazelCast instance is null");
-		
+
 		String instanceName = Strings.customized("{}{}",
 												 R01_PREFIX,ManagementFactory.getRuntimeMXBean().getName());
 		log.warn("Get or create a hazelcast instance with name={}",
@@ -49,14 +48,22 @@ public class HazelcastManager {
 			config.setInstanceName(instanceName);
 			try {
 				outHZInstance = Hazelcast.newHazelcastInstance(config);
+				log.warn("\t\t... return new Hazelcast instance with name {} ({})",
+						  instanceName, outHZInstance.hashCode());
+			} catch (com.hazelcast.core.DuplicateInstanceNameException dine) {
+				outHZInstance = Hazelcast.getHazelcastInstanceByName(instanceName);
+				log.warn("\t\t... Hazelcast instance exists yet ... return Hazelcast instance with name {} ({})",
+						  instanceName, outHZInstance.hashCode());
 			} catch(Throwable ex) {
 				log.error("Error while creating the Hazelcast instance: {} ",
 						  ex.getMessage(),ex );
-
+				outHZInstance = Hazelcast.getHazelcastInstanceByName(instanceName);
+				log.warn("\t\t... try again to return Hazelcast instance with name {} ({})",
+						  instanceName, (outHZInstance!=null?outHZInstance.hashCode():"null"));
 			}
 		} else {
-			log.warn("\t\t... there already exists a Hazelcast instance with name {}, so this one will be returned",
-					  instanceName);
+			log.warn("\t\t... there already exists a Hazelcast instance with name {} ({}), so this one will be returned",
+					  instanceName, outHZInstance.hashCode());
 		}
 		_debugHazelcastInstances();
 		return outHZInstance;

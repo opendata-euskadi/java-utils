@@ -2,40 +2,49 @@ package r01f.cache;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 import javax.inject.Inject;
 
 import com.google.common.collect.Maps;
+import com.hazelcast.core.Hazelcast;
 import com.hazelcast.core.HazelcastInstance;
 
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import r01f.facets.HasOID;
 import r01f.guids.OID;
 import r01f.model.ModelObject;
 
+@Slf4j
 @Accessors(prefix="_")
-public class DistributedCacheServiceHazelcastImpl 
+public class DistributedCacheServiceHazelcastImpl
   implements DistributedCacheService {
+
 /////////////////////////////////////////////////////////////////////////////////////////
-//	FIELDS 
+//	FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Getter @Setter Map<Class<? extends ModelObject>,DistributedCache<? extends OID,? extends ModelObject>> _caches = Maps.newLinkedHashMap();
-	@Getter @Setter HazelcastInstance _hazelCastInstance;
+	private HazelcastInstance _hazelCastInstance;
+	@Getter @Setter DistributedCacheConfig _cfg;
+
 /////////////////////////////////////////////////////////////////////////////////////////
-//	CONSTRUCTOR 
+//	CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
-	public  DistributedCacheServiceHazelcastImpl(final HazelcastInstance hzInstance) {
-		_hazelCastInstance = hzInstance;
+	public  DistributedCacheServiceHazelcastImpl(final DistributedCacheConfig cfg) {
+		_cfg = cfg;
 	}
+
 ////////////////////////////////////////////////////////////////////////////////
 //  DistributedCacheService
 /////////////////////////////////////////////////////////////////////////////////
 	@Override	@SuppressWarnings("unchecked")
 	public <O extends OID,M extends ModelObject & HasOID<O>> DistributedCache<O,M> getOrCreateCacheFor(final Class<M> modelObjType) {
 		DistributedCache<? extends OID,? extends ModelObject> outCache = null;
+		_checkCacheStatus();
 		if (_caches.get(modelObjType) != null ) {
 			outCache = _caches.get(modelObjType);
 		} else {
@@ -47,34 +56,82 @@ public class DistributedCacheServiceHazelcastImpl
 	}
 	private <O extends OID,M extends ModelObject & HasOID<O>> DistributedCache<O,M> _createTypedCacheFor(final Class<M> modelObjType) {
 		DistributedCache<O,M> outCache = new DistributedHazelcastCacheForModelObject<O,M>(modelObjType,
-																				   		  _hazelCastInstance); 
-//		Class[] constructorArgsTypes = { Class.class,HazelcastInstance.class };
-//		Object[] constructorArgs = {modelObjType,_hazelCastInstance};
-//		DistributedCache<O,M> outCache = ReflectionUtils.createInstanceOf(DistributedHazelcastCacheForModelObject.class,
-//				                                                          constructorArgsTypes,constructorArgs);
+				_getOrCreateHazelcastInstance());
 		return  outCache;
 	}
 	@Override
 	public <M extends ModelObject> boolean existsCacheFor(final Class<M> modelObjType) {
 		return _caches.get(modelObjType) != null;
 	}
+
+	private HazelcastInstance _getOrCreateHazelcastInstance() {
+		if (_hazelCastInstance==null) {
+			synchronized(this) {
+				if(_hazelCastInstance == null) {
+					_hazelCastInstance = HazelcastManager.getOrCreateeHazelcastInstance(_cfg);
+				}
+			}
+		}
+		return _hazelCastInstance;
+	}
+	private void _checkCacheStatus() {
+		if (_hazelCastInstance==null || !_hazelCastInstance.getLifecycleService().isRunning()) {
+			_hazelCastInstance = null;
+			_clearAll();
+			_getOrCreateHazelcastInstance();
+		}
+	}
+	private void _clearAll() {
+		try {
+			for (Iterator<DistributedCache<? extends OID,? extends ModelObject>> cacheIt = _caches.values().iterator(); cacheIt.hasNext(); ) {
+				DistributedCache<? extends OID,? extends ModelObject> cache = cacheIt.next();
+				cache.clear();
+			}
+			_caches.clear();
+		} catch (Throwable t) {
+
+		}
+	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
-//	ServiceHandler 
+//	ServiceHandler
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public void start() {
 		//Do Nothing
+//		_hazelCastInstance = HazelcastManager.getOrCreateeHazelcastInstance(_cfg);
+//		HazelcastManager.getOrCreateeHazelcastInstance(_cfg);
+		_getOrCreateHazelcastInstance();
 	}
 	@Override
 	public void stop() {
-		_hazelCastInstance.shutdown();
+		log.warn("######################################################################################");
+		log.warn("Stopping Hazelcast");
+		log.warn("######################################################################################");
+		if (_hazelCastInstance!=null) {
+			_clearAll();
+			synchronized(this) {
+				if(_hazelCastInstance != null) {
+					_hazelCastInstance.shutdown();
+					_hazelCastInstance = null;
+				}
+			}
+		}
 	}
+
 /////////////////////////////////////////////////////////////////////////////////////////
-//	DEBUGGABLE 
+//	DEBUGGABLE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public CharSequence debugInfo() {
 		StringBuilder sb = new StringBuilder();
+
+		Set<HazelcastInstance> hazelcastInstances = Hazelcast.getAllHazelcastInstances();
+		sb.append("Hazlecast Instances (/n");
+		for (HazelcastInstance hzI : hazelcastInstances) {
+			sb.append(hzI.getCluster()+ " > "+hzI.getName()+" ("+hzI.hashCode()+")"+"/n");
+		}
+		sb.append(")/n");
 		sb.append("Cache Status (").append(_caches.size()).append(" caches created)\n");
 		for (Iterator<DistributedCache<? extends OID,? extends ModelObject>> cacheIt = _caches.values().iterator(); cacheIt.hasNext(); ) {
 			DistributedCache<? extends OID,? extends ModelObject> cache = cacheIt.next();

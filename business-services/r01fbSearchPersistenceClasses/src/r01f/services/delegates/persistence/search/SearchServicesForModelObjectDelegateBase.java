@@ -7,8 +7,8 @@ import com.google.common.collect.Collections2;
 import com.google.common.eventbus.EventBus;
 
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
-import r01f.model.PersistableModelObject;
+import r01f.facets.HasOID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.search.SearchFilterForModelObject;
 import r01f.model.search.SearchResultItemForModelObject;
 import r01f.model.search.SearchResults;
@@ -36,8 +36,8 @@ public abstract class SearchServicesForModelObjectDelegateBase<F extends SearchF
 //  METHODS
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
-	public <O extends OID> Collection<O> filterRecordsOids(final SecurityContext securityContext, 
-														   final F filter) {
+	public <O extends PersistableObjectOID> Collection<O> filterRecordsOids(final SecurityContext securityContext, 
+														   					final F filter) {
 		// BEWARE!!!!
 		//		This default impl is NOT OPTIMIZED since it just filter all records 
 		//		and returns the oids
@@ -66,8 +66,9 @@ public abstract class SearchServicesForModelObjectDelegateBase<F extends SearchF
 												new Function<I,O>() {														
 														@Override @SuppressWarnings("unchecked")
 														public O apply(final I item) {
-															SearchResultItemForModelObject<? extends PersistableModelObject<O>> itemForModelObject = (SearchResultItemForModelObject<? extends PersistableModelObject<O>>)item;
-															return itemForModelObject.getOid();
+															if (!(item instanceof HasOID)) throw new IllegalStateException(item.getClass() + " does NOT have an OID!");
+															HasOID<O> hasOid = (HasOID<O>)item;
+															return hasOid.getOid();
 														}
 												});
 		}

@@ -27,7 +27,8 @@ public class PersistenceException
 	protected PersistenceException(final PersistenceRequestedOperation requestedOp,
 						 		   final Throwable th) {
 		super(PersistenceErrorType.class,
-			  Strings.customized("Persistence error when executing a {} operation: {}",requestedOp,th.getMessage()),
+			  Strings.customized("Persistence error when executing a {} operation: {}",
+					  			 requestedOp,th.getMessage()),
 			  th,
 			  PersistenceErrorType.SERVER_ERROR);
 		_requestedOperation = requestedOp;
@@ -46,7 +47,9 @@ public class PersistenceException
 						 		   final PersistenceErrorType errorType,final int extendedCode) {
 		super(PersistenceErrorType.class,
 		      Strings.customized("Persistence error when executing a {} ({}: {})",
-		    		  			 requestedOp,requestedOpName,msg),
+		    		  			 requestedOp,requestedOpName != null ? requestedOpName 
+		    		  					 							 : requestedOp != null ? requestedOp.name() : "",
+		    		  			 msg),
 		      errorType,extendedCode);
 		_requestedOperation = requestedOp;
 	}

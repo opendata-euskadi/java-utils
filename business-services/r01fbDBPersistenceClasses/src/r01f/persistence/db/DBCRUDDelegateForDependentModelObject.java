@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.exceptions.Throwables;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.HasParentModelObjectRef;
 import r01f.model.ModelObjectRef;
 import r01f.model.PersistableModelObject;
@@ -33,7 +34,7 @@ import r01f.util.types.Strings;
  * @param <DB>
  */
 @Accessors(prefix="_")
-public abstract class DBCRUDDelegateForDependentModelObject<O extends OID,M extends PersistableModelObject<O>,P extends PersistableModelObject<?>,
+public abstract class DBCRUDDelegateForDependentModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>,P extends PersistableModelObject<?>,
 							     			   	   			PK extends DBPrimaryKeyForModelObject,DB extends DBEntityForModelObject<PK>>
            implements DBCRUDForDependentModelObject<O,M,P>,
    			 		  TransfersParentModelObjectRefToDBEntity<P,DB> {

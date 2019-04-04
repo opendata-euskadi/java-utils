@@ -455,7 +455,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
 
             setRequests=true;
         }
-        if(logger.isLoggable(Level.FINEST)) {
+        if (logger.isLoggable(Level.FINEST)) {
             logger.fine(requests.toString());
         }
         http.writeRequests(requests, poster);
@@ -1034,7 +1034,7 @@ public class HttpURLConnection extends java.net.HttpURLConnection {
                     writeRequests();
                 }
                 http.parseHTTP(responses, pi, this);
-                if(logger.isLoggable(Level.FINEST)) {
+                if (logger.isLoggable(Level.FINEST)) {
                     logger.fine(responses.toString());
                 }
                 inputStream = http.getInputStream();

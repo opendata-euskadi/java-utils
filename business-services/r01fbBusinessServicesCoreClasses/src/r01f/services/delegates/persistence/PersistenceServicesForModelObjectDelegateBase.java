@@ -8,7 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
 import r01f.events.PersistenceOperationEvents.PersistenceOperationErrorEvent;
 import r01f.events.PersistenceOperationEvents.PersistenceOperationOKEvent;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.CRUDError;
 import r01f.model.persistence.CRUDOK;
@@ -19,7 +19,7 @@ import r01f.services.interfaces.ServiceInterfaceForModelObject;
 
 @Slf4j
 @Accessors(prefix="_")
-public abstract class PersistenceServicesForModelObjectDelegateBase<O extends OID,M extends PersistableModelObject<O>>
+public abstract class PersistenceServicesForModelObjectDelegateBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 			  extends PersistenceServicesDelegateBase {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  NOT INJECTED STATUS
@@ -71,29 +71,33 @@ public abstract class PersistenceServicesForModelObjectDelegateBase<O extends OI
 	protected void _fireEvent(final SecurityContext securityContext,
 							  final CRUDResult<M> opResult,
 							  final PersistenceOperationCallbackSpec callbackSpec) {
-		if (this.getEventBus() == null) {
-			log.debug("NO event bus available; CRUD events will NOT be handled");
-			return;
-		}
-		log.debug("Publishing an event of type: {}: ({}) success={}",
-				  opResult.getClass(),
-				  opResult.getRequestedOperationName(),
-				  opResult.hasSucceeded());
-		
-		if (opResult.hasFailed()) {
-			CRUDError<M> opNOK = opResult.asCRUDError();		// as(CRUDError.class)
-			PersistenceOperationErrorEvent nokEvent = new PersistenceOperationErrorEvent(securityContext,
-												 					         	 		 opNOK,
-												 					         	 		 callbackSpec);
-			this.getEventBus().post(nokEvent);
+//		try {
+			if (this.getEventBus() == null) {
+				log.debug("NO event bus available; CRUD events will NOT be handled");
+				return;
+			}
+			log.debug("Publishing an event of type: {}: ({}) success={}",
+					  opResult.getClass(),
+					  opResult.getRequestedOperationName(),
+					  opResult.hasSucceeded());
 			
-		} else if (opResult.hasSucceeded()) {
-			CRUDOK<M> opOK = opResult.asCRUDOK();				// as(CRUDOK.class);
-			PersistenceOperationOKEvent okEvent = new PersistenceOperationOKEvent(securityContext,
-												 					      	  	  opOK,
-												 					      	  	  callbackSpec);
-			this.getEventBus().post(okEvent);
-			
-		} 
+			if (opResult.hasFailed()) {
+				CRUDError<M> opNOK = opResult.asCRUDError();		// as(CRUDError.class)
+				PersistenceOperationErrorEvent nokEvent = new PersistenceOperationErrorEvent(securityContext,
+													 					         	 		 opNOK,
+													 					         	 		 callbackSpec);
+				this.getEventBus().post(nokEvent);
+				
+			} else if (opResult.hasSucceeded()) {
+				CRUDOK<M> opOK = opResult.asCRUDOK();				// as(CRUDOK.class);
+				PersistenceOperationOKEvent okEvent = new PersistenceOperationOKEvent(securityContext,
+													 					      	  	  opOK,
+													 					      	  	  callbackSpec);
+				this.getEventBus().post(okEvent);
+			}
+//		} catch (Throwable th) {
+//			log.error("ERROR while handling CORE EVENT: {}",
+//					  th.getMessage(),th);
+//		}
 	}
 }

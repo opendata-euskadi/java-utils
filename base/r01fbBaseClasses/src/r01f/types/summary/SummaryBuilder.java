@@ -1,7 +1,10 @@
 package r01f.types.summary;
 
+import com.google.common.base.Preconditions;
+
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
+import r01f.facets.FullTextSummarizable;
 import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
 import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
 import r01f.facets.LangNamed.HasLangNamedFacet;
@@ -10,6 +13,7 @@ import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.locale.LanguageTexts;
 import r01f.patterns.IsBuilder;
 import r01f.types.CanBeRepresentedAsString;
+import r01f.types.summary.SummaryBases.ImmutableLangDependentSummary;
 import r01f.types.summary.SummaryBases.ImmutableLangIndependentSummary;
 
 /**
@@ -42,37 +46,70 @@ public abstract class SummaryBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	public static SummaryBuilderForLangDependent languageDependent() {
-		return new SummaryBuilderForLangDependent();
+		return new SummaryBuilder() { /* nothing */ }
+						.new SummaryBuilderForLangDependent();
 	}
 	public static SummaryBuilderForLangInDependent languageInDependent() {
-		return new SummaryBuilderForLangInDependent();
+		return new SummaryBuilder() { /* nothing */ }
+						.new SummaryBuilderForLangInDependent();
 	}
 	public static SummaryBuilderForLangNamed languageNamed() {
-		return new SummaryBuilderForLangNamed();
+		return new SummaryBuilder() { /* nothing */ }
+						.new SummaryBuilderForLangNamed();
 	}
 	@SuppressWarnings("serial")
-	public static ImmutableLangIndependentSummary wrapAsImmutable(final boolean isFullText,
-																  final Summary summary) {
-		return new ImmutableLangIndependentSummary(isFullText) {	
-						@Override
-						public String asString() {
-							return summary.asString();
-						}
-		};
+	public static Summary wrapAsImmutable(final boolean isFullText,
+										  final Summary summary) {
+		Preconditions.checkArgument(summary != null,"summary cannot be null!");
+		if (summary instanceof LangDependentSummary) {
+			return new ImmutableLangDependentSummary(isFullText) {
+							@Override
+							public LanguageTexts asLanguageTexts() {
+								return summary.asLangDependent()
+											  .asLanguageTexts();
+							}	
+			};				
+		}
+		else if (summary instanceof LangIndependentSummary) {
+			return new ImmutableLangIndependentSummary(isFullText) {	
+							@Override
+							public String asString() {
+								return summary.asString();
+							}
+			};			
+		}
+		else {
+			throw new IllegalArgumentException();
+		}
 	}
-	public static ImmutableLangIndependentSummary wrapAsImmutable(final Summary summary) {
+	public static Summary wrapAsImmutable(final Summary summary) {
 		return SummaryBuilder.wrapAsImmutable(false,
 											  summary);
 	}
-	public static ImmutableLangIndependentSummary wrapAsImmutableForFullText(final Summary summary) {
+	public static Summary wrapAsImmutableForFullText(final Summary summary) {
 		return SummaryBuilder.wrapAsImmutable(true,
 											  summary);
+	}
+	public static Summary FullTextSummaryFrom(final Summary summary) {
+		Summary outSummary = null;
+		if (summary.isFullTextSummary()) {
+			outSummary = summary;	// it's already a full-text summary
+		}
+		else if (summary.isLangDependent()) {
+			outSummary = SummaryBuilder.languageDependent()
+									   .createFullText(summary);
+		}
+		else {
+			outSummary = SummaryBuilder.languageInDependent()
+									   .createFullText(summary);
+		}
+		return outSummary;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@NoArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class SummaryBuilderForLangDependent {
+	public final class SummaryBuilderForLangDependent {
 		@SuppressWarnings("static-method")
 		public LangDependentSummary create(final LanguageTexts langTexts) {
 			return SummaryLanguageTextsBacked.of(langTexts);	
@@ -91,16 +128,18 @@ public abstract class SummaryBuilder
 		}
 		public LangDependentSummary createFullText(final HasSummaryFacet hasSummary) {
 			return this.createFullText(hasSummary.asSummarizable()
-												 .getSummary()
-												 .asLangDependent()
-												 .asLanguageTexts());
+												 .getSummary());
+		}
+		public LangDependentSummary createFullText(final Summary summary) {
+			return this.createFullText(summary.asLangDependent()
+											   .asLanguageTexts());
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@NoArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class SummaryBuilderForLangInDependent {
+	public final class SummaryBuilderForLangInDependent {
 		@SuppressWarnings("static-method")
 		public LangIndependentSummary create(final CanBeRepresentedAsString summary) {
 			return SummaryStringBacked.of(summary);
@@ -134,16 +173,18 @@ public abstract class SummaryBuilder
 		}
 		public LangIndependentSummary createFullText(final HasSummaryFacet hasSummary) {
 			return this.createFullText(hasSummary.asSummarizable()
-												 .getSummary()
-												 .asLangIndependent()
-												 .asString());
+												 .getSummary());
+		}
+		public LangIndependentSummary createFullText(final Summary summary) {
+			return this.createFullText(summary.asLangIndependent()
+											  .asString());
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@NoArgsConstructor(access=AccessLevel.PRIVATE)
-	public static class SummaryBuilderForLangNamed {
+	public final class SummaryBuilderForLangNamed {
 		@SuppressWarnings("static-method")
 		public LangIndependentSummary create(final String summary) {
 			return SummaryStringBacked.of(summary);

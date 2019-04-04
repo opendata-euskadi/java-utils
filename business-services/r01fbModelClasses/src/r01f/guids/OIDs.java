@@ -3,10 +3,15 @@ package r01f.guids;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Collection;
+import java.util.UUID;
 
 import com.google.common.annotations.GwtIncompatible;
+import com.google.common.base.Function;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Lists;
 
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
@@ -30,6 +35,20 @@ public class OIDs {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
+	public static <O extends OID> Collection<String> toStringCollection(final Collection<O> oids) {
+		if (CollectionUtils.isNullOrEmpty(oids)) return Lists.newArrayList();
+		return FluentIterable.from(oids)
+							 .transform(new Function<O,String>() {
+												@Override
+												public String apply(final O oid) {
+													return oid.asString();
+												}
+							 			})
+							 .toList();
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Sets the oid in a {@link HasOID} object
 	 * @param hasOid
@@ -43,6 +62,14 @@ public class OIDs {
 									   			     OID.STATIC_FACTORY_METHOD_NAME,
 									   			     new Class<?>[] {String.class},new Object[] {serializedOid});
 		hasOid.unsafeSetOid(oid);
+	}
+	/**
+	 * Generates a GUID
+	 * @return
+	 */
+	public static String supplyOid() {
+		UUID uuid = UUID.randomUUID();
+        return uuid.toString().toUpperCase();
 	}
 	/**
 	 * Invokes the supply() method to generate a new oid
@@ -137,7 +164,7 @@ public class OIDs {
 		// If the oid type was NOT found:			
 		if (strict && oidType == null) throw new IllegalStateException(Throwables.message("Could NOT guess the oid type for the {} type: either the {} field metadata was NOT present, neither the type has a @{} annotated field",
 							 								   		   					  entityType,
-							 								   		   					  HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID.getFieldId(),
+							 								   		   					  HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID.getToken(),
 							 								   		   					  OidField.class.getSimpleName()));
 			
 		// Put the oid type in the cache
@@ -233,7 +260,7 @@ public class OIDs {
 	 * @param date
 	 * @return
 	 */
-	public static <O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+	public static <O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 				  O createOIDForVersionableModelObject(final Class<M> entityType,
 													   final VersionIndependentOID oid,final VersionOID version) {
 		// [1] - Guess the oid type

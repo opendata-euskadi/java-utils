@@ -32,11 +32,11 @@ public class FindOK<T>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindOK() {
-		/* nothing */
+		super(PersistenceRequestedOperation.FIND,PersistencePerformedOperation.FOUND,
+			  Collection.class);
 	}
 	protected FindOK(final Class<T> entityType) {
-		super(Collection.class,		// The find methods return Collection of objects
-			  PersistenceRequestedOperation.FIND,PersistencePerformedOperation.from(PersistenceRequestedOperation.FIND));
+		this();
 		_foundObjectType = entityType;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

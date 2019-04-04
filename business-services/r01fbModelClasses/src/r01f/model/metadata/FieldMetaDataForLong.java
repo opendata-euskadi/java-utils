@@ -23,7 +23,7 @@ public class FieldMetaDataForLong
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForLong(final IndexableFieldID fieldId,
+	public FieldMetaDataForLong(final FieldID fieldId,
 							    final LanguageTexts name,final LanguageTexts description,
 							    final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

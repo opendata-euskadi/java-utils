@@ -10,7 +10,7 @@ import com.google.inject.persist.Transactional;
 
 import lombok.experimental.Accessors;
 import r01f.bootstrap.services.config.core.ServicesCoreBootstrapConfigWhenBeanExposed;
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.persistence.CRUDResult;
 import r01f.objectstreamer.Marshaller;
@@ -53,7 +53,7 @@ import r01f.services.interfaces.CRUDServicesForModelObject;
  * @param <PD>
  */
 @Accessors(prefix="_")
-public abstract class CoreCRUDServicesForModelObjectBase<O extends OID,M extends PersistableModelObject<O>>
+public abstract class CoreCRUDServicesForModelObjectBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 			  extends CorePersistenceServicesBase 
 		   implements CRUDServicesForModelObject<O,M> {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -130,7 +130,7 @@ public abstract class CoreCRUDServicesForModelObjectBase<O extends OID,M extends
 	@Transactional
 	@Override @SuppressWarnings("unchecked")
 	public CRUDResult<M> delete(final SecurityContext securityContext,
-							    final O oid) {
+							    final O oid) {		
 		return this.forSecurityContext(securityContext)
 						.createDelegateAs(CRUDServicesForModelObject.class)
 							.delete(securityContext,

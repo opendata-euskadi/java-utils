@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import r01f.exceptions.Throwables;
 import r01f.guids.OIDForVersionableModelObject;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.guids.VersionOID;
 import r01f.model.PersistableModelObject;
@@ -28,7 +29,7 @@ import r01f.types.dirtytrack.DirtyTrackAdapter;
  * @param <M>
  */
 @Slf4j
-public abstract class ClientAPIDelegateForVersionableModelObjectCRUDServices<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet>
+public abstract class ClientAPIDelegateForVersionableModelObjectCRUDServices<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet>
 	 		  extends ClientAPIServiceDelegateBase<CRUDServicesForVersionableModelObject<O,M>> {
 	
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -219,7 +219,7 @@ implements CertAttrSet<String> {
      */
     public Object get(String name) throws IOException {
         if (name.equalsIgnoreCase(SKIP_CERTS))
-            return (new Integer(skipCerts));
+            return (Integer.valueOf(skipCerts));
         else
             throw new IOException("Attribute name not recognized by " +
                                   "CertAttrSet:InhibitAnyPolicy.");

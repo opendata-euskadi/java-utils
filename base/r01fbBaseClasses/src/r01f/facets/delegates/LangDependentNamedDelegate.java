@@ -25,20 +25,19 @@ public class LangDependentNamedDelegate<SELF_TYPE extends HasLangDependentNamedF
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public String getNameIn(final Language lang) {
-		return _modelObject.getNamesByLanguage() != null ? _modelObject.getNamesByLanguage()
-																	   .get(lang)
-														  : null;
+		return _modelObject.getName()
+						   .getIn(lang)
+						   .orNull();
 	}
 	@Override
 	public void setNameIn(final Language lang,final String name) {
-		if (_modelObject.getNamesByLanguage() == null) _modelObject.ensureNamesByLanguageContainerIsNOTNull();	// ensure there's a LanguageTexts container
-		_modelObject.getNamesByLanguage()
-					.add(lang,name);
+		_modelObject.getName()
+				    .add(lang,name);
 	}
 	@Override
 	public Collection<Language> getAvailableLanguages() {
-		return  _modelObject.getNamesByLanguage() != null ? _modelObject.getNamesByLanguage()
-																	   .getDefinedLanguages()
+		return  _modelObject.getNameByLanguage() != null ? _modelObject.getNameByLanguage()
+																		.getDefinedLanguages()
 														  : null;
 	}
 }

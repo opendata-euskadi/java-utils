@@ -10,29 +10,35 @@ import r01f.exceptions.Throwables;
 import r01f.facets.FullTextSummarizable.HasFullTextSummaryFacet;
 import r01f.facets.HasID;
 import r01f.facets.HasLanguage;
+import r01f.facets.HasName;
 import r01f.facets.HasOID;
+import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
+import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
 import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.facets.util.Facetables;
 import r01f.guids.OID;
 import r01f.guids.VersionIndependentOID;
 import r01f.guids.VersionOID;
 import r01f.locale.Language;
+import r01f.locale.LanguageTexts;
 import r01f.model.IndexableModelObject;
 import r01f.model.PersistableModelObject;
 import r01f.model.TrackableModelObject.HasTrackableFacet;
 import r01f.model.facets.HasEntityVersion;
 import r01f.model.facets.HasNumericID;
 import r01f.model.facets.Versionable;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.FieldMetaData;
 import r01f.model.metadata.HasMetaDataForHasEntityVersionModelObject;
 import r01f.model.metadata.HasMetaDataForHasFullTextSummaryModelObject;
 import r01f.model.metadata.HasMetaDataForHasIDModelObject;
+import r01f.model.metadata.HasMetaDataForHasLanguageDependentName;
+import r01f.model.metadata.HasMetaDataForHasLanguageInDependentName;
 import r01f.model.metadata.HasMetaDataForHasLanguageModelObject;
 import r01f.model.metadata.HasMetaDataForHasOIDModelObject;
 import r01f.model.metadata.HasMetaDataForHasSummaryModelObject;
 import r01f.model.metadata.HasMetaDataForHasTrackableFacetForModelObject;
 import r01f.model.metadata.HasMetaDataForHasVersionInfoModelObject;
-import r01f.model.metadata.IndexableFieldID;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.metadata.TypeMetaDataForModelObjectBase;
 import r01f.model.metadata.TypeMetaDataInspector;
@@ -42,6 +48,7 @@ import r01f.persistence.index.document.IndexDocumentFieldValueSet;
 import r01f.securitycontext.SecurityContext;
 import r01f.types.summary.LangDependentSummary;
 import r01f.types.summary.Summary;
+import r01f.util.types.Strings;
 import r01f.util.types.collections.CollectionUtils;
 
 /**
@@ -203,6 +210,31 @@ public abstract class IndexableFieldValueExtractorBase<M extends IndexableModelO
 											   	   .andValue(id));
 			}
 		}
+		// name
+		if (modelObj.hasFacet(HasName.class)) {
+			if (modelObj.hasFacet(HasLangDependentNamedFacet.class)) {
+				HasLangDependentNamedFacet hasName = modelObj.asFacet(HasLangDependentNamedFacet.class);
+				LanguageTexts nameByLang = hasName.getNameByLanguage();
+				
+				FieldMetaData nameByLangField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasLanguageDependentName.SEARCHABLE_METADATA.NAME_BY_LANGUAGE)
+														 .asFieldMetaData();
+				log.debug("\t-{}={}",nameByLangField.getIndexableFieldId(),nameByLang != null ? Strings.customized("name in {}",
+																												   nameByLang.getDefinedLanguages())
+																							  : "NO name");
+				_fields.add(IndexDocumentFieldValue.forMetaData(nameByLangField)
+											   	   .andValue(nameByLang));
+			}
+			else if (modelObj.hasFacet(HasLangInDependentNamedFacet.class)) {
+				HasLangInDependentNamedFacet hasName = modelObj.asFacet(HasLangInDependentNamedFacet.class);
+				String name = hasName.getName();	
+				
+				FieldMetaData nameField = typeMetaData.findFieldByIdOrThrow(HasMetaDataForHasLanguageInDependentName.SEARCHABLE_METADATA.NAME)
+														 .asFieldMetaData();
+				log.debug("\t-{}={}",nameField.getIndexableFieldId(),nameField);
+				_fields.add(IndexDocumentFieldValue.forMetaData(nameField)
+											   	   .andValue(name));
+			}
+		}
 		// summary
 		if (modelObj.hasFacet(HasSummaryFacet.class)) {
 			HasSummaryFacet summarizable = modelObj.asFacet(HasSummaryFacet.class);
@@ -284,7 +316,7 @@ public abstract class IndexableFieldValueExtractorBase<M extends IndexableModelO
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
-	public <T> T getFieldValue(final IndexableFieldID metaDataId) {
+	public <T> T getFieldValue(final FieldID metaDataId) {
 		IndexDocumentFieldValue<T> fieldValue = _fields.get(metaDataId);
 		return fieldValue != null ? fieldValue.getValue()
 								  : null;

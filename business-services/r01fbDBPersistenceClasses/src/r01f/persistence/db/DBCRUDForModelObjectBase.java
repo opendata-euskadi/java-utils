@@ -13,6 +13,7 @@ import com.google.common.collect.Lists;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.exceptions.Throwables;
+import r01f.facets.HasID;
 import r01f.facets.HasName;
 import r01f.facets.LangDependentNamed;
 import r01f.facets.LangDependentNamed.HasLangDependentNamedFacet;
@@ -20,6 +21,7 @@ import r01f.facets.LangInDependentNamed;
 import r01f.facets.LangInDependentNamed.HasLangInDependentNamedFacet;
 import r01f.facets.Summarizable.HasSummaryFacet;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.locale.Language;
 import r01f.model.HasTrackingInfo;
 import r01f.model.ModelObjectTracking;
@@ -53,7 +55,7 @@ import r01f.util.types.collections.CollectionUtils;
  */
 @Accessors(prefix="_")
 @Slf4j
-public abstract class DBCRUDForModelObjectBase<O extends OID,M extends PersistableModelObject<O>,
+public abstract class DBCRUDForModelObjectBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
 							     			   PK extends DBPrimaryKeyForModelObject,DB extends DBEntityForModelObject<PK>>
 			  extends DBBaseForModelObject<O,M,
 			 			     			   PK,DB>
@@ -175,16 +177,16 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 			if (persistenceOp == PersistencePerformedOperation.CREATED) {
 				if (dbEntityTracking.getCreatorUserCode() == null) dbEntityTracking.setCreatorUserCode(securityContext.getUserCode());
 				dbEntityHasTrackingInfo.setCreatorUserCode(dbEntityTracking.getCreatorUserCode());
-				
+
 				// beware that the model object tracking info can be null when creating
-				// ... since some tracking info has been computed here for the dbEntity, 
+				// ... since some tracking info has been computed here for the dbEntity,
 				//	   just copy this info to the model object
-				// ... this way, we're sure that the descriptor will have tracking info even if 
+				// ... this way, we're sure that the descriptor will have tracking info even if
 				//	   the model obj to be created do
 				if (modelObj.getTrackingInfo() == null) {
 					modelObj.setTrackingInfo(dbEntityHasTrackingInfo.getTrackingInfo());
 				}
-			} 
+			}
 			else if (persistenceOp == PersistencePerformedOperation.UPDATED) {
 				dbEntityHasTrackingInfo.setLastUpdatorUserCode(dbEntityTracking.getLastUpdatorUserCode());
 			}
@@ -192,6 +194,13 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 		if (dbEntity instanceof HasEntityVersion) {
 			HasEntityVersion hasEntityVersion = (HasEntityVersion)dbEntity;
 			hasEntityVersion.setEntityVersion(modelObj.getEntityVersion());
+		}
+		if (dbEntity instanceof DBEntityHasID
+		 && modelObj instanceof HasID) {
+			HasID<?> hasId = (HasID<?>)modelObj;
+			DBEntityHasID dbHasId = (DBEntityHasID)dbEntity;
+			dbHasId.setId(hasId.getId() != null ? hasId.getId().asString()
+												: null);
 		}
 		if (dbEntity instanceof DBEntityHasModelObjectDescriptor) {
 			/*DBEntityHasModelObjectDescriptor hasDescriptor = (DBEntityHasModelObjectDescriptor)dbEntity;
@@ -201,7 +210,6 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 		// set the db entity fields from the model object data
 		this.setDBEntityFieldsFromModelObject(securityContext,
 						     	  			  modelObj,dbEntity);
-
 	}
     protected void setDescriptorForDBEntity(final M modelObj,final DB dbEntity) {
 		DBEntityHasModelObjectDescriptor hasDescriptor = (DBEntityHasModelObjectDescriptor)dbEntity;
@@ -231,7 +239,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 	public CRUDResult<M> create(final SecurityContext securityContext,
 								final M modelObj,
 								final PersistenceOperationCallbackSpec callbackSpec) {
-		throw new IllegalStateException(Throwables.message("Implemented at service level (see {}",
+		throw new IllegalStateException(Throwables.message("Implemented at service level (see {})",
 														   CRUDServicesForModelObjectDelegateBase.class));
 	}
 	@Override
@@ -249,7 +257,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 	public CRUDResult<M> update(final SecurityContext securityContext,
 								final M entity,
 								final PersistenceOperationCallbackSpec callbackSpec) {
-		throw new IllegalStateException(Throwables.message("Implemented at service level (see {}",
+		throw new IllegalStateException(Throwables.message("Implemented at service level (see {})",
 														   CRUDServicesForModelObjectDelegateBase.class));
 	}
 	@Override
@@ -293,6 +301,7 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 	 * @param singleUseDBEntityPersistenceEventListener
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	protected CRUDResult<M> doCreateOrUpdateEntity(final SecurityContext securityContext,
 												   final M modelObj,
 												   final PersistenceRequestedOperation requestedOp,
@@ -313,7 +322,8 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 			dbEntityToPersist = this.getEntityManager().find(_DBEntityType,
 													  		 pk);
 			// If the entity exists BUT it's supposed to be new... it's an error
-			if (dbEntityToPersist != null && requestedOp.is(PersistenceRequestedOperation.CREATE)) {
+			if (dbEntityToPersist != null
+			 && requestedOp.is(PersistenceRequestedOperation.CREATE)) {
 				return CRUDResultBuilder.using(securityContext)
 										.on(_modelObjectType)
 										.notCreated()
@@ -341,12 +351,29 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 			dbEntityToPersist = this.createDBEntityInstanceFor(modelObj);
 		}
 
-		// [2]: Set the db entity fields from the model object
+		// [2]: Check immutable properties
+		if (performedOp == PersistencePerformedOperation.UPDATED
+		 && this instanceof ChecksChangesInModelObjectIimmutableFieldsBeforeUpdate) {
+			ChecksChangesInModelObjectIimmutableFieldsBeforeUpdate<M> checksImmutableFieldsChanges = (ChecksChangesInModelObjectIimmutableFieldsBeforeUpdate<M>)this;
+
+			// a) get a model obj from the CUREENTLY-STORED data
+			M actualStoredObj = _wrapDBEntityToModelObject(securityContext,
+										     	   		   dbEntityToPersist);
+			boolean immutableFieldChanged = checksImmutableFieldsChanges.isAnyImmutablePropertyChanged(securityContext,
+																									   actualStoredObj,modelObj);
+			if (immutableFieldChanged) return CRUDResultBuilder.using(securityContext)
+													.on(_modelObjectType)
+													.notUpdated()
+													.becauseClientBadRequest("Any of the object's immutable properties has been changed!")
+														.about(modelObj).build();
+		}
+
+		// [3]: Set the db entity fields from the model object
 		_setDBEntityFieldsFromModelObject(securityContext,
 							   			  modelObj,dbEntityToPersist,
 							   			  performedOp);
-		
-		// [3]: call the persistence event listeners
+
+		// [4]: call the persistence event listeners
 		if (CollectionUtils.hasData(_dbEntityPersistenceEventsListeners)) {
 			for (ListensToDBEntityPersistenceEvents<M,DB> listener : _dbEntityPersistenceEventsListeners) {
 				listener.onBeforDBEntityPersistenceOperation(securityContext,
@@ -359,8 +386,8 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 															 							  performedOp,
 															 							  modelObj,dbEntityToPersist);
 		}
-		
-		// [4]: Persist
+
+		// [5]: Persist
 		try {
 			return this.persistDBEntity(securityContext,
 								   		dbEntityToPersist,
@@ -550,20 +577,39 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 	 * @param persistEx
 	 * @return
 	 */
-	protected   CRUDError<M> _buildCRUDResultErrorIfEntityExistsOnConcurrencyOrThrow(final SecurityContext securityContext,
-												   				               		 final M modelObj,
-												   				               		 final PersistenceRequestedOperation requestedOp,
-												   				               		 final  PersistenceException persistEx){
+	protected CRUDError<M> _buildCRUDResultErrorIfEntityExistsOnConcurrencyOrThrow(final SecurityContext securityContext,
+												   				               	   final M modelObj,
+												   				               	   final PersistenceRequestedOperation requestedOp,
+												   				               	   final  PersistenceException persistEx) {
 		  log.warn(">>>_buildCRUDResultErrorIfEntityExistsOnConcurrencyOrThrow....");
+
 		  if (persistEx.getCause() instanceof org.eclipse.persistence.exceptions.DatabaseException
-			 && persistEx.getCause().getCause() instanceof SQLException){
-				SQLException sqlEx = (SQLException)persistEx.getCause().getCause();
-				if ("23000".equals(sqlEx.getSQLState())){ //Check if this code number is in some Constants Class.
-				    log.warn(">> CRUD Error becasuse Entity {} already exists! ",modelObj.getOid().asString());
+			 && persistEx.getCause().getCause() instanceof SQLException) {
+
+			  	SQLException sqlEx = (SQLException)persistEx.getCause().getCause();
+
+			  	if(1 == sqlEx.getErrorCode()) {
+					log.warn(">> CRUD Error ORA-00001 because Entity {} already exists! ",modelObj.getOid().asString());
+					return CRUDResultBuilder.using(securityContext)
+							.on(_modelObjectType)
+							.notCreated()
+							.becauseClientRequestedEntityAlreadyExists()
+							.about(modelObj)
+							.build();
+				} else if(1400 == sqlEx.getErrorCode()) {
+					log.warn(">> CRUD Error ORA-01400: CANNOT MAKE A NULL INSERT! ",modelObj.getOid().asString());
+					return CRUDResultBuilder.using(securityContext)
+							.on(_modelObjectType)
+							.notCreated()
+							.because(persistEx)
+							.about(modelObj)
+							.build();
+				} else if ("23000".equals(sqlEx.getSQLState())) { //Check if this code number is in some Constants Class.
+				    log.warn(">> CRUD SQL State Error with Entity {}. Check logs! ",modelObj.getOid().asString());
 					return CRUDResultBuilder.using(securityContext)
 											.on(_modelObjectType)
 											.notCreated()
-											.becauseClientRequestedEntityAlreadyExists()
+											.because(persistEx)
 											.about(modelObj)
 											.build();
 				} else {
@@ -572,14 +618,39 @@ public abstract class DBCRUDForModelObjectBase<O extends OID,M extends Persistab
 					throw persistEx;
 				}
 			} else if (persistEx.getCause() instanceof org.eclipse.persistence.exceptions.DatabaseException
-					&& persistEx.getCause().getCause() instanceof SQLIntegrityConstraintViolationException){
-				 log.warn(">> CRUD Error becasuse Entity {} already exists! ",modelObj.getOid().asString());
-				return CRUDResultBuilder.using(securityContext)
+					&& persistEx.getCause().getCause() instanceof SQLIntegrityConstraintViolationException) {
+
+				SQLIntegrityConstraintViolationException sqlEx = (SQLIntegrityConstraintViolationException)persistEx.getCause().getCause();
+
+				if(1 == sqlEx.getErrorCode()) {
+					log.warn(">> CRUD Error ORA-00001 because Entity {} already exists! ",modelObj.getOid().asString());
+					return CRUDResultBuilder.using(securityContext)
+							.on(_modelObjectType)
+							.notCreated()
+							.becauseClientRequestedEntityAlreadyExists()
+							.about(modelObj)
+							.build();
+				} else if(1400 == sqlEx.getErrorCode()) {
+					log.warn(">> CRUD Error ORA-01400: CANNOT MAKE A NULL INSERT! ",modelObj.getOid().asString());
+					return CRUDResultBuilder.using(securityContext)
+							.on(_modelObjectType)
+							.notCreated()
+							.because(persistEx)
+							.about(modelObj)
+							.build();
+				} else if ("23000".equals(sqlEx.getSQLState())) { //Check if this code number is in some Constants Class.
+				    log.warn(">> CRUD SQL State Error with Entity {}. Check logs! ",modelObj.getOid().asString());
+					return CRUDResultBuilder.using(securityContext)
 											.on(_modelObjectType)
 											.notCreated()
-											.becauseClientRequestedEntityAlreadyExists()
+											.because(persistEx)
 											.about(modelObj)
 											.build();
+				} else {
+					// another type of exception
+					log.warn(">> exception {} will be throw {}",persistEx.getLocalizedMessage());
+					throw persistEx;
+				}
 			} else {
 				// another type of exception
 				log.warn(">> exception {} will be throw {}",persistEx.getLocalizedMessage());

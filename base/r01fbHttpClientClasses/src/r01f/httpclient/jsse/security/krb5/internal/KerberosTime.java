@@ -214,12 +214,12 @@ public class KerberosTime implements Cloneable {
     }
 
     public int getMicroSeconds() {
-        Long temp_long = new Long((kerberosTime % 1000L) * 1000L);
+        Long temp_long = Long.valueOf((kerberosTime % 1000L) * 1000L);
         return temp_long.intValue();
     }
 
     public void setMicroSeconds(int usec) {
-        Integer temp_int = new Integer(usec);
+        Integer temp_int = Integer.valueOf(usec);
         long temp_long = temp_int.longValue() / 1000L;
         kerberosTime = kerberosTime - (kerberosTime % 1000L) + temp_long;
     }
@@ -290,12 +290,12 @@ public class KerberosTime implements Cloneable {
     }
 
     public int getSeconds() {
-        Long temp_long = new Long(kerberosTime / 1000L);
+        Long temp_long = Long.valueOf(kerberosTime / 1000L);
         return temp_long.intValue();
     }
 
     public void setSeconds(int sec) {
-        Integer temp_int = new Integer(sec);
+        Integer temp_int = Integer.valueOf(sec);
         kerberosTime = temp_int.longValue() * 1000L;
     }
 

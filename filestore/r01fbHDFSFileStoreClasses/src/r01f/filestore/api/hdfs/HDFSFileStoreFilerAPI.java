@@ -1,6 +1,7 @@
 package r01f.filestore.api.hdfs;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -25,9 +26,9 @@ import r01f.util.types.collections.CollectionUtils;
 public class HDFSFileStoreFilerAPI
 	 extends HDFSFileStoreAPIBase
   implements FileStoreFilerAPI {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	FIELDS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Common checkings
 	 */
@@ -55,9 +56,17 @@ public class HDFSFileStoreFilerAPI
 //  EXISTS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
+	public FileProperties getFolderProperties(final r01f.types.Path path) throws IOException {
+		// check
+		_check.checkFolderExists(path);
+		Path theHDFSFilePath = HDFSFileStoreAPIBase.r01fPathToHDFSPath(path);
+		FileStatus file = _fs.getFileStatus(theHDFSFilePath);
+		return HDFSFileProperties.from(file);
+	}
+	@Override
 	public boolean existsFolder(r01f.types.Path path) throws IOException {
 		// exists?
-    	Path theHDFSFilePath = _pathToHDFSPath(path);
+    	Path theHDFSFilePath = HDFSFileStoreAPIBase.r01fPathToHDFSPath(path);
 		return _fs.exists(theHDFSFilePath) && _fs.isDirectory(theHDFSFilePath);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +76,8 @@ public class HDFSFileStoreFilerAPI
     public boolean copyFolder(final r01f.types.Path srcPath,final r01f.types.Path dstPath,
     						  final FileFilter fileFilter,
     						  final boolean overwrite) throws IOException {
-    	log.trace("Copying from {} to {}",srcPath,dstPath);    	
+    	log.trace("Copying from {} to {}",
+    			  srcPath,dstPath);    	
 
 		// check
 		_check.checkBeforeCopyFolder(srcPath,dstPath,
@@ -78,7 +88,8 @@ public class HDFSFileStoreFilerAPI
 		if (fileFilter != null) {
 			
 			// copy folder applying filter (recursive)
-			FileProperties[] filteredFiles = this.listFolderContents(srcPath, fileFilter, false);
+			FileProperties[] filteredFiles = this.listFolderContents(srcPath,fileFilter,
+																	 false);	// not recursive
 			for (int i=0; i<filteredFiles.length; i++) {
 				FileProperties currentFileOrFolder = filteredFiles[i];
 
@@ -98,8 +109,8 @@ public class HDFSFileStoreFilerAPI
 		} else {
 			// copy folder without applying filter
 	    	// If needed: The method FileUtils.stat2Path convert an array of FileStatus to an array of Path
-	        copyFolderStateOK = FileUtil.copy(_fs,_pathToHDFSPath(srcPath),
-	    									  _fs,_pathToHDFSPath(dstPath),
+	        copyFolderStateOK = FileUtil.copy(_fs,HDFSFileStoreAPIBase.r01fPathToHDFSPath(srcPath),
+	    									  _fs,HDFSFileStoreAPIBase.r01fPathToHDFSPath(dstPath),
 	    									  false, 		// delete source
 	    									  overwrite,	// overwrite
 	    									  _conf);
@@ -110,7 +121,8 @@ public class HDFSFileStoreFilerAPI
 	@Override
     public boolean moveFolder(final r01f.types.Path srcPath,final r01f.types.Path dstPath,
     						  final boolean overwrite) throws IOException {
-    	log.trace("Moving folder from {} to {}",srcPath,dstPath);
+    	log.trace("Moving folder from {} to {}",
+    			  srcPath,dstPath);
 
 		// check
 		_check.checkBeforeMoveFolder(srcPath,dstPath,
@@ -118,8 +130,8 @@ public class HDFSFileStoreFilerAPI
 
 		// copy
     	// If needed: The method FileUtils.stat2Path convert an array of FileStatus to an array of Path
-        boolean copyFileStateOK = FileUtil.copy(_fs,_pathToHDFSPath(srcPath),
-        										_fs,_pathToHDFSPath(dstPath),
+        boolean copyFileStateOK = FileUtil.copy(_fs,HDFSFileStoreAPIBase.r01fPathToHDFSPath(srcPath),
+        										_fs,HDFSFileStoreAPIBase.r01fPathToHDFSPath(dstPath),
         										true, 		// delete source
         										overwrite,	// overwrite
         										_conf);
@@ -127,7 +139,8 @@ public class HDFSFileStoreFilerAPI
     }
 	@Override
 	public boolean renameFolder(final r01f.types.Path existingPath,final FileNameAndExtension newName) throws IOException {
-    	log.trace("Renaming folder from {} to {}",existingPath,newName);
+    	log.trace("Renaming folder from {} to {}",
+    			  existingPath,newName);
 
 
 		r01f.types.Path dstPath = r01f.types.Path.from(existingPath.withoutLastPathElement())
@@ -138,25 +151,27 @@ public class HDFSFileStoreFilerAPI
 									 false);		// DO NOT overwrite
 
 		// rename
-		return _fs.rename(_pathToHDFSPath(existingPath),
-				   		  _pathToHDFSPath(dstPath));
+		return _fs.rename(HDFSFileStoreAPIBase.r01fPathToHDFSPath(existingPath),
+				   		  HDFSFileStoreAPIBase.r01fPathToHDFSPath(dstPath));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CREATE & DELETE
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
     public boolean createFolder(final r01f.types.Path path) throws IOException {
-		log.trace("Creating a folder at {}",path);
+		log.trace("Creating a folder at {}",
+				   path);
 
 		if (this.existsFolder(path)) return true;	// already created
 
 		// check
 		_check.checkBeforeCreateFolder(path);
-		return _fs.mkdirs(_pathToHDFSPath(path));
+		return _fs.mkdirs(HDFSFileStoreAPIBase.r01fPathToHDFSPath(path));
     }
 	@Override
     public boolean deleteFolder(final r01f.types.Path path) throws IOException {
-		log.trace("Deleting a folder at {}",path);
+		log.trace("Deleting a folder at {}",
+				  path);
 
 		if (!this.existsFolder(path)) return true;	// does NOT exists
 
@@ -164,7 +179,7 @@ public class HDFSFileStoreFilerAPI
 		_check.checkBeforeRemoveFolder(path);
 
 		// delete
-		boolean opState = _fs.delete(_pathToHDFSPath(path),
+		boolean opState = _fs.delete(HDFSFileStoreAPIBase.r01fPathToHDFSPath(path),
 									 true);		// recursive
 		return opState;
     }
@@ -175,65 +190,56 @@ public class HDFSFileStoreFilerAPI
     public FileProperties[] listFolderContents(final r01f.types.Path folderPath,
     										   final FileFilter fileFilter,
     										   final boolean recursive) throws IOException {
-    	log.debug("Listing folder {} contents",folderPath);
+    	log.debug("Listing folder {} contents",
+    			  folderPath);
 
 		// check
 		_check.checkBeforeListFolderContents(folderPath);
 		
 		// filter
-		PathFilter newFilter = null;
+		PathFilter hdfsPathFilter = null;
 		if (fileFilter != null) {
-			newFilter = new PathFilter() {
-
-				@Override
-				public boolean accept(Path path) {				
-					return fileFilter.accept(r01f.types.Path.from(Path.getPathWithoutSchemeAndAuthority(path)));				
-				}
-				
-			};
+			hdfsPathFilter = new PathFilter() {
+									@Override
+									public boolean accept(final Path path) {
+										r01f.types.Path r01fPath = HDFSFileStoreAPIBase.hdfsPathToR01FPath(path);
+										return fileFilter.accept(r01fPath);				
+									}
+							};
 		}
-		
 		// list
-        FileStatus[] statusFiles;
+		FileProperties[] out = null;
         if (recursive) {
-        	HDFSFileListing listing = new HDFSFileListing();
-			statusFiles = listing.getFileListing(_fs,
-												 _pathToHDFSPath(folderPath), 
-												 newFilter); // if filter is null, don't use it
+        	HDFSFolderRecursiveListing recursiveList = new HDFSFolderRecursiveListing(_fs,
+        																			  fileFilter);
+			Collection<FileProperties> allContents = recursiveList.recurseFolderContents(HDFSFileStoreAPIBase.r01fPathToHDFSPath(folderPath));
+			out = CollectionUtils.hasData(allContents)
+						? allContents.toArray(new FileProperties[allContents.size()])
+						: null;
         } else {
-        	if (newFilter != null) {
-        		statusFiles = _fs.listStatus(_pathToHDFSPath(folderPath),
-        									 newFilter);
+        	FileStatus[] statusFiles = null;
+        	if (hdfsPathFilter != null) {
+        		statusFiles = _fs.listStatus(HDFSFileStoreAPIBase.r01fPathToHDFSPath(folderPath),
+        									 hdfsPathFilter);
         	} else {
-        		statusFiles = _fs.listStatus(_pathToHDFSPath(folderPath));
+        		statusFiles = _fs.listStatus(HDFSFileStoreAPIBase.r01fPathToHDFSPath(folderPath));
         	}
+			if (CollectionUtils.hasData(statusFiles)) {
+				out = FluentIterable.from(statusFiles)
+						  .transform(new Function<FileStatus,FileProperties>() {
+											@Override
+											public FileProperties apply(final FileStatus hdfsFile) {
+												return HDFSFileProperties.fromOrNull(hdfsFile);
+											}
+						  			 })
+						  .filter(Predicates.notNull())
+						  .toArray(FileProperties.class);
+			} else {
+				out = new FileProperties[] { /* empty */ };
+			}
         }
-        
-        // transform to FileProperties
-        FileProperties[] outProps = null;
-        if (CollectionUtils.hasData(statusFiles)) {
-        	outProps = FluentIterable.from(statusFiles)
-        							 .transform(new Function<FileStatus,FileProperties>() {
-														@Override
-														public FileProperties apply(final FileStatus fs) {
-															FileProperties p = null;
-															try {
-																p = HDFSFileProperties.from(fs);
-															} catch(IOException ioEx) {
-																log.error("Error creating a {} from {}: {}",
-																		  HDFSFileProperties.class,fs.getPath(),ioEx.getMessage(),
-																		  ioEx);
-															}
-															return p;
-														}
-        							 			})
-        							 .filter(Predicates.notNull())
-        							 .toArray(FileProperties.class);
-        } else {
-        	outProps = new FileProperties[] { /* nothing */ };
-        }
-        return outProps;
-    }
+        return out;
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	PROPERTIES (see FileStoreFileAPI)
 /////////////////////////////////////////////////////////////////////////////////////////	

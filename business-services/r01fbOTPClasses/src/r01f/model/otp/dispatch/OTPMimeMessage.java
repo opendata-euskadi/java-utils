@@ -51,13 +51,13 @@ public class OTPMimeMessage implements Serializable {
 	//////////////////////////////////////////////////////////////////////////
 	//Public Methods
 	///////////////////////////////////////////////////////////////////////
-	public void addMimeBodyPart(final OTPMimeBodyPart mimeBodyPart){
+	public void addMimeBodyPart(final OTPMimeBodyPart mimeBodyPart) {
 		_mimeBodyPartList.add(mimeBodyPart);
 	}
 
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 	// Inner Classes
-	/////////////////////////////////////////////////////////////////////////////////////////////////////
+	///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	@Accessors(prefix="_")
 	@NoArgsConstructor
@@ -79,17 +79,17 @@ public class OTPMimeMessage implements Serializable {
 		 * Converts to a standard mime body part
 		 * @return
 		 */
-		public MimeBodyPart toMimeBodyPart(){
-			Function<OTPMimeBodyPart, MimeBodyPart> transform = new Function<OTPMimeBodyPart, MimeBodyPart>(){
+		public MimeBodyPart toMimeBodyPart() {
+			Function<OTPMimeBodyPart, MimeBodyPart> transform = new Function<OTPMimeBodyPart, MimeBodyPart>() {
 				@Override
-				public MimeBodyPart apply(final OTPMimeBodyPart input){
+				public MimeBodyPart apply(final OTPMimeBodyPart input) {
 					try {
 						MimeBodyPart bodyPart = new MimeBodyPart();
-						if(CONTENT_TYPE_TEXT_HTML.equals(input.getContentType())){
+						if (CONTENT_TYPE_TEXT_HTML.equals(input.getContentType())) {
 							//IS MAIN TEXT BODY PART
 							bodyPart.setDisposition(input.getDiposition());
 							bodyPart.setContent(input.getContent(), input.getContentType());
-						}else if(CONTENT_TYPE_IMAGE_PNG.equals(input.getContentType())){
+						} else if (CONTENT_TYPE_IMAGE_PNG.equals(input.getContentType())) {
 							ByteArrayDataSource rawData= new ByteArrayDataSource(input.getDataHandlerBytes(), input.getContentType());
 							DataHandler data= new DataHandler(rawData);
 							bodyPart.setDataHandler(data);
@@ -111,16 +111,16 @@ public class OTPMimeMessage implements Serializable {
 	 * Converts to a standard mime message
 	 * @return
 	 */
-	public MimeMessage toMimmeMessage(final String otpValue){
-		if(Strings.isNOTNullOrEmpty(otpValue)){
-			if(_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)){
+	public MimeMessage toMimmeMessage(final String otpValue) {
+		if (Strings.isNOTNullOrEmpty(otpValue)) {
+			if (_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)) {
 				_mainBodyPart._content = _mainBodyPart._content.replace(OTP_CODE_KEY, otpValue);
 			}
-			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)) {
 				_alternativeBodyPart = _alternativeBodyPart.replace(OTP_CODE_KEY, otpValue);
 			}
 		}
-		Function<OTPMimeMessage, MimeMessage> transform = new Function<OTPMimeMessage, MimeMessage>(){
+		Function<OTPMimeMessage, MimeMessage> transform = new Function<OTPMimeMessage, MimeMessage>() {
 			@Override
 			public MimeMessage apply(final OTPMimeMessage input) {
 				try{
@@ -131,7 +131,7 @@ public class OTPMimeMessage implements Serializable {
 					
 					MimeMessageHelper messageHelper = new MimeMessageHelper(mimeMessage, true);
 					
-					if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+					if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)) {
 						messageHelper.setText(_alternativeBodyPart, true);
 					}
 					
@@ -145,7 +145,7 @@ public class OTPMimeMessage implements Serializable {
 					//BODY PARTS
 					messageHelper.getMimeMultipart().addBodyPart(input.getMainBodyPart().toMimeBodyPart());
 					
-					for(OTPMimeBodyPart otpMimeBodyPart : input.getMimeBodyPartList()){
+					for (OTPMimeBodyPart otpMimeBodyPart : input.getMimeBodyPartList()) {
 						messageHelper.getMimeMultipart().addBodyPart(otpMimeBodyPart.toMimeBodyPart());
 					}
 					
@@ -163,12 +163,12 @@ public class OTPMimeMessage implements Serializable {
 //	 * Replace OTP Key with Value
 //	 * @return
 //	 */
-//	public void replaceOtpValue(final String otpValue){
-//		if(Strings.isNOTNullOrEmpty(otpValue)){
-//			if(_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)){
+//	public void replaceOtpValue(final String otpValue) {
+//		if (Strings.isNOTNullOrEmpty(otpValue)) {
+//			if (_mainBodyPart != null && Strings.isNOTNullOrEmpty(_mainBodyPart._content)) {
 //				_mainBodyPart._content = _mainBodyPart._content.replace(OTP_CODE_KEY, otpValue);
 //			}
-//			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)){
+//			if (_alternativeBodyPart != null && Strings.isNOTNullOrEmpty(_alternativeBodyPart)) {
 //				_mainBodyPart.
 //				_alternativeBodyPart = _alternativeBodyPart.replace(OTP_CODE_KEY, otpValue);
 //			}

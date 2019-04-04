@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.locale.Language;
 import r01f.model.metadata.HasMetaDataForHasLanguageModelObject;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.search.SearchFilter;
 import r01f.model.search.query.BooleanQueryClause;
 import r01f.model.search.query.EqualsQueryClause;
@@ -53,7 +53,7 @@ public abstract class QueryBase<SELF_TYPE extends QueryBase<SELF_TYPE>> {
 	protected Language getLanguage(final SearchFilter searchFilter) {
 		Language outLang = null;
 		// [1] - try to see if there's any lang clause
-		IndexableFieldID languageFieldId = HasMetaDataForHasLanguageModelObject.SEARCHABLE_METADATA.LANGUAGE.getFieldId();
+		FieldID languageFieldId = FieldID.from(HasMetaDataForHasLanguageModelObject.SEARCHABLE_METADATA.LANGUAGE);
 		BooleanQueryClause containerBoolQry = searchFilter != null ? searchFilter.getBooleanQuery()
 																   : null;
 		EqualsQueryClause<Language> langEqualsClause = containerBoolQry != null ? containerBoolQry.findLanguageQueryClause(languageFieldId)

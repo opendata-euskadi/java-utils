@@ -3,8 +3,6 @@ package r01f.bundles;
 import java.util.ResourceBundle;
 import java.util.concurrent.ConcurrentHashMap;
 
-import javax.inject.Inject;
-
 import lombok.Getter;
 import lombok.experimental.Accessors;
 import r01f.exceptions.Throwables;
@@ -77,23 +75,15 @@ public class ResourceBundleControlBuilder
 /////////////////////////////////////////////////////////////////////////////////////////
 //  INJECTED STATUS
 /////////////////////////////////////////////////////////////////////////////////////////
-    @Inject
-    @Getter private XMLProperties _xmlProperties;
+    @Getter private final XMLProperties _xmlProperties;
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
-    /**
-     * Constructor to be used when the factory is created by GUICE
-     */
-    public ResourceBundleControlBuilder() {
-    	/* nothing */
-    }
     /**
      * Constructor to be used when an instance is NOT managed by GUICE
      * @param props
      */
     public ResourceBundleControlBuilder(final XMLProperties props) {
-    	this();
     	_xmlProperties = props;
     }
 /////////////////////////////////////////////////////////////////////////////////////////

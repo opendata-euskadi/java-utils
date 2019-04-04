@@ -209,9 +209,9 @@ public class ReflectionUtils {
         if (!m.matches()) return new String[] {};
         return new String[] { m.group(1),m.group(2) };    	
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS PARA CHECKEAR LA JERARQUIA DE UN OBJETO
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Hace un cast del objeto al tipo que se pasa
 	 * @param type el tipo al que hacer casting
@@ -330,9 +330,9 @@ public class ReflectionUtils {
         if (theObj != null && theOtherObj == null) return false;
         return ReflectionUtils.isSameClassAs(theObj.getClass(),theOtherObj.getClass());
     }  
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS DE DEFINICION DE CLASES
-/////////////////////////////////////////////////////////////////////////////////////////// 
+///////////////////////////////////////////////////////////////////////////////////////// 
     /**
      * Gets the type's {@link Class} object from the type's complete name (including package)
      * @param typeName 
@@ -371,7 +371,7 @@ public class ReflectionUtils {
         if (cl != null) {
             try  {
                 objType = cl.loadClass(typeName);
-            } catch(ClassNotFoundException cnfEx){
+            } catch(ClassNotFoundException cnfEx) {
                 /* ignorar */
             }
             if (objType == null) {
@@ -507,30 +507,30 @@ public class ReflectionUtils {
 			throw ReflectionException.of(cnfEx);
 		}
 	}
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  GENERICS   
 // 	(ver http://www.angelikalanger.com/GenericsFAQ/FAQSections/ProgrammingIdioms.html#How do I retrieve an object's actual (dynamic) type?)
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Devuelve si una clase X es generica
-	 * @return true si la clase es generica
+	 * Returns true if a type is generic
+	 * @return
 	 */
 	public static boolean isGenericType(final Class<?> type) {
 		return type.getTypeParameters() != null 
 			&& type.getTypeParameters().length > 0;
 	}
 	/**
-	 * Devuelve si un tipo X es generico 
+	 * Returns true if a type is generic 
 	 * @param type
-	 * @return true si el tipo es generico
+	 * @return
 	 */
 	public static boolean isGenericType(final Type type) {
 		return !(type instanceof Class);
 	}
 	/**
-	 * Devuelve si un field es gen�rico o no
-	 * @param f el field
-	 * @return true si el field es gen�rico
+	 * Returns true if a field is generic
+	 * @param f 
+	 * @return 
 	 */
 	public static boolean isGenericField(final Field f) {
 		return !(f.getGenericType() instanceof Class);
@@ -551,21 +551,21 @@ public class ReflectionUtils {
     public static Class<?> typeOf(final Type type) {
     	return TypeToken.of(type).getRawType();
     }
-///////////////////////////////////////////////////////////////////////////////////////////
-//  ANOTACIONES DE CLASES
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//  TYPE ANNOTATIONS
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
-     * Devuelve todas las anotaciones de un tipo (no se miran sus super-tipos)
-     * @param type el tipo 
-     * @return las anotaciones del tipo
+     * Returns all type's annotations (super-type annotations are NOT returned)
+     * @param type 
+     * @return 
      */
     public static Annotation[] typeAnnotations(final Class<?> type) {
     	return type.getAnnotations();
     }
     /**
-     * Devuelve todas las anotaciones de un tipo y sus super-tipos
-     * @param type el tipo
-     * @return las anotaciones del tipo y sus supertipos
+     * Returns all annotations on a types or it's super-types
+     * @param type 
+     * @return 
      */
     public static Annotation[] typeOrSuperTypeAnnotations(final Class<?> type) {
     	Set<Annotation> outAnnots = Sets.newHashSet();
@@ -577,19 +577,37 @@ public class ReflectionUtils {
     	return CollectionUtils.toArray(outAnnots);	//,new TypeRef<Annotation>() {});
     }
     /**
-     * Devuelve una anotaci�n concreta en un tipo (no se miran sus super.typos)
-     * @param type el tipo
-     * @param annotationType el tipo de la anotaci�n
-     * @return la anotaci�n si esta existe o null
+     * Returns true if the given type has the given annotation (super-types are NOT checked)
+     * @param type
+     * @param annotationType
+     * @return
+     */
+    public static <A extends Annotation> boolean typeHasAnnotation(final Class<?> type,final Class<A> annotationType) {
+    	return ReflectionUtils.typeAnnotation(type,annotationType) != null;
+    }
+    /**
+     * Returns a type's annotation (super types are NOT checked)
+     * @param type 
+     * @param annotationType 
+     * @return null if type is NOT annotated
      */
     public static <A extends Annotation> A typeAnnotation(final Class<?> type,final Class<A> annotationType) {
     	return type.getAnnotation(annotationType);
     }
     /**
-     * Devuelve una anotaci�n concreta en un tipo o sus super-tipos
-     * @param type el tipo
-     * @param annotationType el tipo de la anotaci�n
-     * @return la anotaci�n si esta existe o null
+     * Returns true if the given type has the given annotation (super-types are checked)
+     * @param type
+     * @param annotationType
+     * @return
+     */
+    public static <A extends Annotation> boolean typeOrSuperTypeHasAnnotation(final Class<?> type,final Class<A> annotationType) {
+    	return ReflectionUtils.typeOrSuperTypeAnnotation(type,annotationType) != null;
+    }
+    /**
+     * Returns a type's annotation (super-types are checked)
+     * @param type 
+     * @param annotationType 
+     * @return null if type or it's super-types are NOT annotated
      */
     public static <A extends Annotation> A typeOrSuperTypeAnnotation(final Class<?> type,final Class<A> annotationType) {
     	A outAnnot = null;
@@ -603,18 +621,15 @@ public class ReflectionUtils {
     	}
     	return outAnnot;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
-//  METODOS DE CONSTRUCCION DE OBJETOS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
+//  OBJECT BUILDING METHODS
+/////////////////////////////////////////////////////////////////////////////////////////
     private static final Object[] EMPTY_OBJECT_ARRAY = new Object[0];
     private static final Class<?>[]  EMPTY_CLASS_ARRAY  = new Class<?>[0];
     /**
-     * Obtiene una instancia de una clase a partir del nombre completo (incluido paquete)
-     * de la clase y utilizando el constructor por defecto
-     * Por defecto intenta hacer accesible el constructor...
-     * @param className El nombre de la clase (completo)
-     * @return la instancia del objeto
-     * @throws ReflectionException si no se puede obtener la instancia del objeto
+     * Returns an instance of a generic type from it's fully qualified name (name including package)
+     * @param className
+     * @return
      */
     public static <T> T createInstanceOf(final String className) {
         @SuppressWarnings("unchecked")     	
@@ -624,26 +639,11 @@ public class ReflectionUtils {
         return outObj;
     }
     /**
-     * Obtiene una instancia de un objeto utilizando el constructor vacio
-     * @param type La definici�n del objeto
-     * @return la instancia reci�n creada
-     * @throws ReflectionException si el objeto no se puede crear
-     */
-    public static <T> T  createInstanceOf(final Class<?> type) { 
-    	@SuppressWarnings("unchecked")        	
-        T outObj = (T)ReflectionUtils.createInstanceOf(type,
-        										       EMPTY_CLASS_ARRAY,EMPTY_OBJECT_ARRAY,
-        										       true);	// force         
-        return outObj;
-    }
-    /**
-     * Obtiene una instancia de una clase a partir del nombre completo (incluido paquete)
-     * de la clase
-     * @param className El nombre de la clase (completo)
-     * @param constructorArgsTypes definiciones de las clases par�metros del constructor
-     * @param constructorArgs Argumentos del constructor
-     * @return El objeto reci�n creado
-     * @throws ReflectionException si no se puede obtener una instancia del objeto
+     * Returns an object's instance from the type's fully quallified name (type name including package)
+     * @param className
+     * @param constructorArgsTypes 
+     * @param constructorArgs 
+     * @return 
      */
     public static <T> T  createInstanceOf(final String className,
     									  final Class<?>[] constructorArgsTypes,final Object[] constructorArgs) {
@@ -654,14 +654,12 @@ public class ReflectionUtils {
     	return outObj;
     }    
     /**
-     * Obtiene una instancia de una clase a partir del nombre completo (incluido paquete)
-     * de la clase
-     * @param className El nombre de la clase (completo)
-     * @param constructorArgsTypes definiciones de las clases par�metros del constructor
-     * @param constructorArgs Argumentos del constructor
-     * @param force Si hay que forzar la accesibilidad del constructor (pe si es privado)
-     * @return El objeto reci�n creado
-     * @throws ReflectionException si no se puede obtener una instancia del objeto
+     * Returns an object's instance from the type's fully quallified name (type name including package)
+     * @param className 
+     * @param constructorArgsTypes 
+     * @param constructorArgs 
+     * @param force if the constructor accesibillity must be force (ie it's a private constructor)
+     * @return 
      */
     public static <T> T createInstanceOf(final String className,
     									 final Class<?>[] constructorArgsTypes,final Object[] constructorArgs,
@@ -674,13 +672,23 @@ public class ReflectionUtils {
     	return outObj;
     }
     /**
-     * Obtiene una instancia de una clase a partir del nombre completo (incluido paquete)
-     * de la clase
-     * @param type la definicion de la clase
-     * @param constructorArgsTypes definiciones de las clases par�metros del constructor
-     * @param constructorArgs Argumentos del constructor
-     * @return El objeto reci�n creado
-     * @throws ReflectionException si no se puede obtener la instancia del objeto
+     * Returns an object's instance using the default no-args constructor
+     * @param type 
+     * @return
+     */
+    public static <T> T  createInstanceOf(final Class<?> type) { 
+    	@SuppressWarnings("unchecked")        	
+        T outObj = (T)ReflectionUtils.createInstanceOf(type,
+        										       EMPTY_CLASS_ARRAY,EMPTY_OBJECT_ARRAY,
+        										       true);	// force         
+        return outObj;
+    }
+    /**
+     * Returns an object's instance
+     * @param type 
+     * @param constructorArgsTypes 
+     * @param constructorArgs 
+     * @return 
      */
     public static <T> T  createInstanceOf(final Class<?> type,
     									  final Class<?>[] constructorArgsTypes,final Object[] constructorArgs) {
@@ -689,14 +697,12 @@ public class ReflectionUtils {
     	return outObj;
     }
     /**
-     * Obtiene una instancia de una clase a partir del nombre completo (incluido paquete)
-     * de la clase
-     * @param type la definicion de la clase
-     * @param constructorArgsTypes definiciones de las clases par�metros del constructor
-     * @param constructorArgs Argumentos del constructor
-     * @param force Si hay que forzar la accesibilidad del constructor (pe si es privado)
-     * @return El objeto reci�n creado
-     * @throws ReflectionException si no se puede obtener la instancia del objeto
+     * Returns an object's instance
+     * @param type 
+     * @param constructorArgsTypes 
+     * @param constructorArgs 
+     * @param force if the constructor accesibillity must be force (ie it's a private constructor)
+     * @return
      */
     public static <T> T  createInstanceOf(final Class<?> type,
     									  final Class<?>[] constructorArgsTypes,final Object[] constructorArgs,
@@ -875,9 +881,9 @@ public class ReflectionUtils {
     	}
     	return outConstructors;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Obtiene un array con la DEFINICION de todos los metodos de un objeto, recorriendo toda
      * la jerarquia de herencia
@@ -1083,9 +1089,9 @@ public class ReflectionUtils {
            throw ReflectionException.of(th);
     	} 
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FIELD-ACCESS METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Obtiene un mapa con la DEFINICION de todos los miembros de un objeto, recorriendo toda
      * la jerarquia de herencia
@@ -1330,9 +1336,9 @@ public class ReflectionUtils {
 		}
 		return outField;
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FIELD SETTERS
-///////////////////////////////////////////////////////////////////////////////////////////    
+/////////////////////////////////////////////////////////////////////////////////////////    
     /**
      * Obtiene el nombre del metodo setter de un miembro en una clase
      * @param type la clase que contiene el miembro
@@ -1496,9 +1502,9 @@ public class ReflectionUtils {
         	throw ReflectionException.of(th);
         }
     }
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FIELD GETTERS
-///////////////////////////////////////////////////////////////////////////////////////////     
+/////////////////////////////////////////////////////////////////////////////////////////     
     /**
      * Gets a field's getter name form  de un miembro en una clase
      * @param type la clase que contiene el miembro
@@ -1633,8 +1639,9 @@ public class ReflectionUtils {
      * @param obj El objeto
      * @param fieldName El nombre del miembro
      * @param useAccessor Si hay que utilizar accessors
+     * @param fieldType type of returned field
      * @return El valor del miembro
-     * @throws ReflectionException si se produce alguna excepci�n en el proceso
+     * @throws ReflectionException si se produce alguna excepcion en el proceso
      */
 	public static <T> T fieldValue(final Object obj,final String fieldName,final boolean useAccessor,
 								   final Class<?> fieldType) {
@@ -1713,7 +1720,7 @@ public class ReflectionUtils {
 			for (Field f : fields) {
 				Annotation[] annots = f.getAnnotations();
 				if (annots != null) {
-					for(Annotation annot : annots) {						
+					for (Annotation annot : annots) {						
 						List<FieldAnnotated<? extends Annotation>> fieldsAnnotated = fieldsAnnotatedMap.get(annot);
 						if (fieldsAnnotated == null) {
 							fieldsAnnotated = new ArrayList<FieldAnnotated<? extends Annotation>>();
@@ -1926,9 +1933,9 @@ public class ReflectionUtils {
 	    return type;
 	}
 	
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS DE ACCESO A MIEMBROS EN BASE A UN PATH
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Funcion que se encarga de establecer el valor de un miembro en una jerarqu�a de objetos
      * El path al miembro se pasa como parametro en la variable memberPath que
@@ -2112,9 +2119,9 @@ public class ReflectionUtils {
     }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METODOS DE DEBUG
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     /**
      * Compone la signatura de un metodo: clase.metodo(params..)
      * @param className El nombre de la clase
@@ -2148,7 +2155,7 @@ public class ReflectionUtils {
         outSignature.append(m.getName());
         outSignature.append('(');
         Class<?>[] paramTypes = m.getParameterTypes();
-        if(paramTypes != null) {
+        if (paramTypes != null) {
             for (int i=0; i < paramTypes.length; i++) {
                 outSignature.append(paramTypes[i].getName());
                 outSignature.append(" param");

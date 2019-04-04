@@ -10,15 +10,12 @@ public class StringXMLEncodeUtils {
 //  CODE / DECODE
 ///////////////////////////////////////////////////////////////////////////////
     /**
-     * Comprueba si un caracter de una cadena XML es un caracter válido según la especificacion XML
+     * Checks if an xml string character is valid according to the xml spec
      * @see http://seattlesoftware.wordpress.com/2008/09/11/hexadecimal-value-0-is-an-invalid-character/
-     * Si se intenta parsear un XML con caracteres ilegales se lanza el error:
+     * If an xml string containing illegal characters is parsed, an error is raised:
      * 		"Hexadecimal value 0x[---] is an invalid character"
-     * El problema es que el XML contiene caracteres ilegales segun la especificacion XML; casi siempre estos
-     * caracteres son caracteres ASCII de control (ej: like null, bell, backspace, etc)
-     * 
-     * @param theChar el caracter
-     * @return true si el caracter es legal
+     * @param theChar
+     * @return true if char is legal
      */
     public static boolean isLegalChar(final int theChar) {
     	return  (theChar == 0x9) ||/* == '\t' == 9   */
@@ -29,9 +26,9 @@ public class StringXMLEncodeUtils {
                 ((theChar >= 0x10000) && (theChar <= 0x10FFFF));
     }
     /**
-     * Quita los caracteres invalidos de un xml
-     * @param str la cadena a filtrar
-     * @return la cadena filtrada
+     * Removes illegal characters according to the xml spec
+     * @param str
+     * @return 
      */
     public static CharSequence filterInvalidChars(final CharSequence str) {
         StringBuffer outResp = new StringBuffer(str.length());
@@ -45,11 +42,10 @@ public class StringXMLEncodeUtils {
         return outResp.toString();
     }   
 	/**
-     * Codifica una cadena en UTF poniendo los caracteres de doble byte (>127) 
-     * en formato escapado (&#CODE;)
+     * Encodes a string to UTF: doble byte (>127) characters are converted to their escaped format (&#CODE;)
      * @see http://seattlesoftware.wordpress.com/2008/09/11/hexadecimal-value-0-is-an-invalid-character/
-     * @param str la cadena a codificar
-     * @return la cadena codificada
+     * @param str 
+     * @return 
      */
     public static CharSequence encodeUTFDoubleByteCharsAsEntities(final CharSequence str) {
     	if (str == null) return null;
@@ -70,10 +66,10 @@ public class StringXMLEncodeUtils {
         return outResp.toString();
     }
     /**
-     * Codifica lo mismo que el método encodeUTF más las comillas simples y dobles
+     * Encodes like encodeUTF and also encodes quotes
      * @see http://seattlesoftware.wordpress.com/2008/09/11/hexadecimal-value-0-is-an-invalid-character/
-     * @param str la cadena a codificar
-     * @return la cadena codificada
+     * @param str 
+     * @return 
      */
     public static CharSequence encodeUTFDoubleByteCharsAndQuoutesAsEntities(final CharSequence str) {
     	if (str == null) return null;
@@ -94,12 +90,9 @@ public class StringXMLEncodeUtils {
         return outResp.toString();
     }
     /**
-     * Decodifica una cadena en UTF con caracteres expresados en forma de entity, 
-     * es decir, cambia las entidades por su valor real
-     * Por ejemplo, los caracteres chinos se codifican como &#valorNumerico;
-     * Esta funcion pasa el valor numerico a su valor real como caracter
-     * @param str cadena con caracteres expresados en forma de entidad
-     * @return cadena decodificada
+     * Decodes an string where UTF double byte chars (>127) aree encoded as entities 
+     * @param str
+     * @return 
      */
     @GwtIncompatible
     public static CharSequence decodeUTFDoubleByteCharsFromEntities(final CharSequence str) {
@@ -111,7 +104,7 @@ public class StringXMLEncodeUtils {
         Matcher m = p.matcher(str);
         boolean found = m.find();
         if (found) {
-            // sustituir
+            // replace
             do {
                 //String replaceStr = m.group();
                 String numericValue = m.group(1);
@@ -129,7 +122,7 @@ public class StringXMLEncodeUtils {
             m.appendTail(result);
             return result.toString();
         }
-        // Devolver lo que llega sin modificar
+        // Return 
         return str;
     }  
 }

@@ -45,7 +45,7 @@ public class PifFile
 	public String asString() {
 		return _fileAsString.get();
 	}
-	public InputStream asInputStream(){
+	public InputStream asInputStream() {
 		return this._fileIS;
 	}	
 	public byte[] asByteArray() throws IOException {

@@ -6,47 +6,73 @@
 		xmlns:m="http://ant.apache.org/ivy/maven" >
 
 	<info organisation="com.ejie.r01.r01fb"
-		  module="r01fbTeamSiteFileStoreClasses"
-          revision="${r01f.current.version}"
-          status="integration">
+			module="r01fbTeamSiteFileStoreClasses"
+			revision="${r01f.current.version}"
+			status="integration">
 	</info>
 
 	<configurations>
-		<conf name="default" visibility="public" extends="runtime"
-			  description="runtime dependencies and master artifact can be used with this conf"/>
-		<conf name="compile" visibility="public" description="this is the default scope, used if none is specified. Compile dependencies are available in all classpaths."/>
-		<conf name="runtime" visibility="public" description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath." extends="compile"/>
+		<conf name="default" extends="runtime,master" visibility="public"  description="runtime dependencies and master artifact can be used with this conf" />
+		<conf name="master"                           visibility="public"  description="contains only the artifact published by this module itself, with no transitive dependencies"/>
+		<conf name="compile"                          visibility="public"  description="this is the default scope, used if none is specified. Compile dependencies are available in all classpaths."/>
+		<conf name="runtime" extends="compile"        visibility="public"  description="this scope indicates that the dependency is not required for compilation, but is for execution. It is in the runtime and test classpaths, but not the compile classpath." />
+
+		<conf name="sources"                          visibility="public"  description="this configuration contains the source artifact of this module, if any."/>
+		<conf name="javadoc"                          visibility="public"  description="this configuration contains the javadoc artifact of this module, if any."/>
+
+		<conf name="test"    extends="runtime"        visibility="private" description="this scope indicates that the dependency is not required for normal use of the application, and is only available for the test compilation and execution phases." />
+
+		<conf name="provided"                         visibility="public"  description="this is much like compile, but indicates you expect the JDK or a container to provide it. It is only available on the compilation classpath, and is not transitive."/>
+
+		<conf name="system"                           visibility="public"  description="this scope is similar to provided except that you have to provide the JAR which contains it explicitly. The artifact is always available and is not looked up in a repository."/>
+		<conf name="optional"                         visibility="public"  description="contains all optional dependencies"/>
 	</configurations>
 
 	<publications>
-		<artifact name="r01fbTeamSiteFileStoreClasses" type="jar" ext="jar" />
+		<artifact name="r01fbTeamSiteFileStoreClasses" type="bundle" ext="jar"  conf="master"/>
 		<artifact name="r01fbTeamSiteFileStoreClasses" type="pom" ext="pom" />
+		<artifact name="r01fbTeamSiteFileStoreClasses" type="source" ext="jar"  conf="sources" />
+		<artifact name="r01fbTeamSiteFileStoreClasses" type="javadoc" ext="jar" conf="javadoc" />
 	</publications>
 
 	<dependencies>
 		<!-- ============================================================================================================================== -->
 		<!-- R01                                                                                                                            -->
 		<!-- ============================================================================================================================== -->
-		<dependency org="com.ejie.r01.r01fb" name="r01fbFileStoreClasses" rev="${r01f.current.version}" 
-					conf="default->default;compile->compile;runtime->runtime"/>
-
+		<dependency org="com.ejie.r01.r01fb" name="r01fbFileStoreClasses" rev="${r01f.current.version}"
+					conf="compile->compile,master;runtime->runtime"/>
 
 		<!-- ============================================================================================================================== -->
 		<!-- Interwoven TeamSite CSSDK & OpenDeploy API                                                                                     -->
 		<!-- (see http://repository.ejiedes.net/index.html#view-repositories;ejie_appsdesa~browsestorage)                                   -->
 		<!-- ============================================================================================================================== -->
-		<dependency org="api_iw-cssdk" name="cssdkiface" rev="3.1" transitive="false" conf="default->default" />
-		<dependency org="api_iw-cssdk" name="cssdksoap" rev="3.1" transitive="false" conf="default->default" />
+		<dependency org="api_iw-cssdk" name="cssdkiface" rev="3.1"
+					conf="runtime,compile->default"
+					transitive="false"/>
+		<dependency org="api_iw-cssdk" name="cssdksoap" rev="3.1"
+					conf="runtime,compile->default"
+					transitive="false"/>
 		<!--
-		<dependency org="api_iw-cssdk" name="sharedutils100" rev="3.1" transitive="false" conf="default->default" />
-		<dependency org="api_iw-cssdk" name="common100" rev="3.1" transitive="false" conf="default->default" />
-		<dependency org="api_iw-cssdk" name="oscache" rev="2.2" transitive="false" conf="default->default" />
+		<dependency org="api_iw-cssdk" name="sharedutils100" rev="3.1"
+					conf="runtime,compile->default"
+					transitive="false"/>
+		<dependency org="api_iw-cssdk" name="common100" rev="3.1"
+					conf="runtime,compile->default"
+					transitive="false"/>
+		<dependency org="api_iw-cssdk" name="oscache" rev="2.2"
+					conf="runtime,compile->default"
+					transitive="false"/>
 		-->
-		<dependency org="xerces" name="xercesImpl" rev="2.11.0" conf="default->default;compile->compile;runtime->runtime" />
-		<dependency org="javax.xml" name="jaxrpc-api" rev="1.1"/>		
-		<dependency org="org.apache.axis" name="axis" rev="1.4"/>
-		<dependency org="commons-discovery" name="commons-discovery" rev="0.5"/>
-		<dependency org="wsdl4j" name="wsdl4j" rev="1.6.3"/>
+		<dependency org="xerces" name="xercesImpl" rev="2.11.0"
+					conf="compile->compile,master;runtime->runtime"/>
+		<dependency org="javax.xml" name="jaxrpc-api" rev="1.1"
+					conf="compile->compile,master;runtime->runtime"/>		
+		<dependency org="org.apache.axis" name="axis" rev="1.4"
+					conf="compile->compile,master;runtime->runtime"/>
+		<dependency org="commons-discovery" name="commons-discovery" rev="0.5"
+					conf="compile->compile,master;runtime->runtime"/>
+		<dependency org="wsdl4j" name="wsdl4j" rev="1.6.3"
+					conf="compile->compile,master;runtime->runtime"/>
 	</dependencies>
 
 </ivy-module>

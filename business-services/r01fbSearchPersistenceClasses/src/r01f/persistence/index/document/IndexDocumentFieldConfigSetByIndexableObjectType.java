@@ -124,7 +124,7 @@ public class IndexDocumentFieldConfigSetByIndexableObjectType {
 		
 		// [2] - the field was not found at the cache; traverse every objet's field to find the required field config
 		for (IndexDocumentFieldConfigSet<? extends IndexableModelObject> indexDocFieldConfigSet : _fieldConfigSetByIndexableObjType.values()) {
-			outCfg = indexDocFieldConfigSet.getConfigOrThrowFor(fieldId);
+			outCfg = indexDocFieldConfigSet.getConfigOrNullFor(fieldId);
 			if (outCfg != null) break;
 		}
 		// [3] - Cache the value

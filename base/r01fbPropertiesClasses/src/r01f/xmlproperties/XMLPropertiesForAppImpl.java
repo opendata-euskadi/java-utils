@@ -26,6 +26,7 @@ import r01f.objectstreamer.Marshaller;
 import r01f.resources.ResourcesLoaderDef;
 import r01f.resources.ResourcesLoaderDefBuilder;
 import r01f.types.Path;
+import r01f.util.types.Strings;
 import r01f.xml.XMLUtils;
 
 /**
@@ -36,14 +37,14 @@ import r01f.xml.XMLUtils;
  */
 public final class XMLPropertiesForAppImpl
 		implements XMLPropertiesForApp {
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     private final XMLPropertiesForAppCache _cache;  // Properties cache (built at XMLPropertiesCache factory)
     
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
     public XMLPropertiesForAppImpl(final XMLPropertiesForAppCache cache) {
     	_cache = cache;
     }
@@ -326,23 +327,28 @@ public final class XMLPropertiesForAppImpl
 	    	String effXPath = (propXPath != null 
 	    					&& !propXPath.asString().endsWith("/child::*")) 
 	    								? propXPath.asString().concat("/child::*")
-	    								: propXPath.asString();
-	    	Map<String,List<String>> map = _cache.getProperty(_component,Path.from(effXPath),
-	    													  null,
-	    													  Map.class);
-	    	List<String> outList = null;
-	    	if (map != null) {
-	    		outList = new ArrayList<String>(map.size());
-		    	for (Map.Entry<String,List<String>> me : map.entrySet()) {
-		    		if (me.getValue() != null && me.getValue().size() == 1) {
-		    			outList.add(me.getValue().get(0));
-		    		} else {
-		    			for (Iterator<String> it=me.getValue().iterator(); it.hasNext(); ) {
-		    				outList.add(it.next());
-		    			}
-		    		}
+	    								: propXPath != null ? propXPath.asString() : "";
+	    	
+	    	List<String> outList = null;	    	
+	    	if (Strings.isNOTNullOrEmpty(effXPath)) {
+		    	Map<String,List<String>> map = _cache.getProperty(_component,Path.from(effXPath),
+		    													  null,
+		    													  Map.class);
+		    	
+		    	if (map != null) {
+		    		outList = new ArrayList<String>(map.size());
+			    	for (Map.Entry<String,List<String>> me : map.entrySet()) {
+			    		if (me.getValue() != null && me.getValue().size() == 1) {
+			    			outList.add(me.getValue().get(0));
+			    		} else {
+			    			for (Iterator<String> it=me.getValue().iterator(); it.hasNext(); ) {
+			    				outList.add(it.next());
+			    			}
+			    		}
+			    	}
 		    	}
 	    	}
+	    	
 	    	return outList;
 	    }
 	    @Override

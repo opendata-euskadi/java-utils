@@ -186,11 +186,15 @@ public class LatiniaService {
 		_authTokenProvider = new LatiniaAuthTokenProvider(apiData);
 		_latiniaObjsMarshaller = marshaller != null ? marshaller : MarshallerBuilder.build();
 	}
-	@Inject
-	public LatiniaService(final LatiniaServiceAPIData apiData) {
+	/**
+	 * This constructor crashes in execution time because of the exception:
+	 *   r01f.services.latinia.LatiniaService has more than one constructor annotated with @Inject. Classes must have either one (and only one) constructor annotated with @Inject or a zero-argument constructor that is not private.
+     *   at r01f.services.latinia.LatiniaService.class(LatiniaService.java:130)
+	 */
+	 public LatiniaService(final LatiniaServiceAPIData apiData) {
 		this(apiData,
 			 MarshallerBuilder.build());
-	}
+	 }
 /////////////////////////////////////////////////////////////////////////////////////////
 //	API
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -1,4 +1,4 @@
-package org.slf4j.helpers; //r01f.gwt.emulated.org.slf4j.helpers;
+package r01f.gwt.emulated.org.slf4j.helpers; //r01f.gwt.emulated.org.slf4j.helpers;
 
 import java.util.Arrays;
 

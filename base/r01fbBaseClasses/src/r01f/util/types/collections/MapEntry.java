@@ -25,7 +25,7 @@ import lombok.experimental.Accessors;
  * 			public MyType addEntries(MapEntry<String,MyEntry>... entries) {
  * 				if (CollectionUtils.hasData(entries)) {
  * 					if (myMap == null) myMap = new HashMap<String,MyEntry>();
- * 					for(MyEntry entry : entries) {
+ * 					for (MyEntry entry : entries) {
  * 						myMap.put(entry.getKey(),entry.getValue());
  * 					}
  * 				}

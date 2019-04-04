@@ -148,7 +148,7 @@ public class Authenticator {
                         if ((der.getData().peekByte() & 0x1F) == 0x07) {
                                 subDer = der.getData().getDerValue();
                                 if ((subDer.getTag() & (byte)0x1F) == (byte)0x07)
-                                        seqNumber = new Integer(subDer.getData().getBigInteger().intValue());
+                                        seqNumber = Integer.valueOf(subDer.getData().getBigInteger().intValue());
                         }
                 }
                 else {

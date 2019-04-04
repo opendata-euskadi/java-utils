@@ -8,8 +8,9 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
-import r01f.ejie.xlnets.login.XLNetsGuiceModule;
+import r01f.ejie.xlnets.XLNetsGuiceModule;
+import r01f.ejie.xlnets.api.XLNetsAPI;
+import r01f.ejie.xlnets.api.XLNetsAPIBuilder;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.guids.CommonOIDs.AppComponent;
 import r01f.io.util.StringPersistenceUtils;
@@ -42,8 +43,7 @@ public class DOKUSIServiceTest {
 		XMLPropertiesForAppComponent props = XMLPropertiesBuilder.createForApp(AppCode.forId("r01fb"))
 																 .notUsingCache()
 																 .forComponent(AppComponent.forId("test"));
-		XLNetsAuthTokenProvider xlnetsAuthTokenProvider = new XLNetsAuthTokenProvider(props,
-																					  "test");
+		XLNetsAPI xlNetsApi = XLNetsAPIBuilder.createAsDefinedAt(props,"test");
 		// Create new DOKUSI service api data
 		DOKUSIServiceAPIData dokusiApiData = new DOKUSIServiceAPIData(Url.from("http://svc.extra.integracion.jakina.ejiedes.net:80/ctxapp/t65bFsd"),
 																	  DOKUSIAuditID.forId("X42T#X42T"),
@@ -52,11 +52,11 @@ public class DOKUSIServiceTest {
 		PifServiceAPIData pifApiData = new PifServiceAPIData(props,
 															"test");
 		PifService pifService = new PifService(pifApiData,
-											   xlnetsAuthTokenProvider);
+											   xlNetsApi);
 		
 		// Using the DOKUSI service api data create the DOKUSIService object
 		DOKUSIService dokusiService = new DOKUSIService(dokusiApiData,
-														xlnetsAuthTokenProvider,
+														xlNetsApi,
 														pifService);
 		_testDOKUSI(dokusiService);
 	}

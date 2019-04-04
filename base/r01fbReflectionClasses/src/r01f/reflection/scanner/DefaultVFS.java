@@ -51,11 +51,16 @@ public class DefaultVFS
                         // Some versions of JBoss VFS might give a JAR stream even if the resource
                         // referenced by the URL isn't actually a JAR
                         is = url.openStream();
-                        JarInputStream jarInput = new JarInputStream(is);
-                        log.debug("Listing {}",url);
-                        for (JarEntry entry; (entry = jarInput.getNextJarEntry()) != null;) {
-                            log.trace("Jar entry: {}", entry.getName());
-                            children.add(entry.getName());
+                        JarInputStream jarInput = null;
+                        try {
+                        	jarInput = new JarInputStream(is);
+	                        log.debug("Listing {}",url);
+	                        for (JarEntry entry; (entry = jarInput.getNextJarEntry()) != null;) {
+	                            log.trace("Jar entry: {}", entry.getName());
+	                            children.add(entry.getName());
+	                        }
+                        } finally {
+                        	if (jarInput != null) jarInput.close();
                         }
                     }
                     else {

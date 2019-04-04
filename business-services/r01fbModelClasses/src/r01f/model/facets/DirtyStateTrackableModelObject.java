@@ -1,5 +1,7 @@
 package r01f.model.facets;
 
+import com.google.common.annotations.GwtIncompatible;
+
 import r01f.aspects.interfaces.dirtytrack.DirtyStateTrackable;
 
 
@@ -13,6 +15,7 @@ public interface DirtyStateTrackableModelObject
 /////////////////////////////////////////////////////////////////////////////////////////
 //  HasDirtyStateTrackableFacet
 /////////////////////////////////////////////////////////////////////////////////////////
+	@GwtIncompatible
 	public interface HasDirtyStateTrackableModelObjectFacet 
 			 extends ModelObjectFacet {
 		

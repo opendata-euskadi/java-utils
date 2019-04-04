@@ -1,6 +1,6 @@
 package r01f.persistence.db;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.services.interfaces.FindServicesForModelObject;
 
@@ -9,7 +9,7 @@ import r01f.services.interfaces.FindServicesForModelObject;
  * @param <O>
  * @param <M>
  */
-public interface DBFindForModelObject<O extends OID,M extends PersistableModelObject<O>> 
+public interface DBFindForModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>> 
 	     extends FindServicesForModelObject<O,M> {
 	// nothing
 }

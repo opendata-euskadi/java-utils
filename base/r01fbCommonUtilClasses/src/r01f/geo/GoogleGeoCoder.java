@@ -335,7 +335,7 @@ public class GoogleGeoCoder {
 		
 		// Eliminar palabras como "calle", "kalea", "c/", etc
 		if (_blackList != null) {
-			for(Object blackListItem : _blackList.values()) {
+			for (Object blackListItem : _blackList.values()) {
 				String itemStr = ((String)blackListItem).toUpperCase(esLoc); 
 				if (theAddress.contains(itemStr)) theAddress = theAddress.replaceAll(itemStr,"");
 			}
@@ -354,7 +354,7 @@ public class GoogleGeoCoder {
 			} else if (m.groupCount() == 1) {	// se pasa solo la calle, devolver simplemente la calle
 				street = m.group(1);
 			}
-		    street = _normalizeEscapeAndEncode(street);
+			street = Strings.isNOTNullOrEmpty(street) ? _normalizeEscapeAndEncode(street) : "";
 			outAddr = (!Strings.isNullOrEmpty(number) ? number + ",+" : "") + street;			
 		} 		
 		if (outAddr != null && locality != null) {

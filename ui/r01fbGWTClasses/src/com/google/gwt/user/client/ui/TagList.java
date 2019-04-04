@@ -187,7 +187,7 @@ public class TagList<T extends HasCaption>
 	 */
 	public void removeAllTags() {
 		if (CollectionUtils.hasData(_tags)) {
-			for(T tag : _tags.keySet()) this.removeTag(tag);
+			for (T tag : _tags.keySet()) this.removeTag(tag);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -258,7 +258,7 @@ public class TagList<T extends HasCaption>
 	public boolean contains(final T tag) {
 		boolean outContains = false;
 		if (this.hasTags()) {
-			for(T currTag : _tags.keySet()) {
+			for (T currTag : _tags.keySet()) {
 				if (currTag.equals(tag)) {
 					outContains = true;
 					break;

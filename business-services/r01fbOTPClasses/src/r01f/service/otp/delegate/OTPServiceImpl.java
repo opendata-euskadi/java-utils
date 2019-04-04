@@ -32,17 +32,17 @@ public  class OTPServiceImpl
 //////////////////////////////////////////////////////////////////////////////////////
 //METHODS TO IMPLEMENT
 /////////////////////////////////////////////////////////////////////////////////////
-	public OTPOperationExecResult<OTPResponse> generate( final OTPRequest  otpRequest){
+	public OTPOperationExecResult<OTPResponse> generate( final OTPRequest  otpRequest) {
 		return _serviceForGeneration.generate(otpRequest);
 
 	}
 
-	public OTPOperationExecResult<OTPDispatchResponse> dispatch(final OTPDispatchRequest  otpRequest){
+	public OTPOperationExecResult<OTPDispatchResponse> dispatch(final OTPDispatchRequest  otpRequest) {
 		return _serviceForDistpach.dispatch( otpRequest);
 
 	}
 
-	public OTPOperationExecResult<OTPValidationResponse> validate( final OTPValidationRequest  otpRequest){
+	public OTPOperationExecResult<OTPValidationResponse> validate( final OTPValidationRequest  otpRequest) {
 		return _serviceForValidation.validate(otpRequest);
 
 	}

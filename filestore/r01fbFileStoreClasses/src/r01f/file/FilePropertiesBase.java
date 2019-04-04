@@ -2,6 +2,8 @@ package r01f.file;
 
 import java.util.Date;
 
+import com.google.common.base.Objects;
+
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
@@ -139,13 +141,70 @@ public abstract class FilePropertiesBase
     }	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
-/////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////
+    @Override 
+    public boolean equals(final Object obj) {
+    	if (obj == null) return false;
+    	if (obj == this) return true;
+    	if (!(obj instanceof FilePropertiesBase)) return false;
+    	FilePropertiesBase other = (FilePropertiesBase)obj;
+    	boolean pathEq = this.getPath() != null && other.getPath() != null
+    						? this.getPath().is(other.getPath())
+    						: this.getPath() != null && other.getPath() == null
+    								? false
+    								: this.getPath() == null && other.getPath() != null
+    										? false
+    										: true;		// both null
+    	boolean symlinkEq = this.isSymLink() == other.isSymLink();
+    	boolean folderEq = this.isFolder() == other.isFolder();
+    	boolean sizeEq = this.getSize() == other.getSize();
+    	boolean modifTSEq = this.getModificationTimeStamp() == other.getModificationTimeStamp();
+    	boolean accessTSEq = this.getAccessTimeStamp() == other.getAccessTimeStamp();
+    	boolean createTSEq = this.getCreateTimeStamp() == other.getCreateTimeStamp();
+    	boolean ownerEq = this.getOwner() != null  && other.getOwner() != null
+    							? this.getOwner().is(other.getOwner())
+    							: this.getOwner() != null && other.getOwner() == null
+    									? false
+    									: this.getOwner() == null && other.getOwner() != null
+    											? false
+    											: true;		// both null
+    	boolean groupEq = this.getGroup() != null && other.getGroup() != null
+    							? this.getGroup().is(other.getGroup())
+    							: this.getGroup() != null && other.getGroup() == null
+    									? false
+    									: this.getGroup() == null && other.getGroup() != null
+    											? false
+    											: true;		// both null
+    	boolean permissionEq = this.getPermission() != null && other.getPermission() != null
+    								? this.getPermission().equals(other.getPermission())
+    								: this.getPermission() != null && other.getPermission() == null
+    										? false
+    										: this.getPermission() == null && other.getPermission() != null
+    												? false
+    												: true;		// both null
+    	return pathEq 
+    		&& symlinkEq && folderEq 
+    		&& sizeEq 
+    		&& modifTSEq && accessTSEq && createTSEq 
+    		&& ownerEq && groupEq
+    		&& permissionEq;
+    }
+    @Override
+    public int hashCode() {
+    	return Objects.hashCode(_path,
+    							_symLink,_folder,
+    							_size,
+    							_modificationTimeStamp,_accessTimeStamp,_createTimeStamp,
+    							_owner,_group,
+    							_permission);
+    }
 	@Override
 	public CharSequence debugInfo() {
 		return Strings.customized("      Path : {}\n" +
 							 	  "    symlink: {}\n" +
 							 	  "   isFolder: {}\n" +
 								  "       size: {}\n" +
+							 	  "create time: {}\n" +
 							 	  " modif time: {}\n" + 
 								  "access time: {}\n" + 
 							 	  "      owner: {}\n" +
@@ -155,6 +214,7 @@ public abstract class FilePropertiesBase
 							 	  this.isSymLink() ? this.getSymLink() : "false",
 							 	  this.isFolder(),
 							 	  this.getSize(),
+							 	  this.getCreateDate() != null ? Dates.formatAsISO8601(this.getCreateDate()) : null,
 							 	  this.getModificationDate() != null ? Dates.formatAsISO8601(this.getModificationDate()) : null,
 							 	  this.getAccessDate() != null ? Dates.formatAsISO8601(this.getAccessDate()) : null,
 							 	  this.getOwner(),

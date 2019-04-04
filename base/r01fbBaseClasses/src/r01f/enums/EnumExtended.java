@@ -1,7 +1,5 @@
 package r01f.enums;
 
-
-
 /**
  * Basic operations with an {@link Enum}
  * @see EnumExtendedWrapper

@@ -83,8 +83,8 @@ public class ReasonFlags {
     };
 
     private static int name2Index(String name) throws IOException {
-        for( int i=0; i<NAMES.length; i++ ) {
-            if( NAMES[i].equalsIgnoreCase(name) ) {
+        for ( int i=0; i<NAMES.length; i++ ) {
+            if ( NAMES[i].equalsIgnoreCase(name) ) {
                 return i;
             }
         }
@@ -235,7 +235,7 @@ public class ReasonFlags {
      */
     public Enumeration<String> getElements () {
         AttributeNameEnumeration elements = new AttributeNameEnumeration();
-        for( int i=0; i<NAMES.length; i++ ) {
+        for ( int i=0; i<NAMES.length; i++ ) {
             elements.addElement(NAMES[i]);
         }
         return (elements.elements());

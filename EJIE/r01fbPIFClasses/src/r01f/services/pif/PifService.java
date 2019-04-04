@@ -17,7 +17,7 @@ import com.ejie.y31.service.Y31JanoService;
 import com.ejie.y31.vo.Y31AttachmentBean;
 
 import lombok.extern.slf4j.Slf4j;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
+import r01f.ejie.xlnets.api.XLNetsAPI;
 import r01f.exceptions.Throwables;
 import r01f.file.FileNameAndExtension;
 import r01f.mime.MimeTypes;
@@ -131,11 +131,11 @@ public class PifService {
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final PifServiceAPIData _apiData;
 
-	private final XLNetsAuthTokenProvider _xlnetsAuthTokenProvider;
+	private final XLNetsAPI _xlNetsApi;
 	private final Memoized<Document> _xlnetsAuthToken = new Memoized<Document>() {
 																		@Override
 																		protected Document supply() {
-																			return _xlnetsAuthTokenProvider.getXLNetsSessionTokenDoc();
+																			return _xlNetsApi.getXLNetsSessionTokenDoc();
 																		}
 																};
 
@@ -159,9 +159,9 @@ public class PifService {
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
 	public PifService(final PifServiceAPIData apiData,
-					  final XLNetsAuthTokenProvider xlnetsAuthTokenProvider) {
+					  final XLNetsAPI xlNetsApi) {
 		_apiData = apiData;
-		_xlnetsAuthTokenProvider = xlnetsAuthTokenProvider;
+		_xlNetsApi = xlNetsApi;
 	}
 
 /////////////////////////////////////////////////////////////////////////////////////////

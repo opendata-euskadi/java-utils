@@ -19,6 +19,7 @@ public class FakeCollection<T>
 	}
 	@Override
 	public void clear() {
+		// nothing
 	}
 	@Override
 	public boolean contains(final Object o) {
@@ -45,6 +46,7 @@ public class FakeCollection<T>
 						}
 						@Override
 						public void remove() {
+							// nothing
 						}
 			   };
 	}

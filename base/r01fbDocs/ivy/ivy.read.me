@@ -1,18 +1,36 @@
+(see http://ant.apache.org/ivy/history/2.5.0-rc1/ivyfile/dependency.html) 
 
 Ivy is NOT a build tool -it's only a dependency management tool so configurations are NOT what scopes are for maven
 
-Ivy uses a concept called CONFIGURATION: a module configuration is a way to USE or to see the module.
+Ivy uses a concept called CONFIGURATION: a module configuration is called the MASTER configuration
+For example: 
+	<configurations>
+		<conf name="default" description="shortcut to runtime and master dependencies"/>
+		<conf name="compile" description="Used ONLY at compile time" />
+		<conf name="runtime" description="Not required at compile time BUT required for execution and so deployed to a server"/>
+	</configurations>
+defines 3 MASTER configurations: [default], [compile] and [runtime]
+
 
 The DEPENDENCIES are mapped TO configurations: 
 	For every DEPENDENCY the CONFIGURATION where the DEPENDENCY is USED must be specified:
+	
+	if the current module has defined a configuration named 'runtime' (a MASTER configuration), 
+	and the dependency does have too a configuration named 'runtime', then having an inline 
+	mapping configuration set to 'runtime' means that in the 'runtime' MASTER configuration 
+	(the module's 'runtime' configuration) the dependency's 'runtime' configuration is required
+	
+	
 		- Explicitly: 
-				If the dependency com.org.fooModule is USED at the default module 
-					<dependency org="com.org" name="fooModule" rev="latest.integration" conf="myConfig" /> 
-				If the dependency com.org.fooModule is USED at ALL modules
-					<dependency org="com.org" name="fooModule" rev="latest.integration" conf="*" />
+				If the 'myConfig' configuration of [fooModule] dependency is USED at 'default' MASTER configuration (one of the module's configs)  
+					<dependency org="com.org" name="fooModule" rev="latest.integration" 
+								conf="myConfig" /> 
+				If ALL the configurations of [fooModule] dependency are USED at 'default' MASTER configuration
+					<dependency org="com.org" name="fooModule" rev="latest.integration" 
+								conf="*" />
 		- Implicitly:
-				A default CONFIGURATION where the DEPENDENCIES are USED if nothing is explicitly said:
-				<dependencies defaultconf="myConfig">
+				A default CONFIGURATION where the dependencies' configs are USED if nothing is explicitly said:
+				<dependencies defaultconf="default">
 					<dependency org="com.org" name="fooModule" rev="latest.integration"/>
 					...
 				</dependencies>
@@ -21,23 +39,44 @@ The DEPENDENCIES are mapped TO configurations:
 		For example, Hibernate downloads a bunch of JBoss JARs 
 	... so many dependencies must be EXCLUDED
 	
-	To do so, Ivy uses again CONFIGURATIONS:
+	To do so, Ivy uses again CONFIGURATIONS using the -> operator
+		(master configs) -> (dependency's configs)  >>> A good way to remember which side is for the master configuration (i.e. the configuration of the module defining the dependency) 
+														and which side is for the dependency configuration is to read the -> as "depends on".
+		Examples:
+		A, B, C -> E, F 	means that dependency configurations E and F are required in master configurations A, B and C.
+		* -> B, C			means that B & C dependency configurations are required in all master configurations
+	
+		A fallback mechanism can be used when you are not sure that the dependency will have the required conf. 
+		You can indicate to Ivy that you want one configuration, but if it isn't present, use another one. 
+		The syntax for specifying this adds the fallback conf between parenthesis right after the required conf.
+
+		test->runtime(default) 	means that in the test MASTER configuration, the dependency's runtime conf is required, 
+								... but if doesn't exist, it will use the default conf instead. 
+								If default conf doesn't exist then it will be considered as an error. 
+								Note that the * wildcard can be used as fallback conf.
+	
+	
 		For example, hibernate can be used with several cache implementations, several connection pool implementation, and so on...
 		
 		In order to USE ONLY the required dependencies of the hibernate DEPENDENCY the configuration should be done like:
 		
-			<dependency org="hibernate" name="hibernate" rev="2.1.8" conf="myConfig->proxool,oscache"/>
+			<dependency org="hibernate" name="hibernate" rev="2.1.8" 
+						conf="myConfig->proxool,oscache"/>
 	 	
 	 	which means:
-	 		The hibernate dependency is USED at myConfig CONFIGURATION
-	 		When retrieving hibernate dependency ONLY retrieve the proxool and oscache CONFIGURATIONS (this configurations belongs to hibernate Ivy config)
+	 		The [hibernate] dependency is USED at 'myConfig' MASTER configuration (a module's configuration)
+	 		When retrieving the [hibernate] dependency ONLY retrieve the [proxool] and [oscache] configurations of [hibernate] module 
+	 		(which are the MASTER configurations on [hibernate]'s Ivy file)
 		so:
-			<dependency org="com.org" name="fooModule" conf="myConfig->fooModuleConfig">    
-		means "use com.org.fooModule dependency at myConfig CONFIGURATION and RETRIEVE only fooModuleConfig configured DEPENDENCIES of com.org.fooModule"
+			<dependency org="com.org" name="fooModule" 
+					    conf="myConfig->fooModuleConfig">
+					        
+		means "use the 'fooModuleConfig' configuration of [fooModule] dependency and map it to 'myConfig' MASTER configuracion (one of the module's configs)"
 		
 		and
-			 <dependency org="com.org" name="fooModule" conf="myConfig->*">^
-		means "use com.org.fooModule dependency at myConfig CONFIGURATION and RETRIEVE ALL configured DEPENDENCIES of com.org.fooModule"
+			 <dependency org="com.org" name="fooModule" 
+			 			 conf="myConfig->*">^
+		means "use all configs of [fooModule] dependency and map them to 'myConfig' MASTER configuration (one of the module's configs)"
 		
 	NOTE
 		When a default CONFIGURATION is NOT specified:
@@ -45,10 +84,10 @@ The DEPENDENCIES are mapped TO configurations:
 					<dependency org="com.org" name="fooModule" rev="latest.integration"/>
 					...
 				</dependencies>
-		the dependencies are USED in EVERY CONFIGURATION and ALL dependency configuration are retrieved
-		... it's the same as put conf="*->*" in every dependency
+		it's assumed conf="*->* wich means retrieve every dependency's modules and map to the corresponding MASTER module
 				<dependencies>
-					<dependency org="com.org" name="fooModule" rev="latest.integration" conf="*->*"/>
+					<dependency org="com.org" name="fooModule" rev="latest.integration" 
+								conf="*->*"/>
 					...
 				</dependencies>
 
@@ -68,7 +107,7 @@ CONFIGURATION  DESCRIPTION                                                      
 	
 	compile 	Used if no configuration is specified. Used only at compile time                                                     commons-lang
 	 
-	provided	indicates that you expect the JDK or CONTAINER to prvide the dependency            compile           NO             Servlet APIs
+	provided	indicates that you expect the JDK or CONTAINER to provide the dependency            compile           NO             Servlet APIs
 	
 	runtime 	the dependency is NOT required for compilation but it's required for execution                                   AOP runtime library
 				It's NOT in the compile classpath!!!!

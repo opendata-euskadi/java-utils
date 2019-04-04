@@ -55,7 +55,7 @@ public class ChangesTrackedCollectionMethods
 								  	 final CollectionChangesTracker<V> changesTracker) {
 		boolean outModif = false;
 		if (c != null && c.size() > 0) {
-			for(V v : c) {
+			for (V v : c) {
 				outModif = outModif | ChangesTrackedCollectionMethods.add(v,currentEntries,changesTracker);
 			}
 		}
@@ -74,7 +74,7 @@ public class ChangesTrackedCollectionMethods
 										final CollectionChangesTracker<V> changesTracker) {
 		boolean outModif = false;
 		if (c != null && c.size() > 0) {
-			for(Object v : c) {
+			for (Object v : c) {
 				outModif = outModif | ChangesTrackedCollectionMethods.remove(v,currentEntries,changesTracker);
 			}
 		}
@@ -85,7 +85,7 @@ public class ChangesTrackedCollectionMethods
 										final CollectionChangesTracker<V> changesTracker) {
 		boolean outModif = false;
 		if (c != null && c.size() > 0) {
-			for(Object v : currentEntries) {
+			for (Object v : currentEntries) {
 				if (!c.contains(v)) outModif = outModif | ChangesTrackedCollectionMethods.remove(v,currentEntries,changesTracker);
 			}
 		}

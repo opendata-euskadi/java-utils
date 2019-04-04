@@ -8,15 +8,14 @@ import com.google.common.annotations.GwtIncompatible;
 public interface EnumWithRegEx<T> 
          extends EnumExtended<T> {
 	/**
-	 * Devuelve la descripcion del elemento del enum
+	 * Returns the patterns
 	 * @return
 	 */
 	public Pattern[] getPatterns(); 
 	/**
-	 * Combrueba si el elemento puede ser asignado a partir de un label 
-	 * macheando el regEx
-	 * @param desc la descripción
-	 * @return true si se puede asignar, false en caso contrario
+	 * Checks if the enum element can be assigned from a label 
+	 * @param desc 
+	 * @return 
 	 */
 	public boolean canBeFrom(String label);
 }

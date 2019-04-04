@@ -25,7 +25,7 @@ public class FieldMetaDataForDayOfMonth
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());	
 	}
-	public FieldMetaDataForDayOfMonth(final IndexableFieldID fieldId,
+	public FieldMetaDataForDayOfMonth(final FieldID fieldId,
 									  final LanguageTexts name,final LanguageTexts description,
 									  final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

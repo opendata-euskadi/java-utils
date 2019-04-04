@@ -136,8 +136,11 @@ public abstract class ServiceIDs {
 		}
 		public static final CoreModule SERVICES = CoreModule.forId("services");
 		public static final CoreModule DBPERSISTENCE = CoreModule.forId("dbpersistence");
+		public static final CoreModule FSPERSISTENCE = CoreModule.forId("fspersistence");
 		public static final CoreModule SEARCHPERSISTENCE = CoreModule.forId("searchpersistence");
+		public static final CoreModule RENDER = CoreModule.forId("render");
 		public static final CoreModule NOTIFIER = CoreModule.forId("notifier");
+		public static final CoreModule BUSINESS = CoreModule.forId("business");
 	}
 	@MarshallType(as="coreAppAndModule")
 	@EqualsAndHashCode(callSuper=true)

@@ -13,10 +13,6 @@ public interface PersistenceOperationOnObjectResult<T>
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * @return the requested operation
-	 */
-	public PersistenceRequestedOperation getRequestedOperation();
-	/**
 	 * @return the performed operation
 	 */
 	public PersistencePerformedOperation getPerformedOperation();

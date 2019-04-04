@@ -52,7 +52,7 @@ import r01f.guid.dispenser.GuiceManagedSimpleGUIDDispenser.SimpleGUIDDispenserFa
  *		At run-time, using the GUIDDispenserID, a concrete instance can be obtained using a GUIDDispenser objects factory 
  *			<pre class='brush:java'>
  *				String guidDispenserImplId = "simpleGUIDDispenser";
- *				Key<Map<String,GUIDDispenserFactory>> guidDispenserFactoriesMap = Key.get(new TypeLiteral<Map<String,GUIDDispenserFactory>>(){});
+ *				Key<Map<String,GUIDDispenserFactory>> guidDispenserFactoriesMap = Key.get(new TypeLiteral<Map<String,GUIDDispenserFactory>>() {});
  *				GUIDDispenserFactory factory = injector.getInstance(guidDispenserFactoriesMap)
  *													   .get(guidDispenserImplId);
  *				outDispenser = factory.createDispenser(...);

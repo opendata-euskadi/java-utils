@@ -130,7 +130,7 @@ public class HttpsConnectionRetriever
 		}
 	}
 	@SuppressWarnings("unused")
-	private static boolean _isHttpsDefaultConnectionInstance(final Class<?> classInstance){
+	private static boolean _isHttpsDefaultConnectionInstance(final Class<?> classInstance) {
 		try {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();	// DO NOT use Class.forName... problems with EARs
 			Class<?> httpsDefaultConnectionClass = cl.loadClass(_httpsDefaultConnectionClass);
@@ -140,7 +140,7 @@ public class HttpsConnectionRetriever
 		}
 	}
 	@SuppressWarnings("unused")
-	private static boolean _isSunConnectionInstance(final Class<?> classInstance){
+	private static boolean _isSunConnectionInstance(final Class<?> classInstance) {
 		try {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();	// DO NOT use Class.forName... problems with EARs
 			Class<?> sunConnectionClass = cl.loadClass(_httpsSunConnectionClass);
@@ -150,7 +150,7 @@ public class HttpsConnectionRetriever
 		}
 	}
 	@SuppressWarnings("unused")
-	private static boolean _isIBMClassInstance(final Class<?> classInstance){
+	private static boolean _isIBMClassInstance(final Class<?> classInstance) {
 		try {
 			ClassLoader cl = Thread.currentThread().getContextClassLoader();	// DO NOT use Class.forName... problems with EARs
 			Class<?> ibmConnectionClass = cl.loadClass(_httpsIBMConnectionClass);
@@ -164,7 +164,7 @@ public class HttpsConnectionRetriever
 	 */
 	@SuppressWarnings("unused")
 	private void _loadStreamHandler() {
-		if( !_streamHandlerInitialized ) {
+		if ( !_streamHandlerInitialized ) {
 			_streamHandlerInitialized = false;
 
 			String szVendor = System.getProperty("java.vendor");
@@ -191,7 +191,7 @@ public class HttpsConnectionRetriever
 				} catch (Exception ex ) {
 					throw new RuntimeException("Unknown error loading Microsoft SSL StreamHandler: " + ex.toString() );
 				}
-			} else if( 1.2 <= dVersion.doubleValue() ) {
+			} else if ( 1.2 <= dVersion.doubleValue() ) {
 				// Registers a SSL protocol handler
 				// 		Usually this part is NOT necessary since this is done by the app server (ie: weblogic)
 				//		if the property [weblogic.security.ssl.enable] is true: weblogic.security.ssl.enable=true 
@@ -219,7 +219,7 @@ public class HttpsConnectionRetriever
 				try {
 					ClassLoader cl = Thread.currentThread().getContextClassLoader();				// DO NOT use Class.forName... problems with EARs
 					Class<?> clsFactory = cl.loadClass("com.sun.net.ssl.internal.ssl.Provider");
-					if( (null != clsFactory) && (null == Security.getProvider("SunJSSE")) ) {
+					if ( (null != clsFactory) && (null == Security.getProvider("SunJSSE")) ) {
 						Security.addProvider((Provider)clsFactory.newInstance());
 					}
 					// If the steam handler is property initialized ensure the flag is set

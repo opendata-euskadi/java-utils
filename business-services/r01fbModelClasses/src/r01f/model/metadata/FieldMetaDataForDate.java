@@ -27,7 +27,7 @@ public class FieldMetaDataForDate
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());	
 	}
-	public FieldMetaDataForDate(final IndexableFieldID fieldId,
+	public FieldMetaDataForDate(final FieldID fieldId,
 								final LanguageTexts name,final LanguageTexts description,
 								final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

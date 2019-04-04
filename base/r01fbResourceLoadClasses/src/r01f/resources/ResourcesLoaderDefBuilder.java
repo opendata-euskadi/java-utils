@@ -208,7 +208,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderLoaderStep {
+	public final class ResourcesLoaderDefManualBuilderLoaderStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderReloadingStep usingClassPathResourcesLoader() {
@@ -236,7 +236,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesConxStep {
+	public final class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesConxStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesLoadSqlStep conectingUsingDataSource(final String dataSourceName) {
@@ -257,7 +257,7 @@ public class ResourcesLoaderDefBuilder
 		}		
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesLoadSqlStep {
+	public final class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesLoadSqlStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep sqlToLoadResource(final String sql) {
@@ -269,7 +269,7 @@ public class ResourcesLoaderDefBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep {
+	public final class ResourcesLoaderDefManualBuilderBBDDLoaderPropertiesUpdateTSSqlStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderReloadingStep sqlToUpdateLastReloadTimeStamp(final String sql) {
@@ -284,7 +284,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderURLLoaderPropertiesProxyStep {
+	public final class ResourcesLoaderDefManualBuilderURLLoaderPropertiesProxyStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderReloadingStep usingProxy(final String proxyHost,final int proxyPort,
@@ -306,7 +306,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderPropertiesStep {
+	public final class ResourcesLoaderDefManualBuilderPropertiesStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderReloadingStep withoutProperties() {
@@ -331,7 +331,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderReloadingStep {
+	public final class ResourcesLoaderDefManualBuilderReloadingStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderCharsetStep reloadingAsDefinedAt(final ResourcesReloadControlDef reloadControlDef) {
@@ -347,7 +347,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderCharsetStep {
+	public final class ResourcesLoaderDefManualBuilderCharsetStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDefManualBuilderBuildStep charset(final Charset charset) {
@@ -363,7 +363,7 @@ public class ResourcesLoaderDefBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ResourcesLoaderDefManualBuilderBuildStep {
+	public final class ResourcesLoaderDefManualBuilderBuildStep {
 		private final ResourcesLoaderDef _resLoaderDef;
 		
 		public ResourcesLoaderDef build() {

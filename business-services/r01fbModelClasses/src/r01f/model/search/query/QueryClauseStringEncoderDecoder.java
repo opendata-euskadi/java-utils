@@ -14,7 +14,7 @@ import r01f.model.metadata.FieldMetaData;
 import r01f.model.metadata.FieldMetaDataForCollection;
 import r01f.model.metadata.FieldMetaDataForPolymorphicType;
 import r01f.model.metadata.FieldMetaDataForRange;
-import r01f.model.metadata.IndexableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.TypeFieldMetaData;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.search.query.BooleanQueryClause.QualifiedQueryClause;
@@ -37,14 +37,14 @@ import r01f.util.types.collections.CollectionUtils;
  * </pre>
  * Is encoded in an URL as:
  * <pre>
- * 		myField.MUST.beEqualTo(r01132qfa12341){r01.model.oid.MyOID};
- * 		myField2.SHOULD.beInsideRange([124123..123413]){java.util.Date};
- * 		myField3.MUST_NOT.beWithin(10,12,11){java.lang.Integer}
- * 		myField4.MUST.haveData(){}
+ * 		myField.MUST.beEqualTo(r01132qfa12341) {r01.model.oid.MyOID};
+ * 		myField2.SHOULD.beInsideRange([124123..123413]) {java.util.Date};
+ * 		myField3.MUST_NOT.beWithin(10,12,11) {java.lang.Integer}
+ * 		myField4.MUST.haveData() {}
  * </pre>
  * Each of the predicates has the following structure:
  * <pre>
- * 		{field}.{CONDITION}.{predicate}({value}){DataType}
+ * 		{field}.{CONDITION}.{predicate}({value}) {DataType}
  */
 @GwtIncompatible
 class QueryClauseStringEncoderDecoder {
@@ -97,7 +97,7 @@ class QueryClauseStringEncoderDecoder {
 		QualifiedQueryClause<Q> outQry = null;
 		Matcher m = CLAUSE_URL_PATTERN.matcher(encodedQry);
 		if (m.find()) {
-			IndexableFieldID fieldId = new IndexableFieldID(m.group(1));
+			FieldID fieldId = new FieldID(m.group(1));
 			QueryClauseOccur occur = QueryClauseOccur.fromName(m.group(2));
 			CONDITION condition = CONDITION.fromName(m.group(3));
 			String value = m.group(4);
@@ -136,7 +136,7 @@ class QueryClauseStringEncoderDecoder {
 				Range<? extends Comparable> range = Range.parse(value,
 										  						comparableDataType);
 				clause = (Q)RangeQueryClause.forField(fieldId)
-											.of(range);
+											.of((Range)range);
 				break;
 			case beWithin:
 				Class<?> type = null;

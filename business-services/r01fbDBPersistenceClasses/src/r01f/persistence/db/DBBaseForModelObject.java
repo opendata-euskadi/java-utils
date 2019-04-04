@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.HasTrackingInfo;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.HasEntityVersion;
@@ -30,7 +31,7 @@ import r01f.util.types.collections.CollectionUtils;
  */
 @Accessors(prefix="_")
 @Slf4j
-public abstract class DBBaseForModelObject<O extends OID,M extends PersistableModelObject<O>,
+public abstract class DBBaseForModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
 				      					   PK extends DBPrimaryKeyForModelObject,DB extends DBEntityForModelObject<PK>>
 			  extends DBBase
 		   implements TransformsDBEntityIntoModelObject<DB,M> {

@@ -8,7 +8,7 @@ import java.lang.annotation.Target;
  * Forces a {@link ConvertToDirtyStateTrackable}-annotated type's transient field to be taken
  * into account when checking if the status has changed
  * <pre>
- * NOTE: Usualli, transient fields are NOT taken into account when checking the status
+ * NOTE: Usually, transient fields are NOT taken into account when checking the status
  * </pre>
  */
 @Retention(RetentionPolicy.RUNTIME)

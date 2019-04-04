@@ -12,6 +12,7 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.ModelObjectRef;
 import r01f.model.PersistableModelObject;
 import r01f.patterns.CommandOn;
@@ -21,7 +22,7 @@ import r01f.services.client.api.delegates.ClientAPIHasDelegateForDependentModelO
 
 @Slf4j
 @RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-public class TestPersistableModelObjectCRUD<O extends OID,M extends PersistableModelObject<O>> {
+public class TestPersistableModelObjectCRUD<O extends PersistableObjectOID,M extends PersistableModelObject<O>> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -31,8 +32,8 @@ public class TestPersistableModelObjectCRUD<O extends OID,M extends PersistableM
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static <O extends OID,M extends PersistableModelObject<O>> TestPersistableModelObjectCRUD<O,M> create(final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
-																												 final ManagesTestMockModelObjsLifeCycle<O,M> modelObjFactory) {
+	public static <O extends PersistableObjectOID,M extends PersistableModelObject<O>> TestPersistableModelObjectCRUD<O,M> create(final ClientAPIDelegateForModelObjectCRUDServices<O,M> crudAPI,
+																												 				  final ManagesTestMockModelObjsLifeCycle<O,M> modelObjFactory) {
 		return new TestPersistableModelObjectCRUD<O,M>(crudAPI,
 													   modelObjFactory);
 	}

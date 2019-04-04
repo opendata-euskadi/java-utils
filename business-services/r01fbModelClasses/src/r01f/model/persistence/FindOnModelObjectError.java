@@ -15,7 +15,7 @@ public class FindOnModelObjectError<M extends PersistableModelObject<? extends O
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindOnModelObjectError() {
-		// nothing
+		super();
 	}
 	FindOnModelObjectError(final Class<M> entityType,
 			  final Throwable th) {

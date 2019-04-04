@@ -8,14 +8,12 @@ import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
 import r01f.bootstrap.services.core.BeanImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.bootstrap.services.core.RESTImplementedServicesCoreBootstrapGuiceModuleBase;
+import r01f.bootstrap.services.core.ServicesCoreBootstrapGuiceModule;
 import r01f.bootstrap.services.core.ServletImplementedServicesCoreBootstrapGuiceModuleBase;
 import r01f.patterns.IsBuilder;
 import r01f.services.core.CoreService;
 import r01f.services.ids.ServiceIDs.CoreAppCode;
 import r01f.services.ids.ServiceIDs.CoreModule;
-import r01f.services.interfaces.ServiceProxyImpl;
-import r01f.types.url.Host;
-import r01f.types.url.UrlPath;
 import r01f.util.types.collections.CollectionUtils;
 
 
@@ -36,7 +34,7 @@ public abstract class ServicesCoreBootstrapConfigBuilder
 				.new ServicesConfigBuilderCOREBootstapTypeStep(coreAppCode,coreMod);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderCOREBootstapTypeStep {
+	public final class ServicesConfigBuilderCOREBootstapTypeStep {
 		protected final CoreAppCode _coreAppCode;
 		protected final CoreModule _coreModule;
 		
@@ -53,211 +51,240 @@ public abstract class ServicesCoreBootstrapConfigBuilder
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CORE BEAN
 /////////////////////////////////////////////////////////////////////////////////////////
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderBeanCOREBootstapGuiceModuleStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		
-		public ServicesConfigBuilderBeanCOREBootstapServicesImplStep bootstrappedBy(final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
+	public final class ServicesConfigBuilderBeanCOREBootstapGuiceModuleStep 
+		 extends ServicesConfigBuilderCOREBootstapGuiceModuleStepBase<BeanImplementedServicesCoreBootstrapGuiceModuleBase,
+		 															  ServicesConfigBuilderBeanCOREBootstapServicesImplStep> {
+		public ServicesConfigBuilderBeanCOREBootstapGuiceModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule) {
+			super(coreAppCode,coreModule);
+		}
+		@Override
+		ServicesConfigBuilderBeanCOREBootstapServicesImplStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   											  final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
 			return new ServicesConfigBuilderBeanCOREBootstapServicesImplStep(_coreAppCode,_coreModule,
 																			 coreBootstrapGuiceModuleType);
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderBeanCOREBootstapServicesImplStep {
+	public final class ServicesConfigBuilderBeanCOREBootstapServicesImplStep 
+	  implements ServicesCoreConfigBuilderStep {
+		
 		protected final CoreAppCode _coreAppCode;
 		protected final CoreModule _coreModule;
 		protected final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
 		
-		public ServicesConfigBuilderBeanCOREBootstapEventHandlingStep findServicesExtending(final Class<? extends CoreService> servicesImplIfaceType) {
-			return new ServicesConfigBuilderBeanCOREBootstapEventHandlingStep(_coreAppCode,_coreModule,
-																			  _coreBootstrapGuiceModuleType,
-																			  servicesImplIfaceType);
-		}
-	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderBeanCOREBootstapEventHandlingStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Class<? extends CoreService> _coreServicesBaseType;
-		
-		public ServicesConfigBuilderBeanCOREBootstapSubModuleStep backgroundEventsHandledWith(final ServicesCoreModuleEventsConfig eventHandlingCfg) {
-			return new ServicesConfigBuilderBeanCOREBootstapSubModuleStep(_coreAppCode,_coreModule,
-																			_coreBootstrapGuiceModuleType,
-																			_coreServicesBaseType,
-																			eventHandlingCfg);
-		}
-		public ServicesConfigBuilderBeanCOREBootstapSubModuleStep noBackgroundEvents() {
+		public ServicesConfigBuilderBeanCOREBootstapSubModuleStep findServicesExtending(final Class<? extends CoreService> servicesImplIfaceType) {
 			return new ServicesConfigBuilderBeanCOREBootstapSubModuleStep(_coreAppCode,_coreModule,
 																		  _coreBootstrapGuiceModuleType,
-																		  _coreServicesBaseType,
-																		  null);		// no event handling			
+																		   servicesImplIfaceType);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderBeanCOREBootstapSubModuleStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Class<? extends CoreService> _coreServicesBaseType;
-		protected final ServicesCoreModuleEventsConfig _eventHandling;
+	public final class ServicesConfigBuilderBeanCOREBootstapSubModuleStep 
+ 		 extends ServicesConfigBuilderCOREBootstapSubModuleStepBase<BeanImplementedServicesCoreBootstrapGuiceModuleBase,
+ 		 															ServicesConfigBuilderBeanCOREBootstapModuleBuildStep> {
 		
-		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep withSubModulesConfigs(final ServicesCoreSubModuleBootstrapConfig<?>... subModulesCfgs) {
-			return new ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(_coreAppCode,_coreModule,
-															   			    _coreBootstrapGuiceModuleType,
-															   			    _coreServicesBaseType,
-															   			    _eventHandling,
-															   			    CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null);
+		protected final Class<? extends CoreService> _coreServicesBaseType;
+		
+		public ServicesConfigBuilderBeanCOREBootstapSubModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								  final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																  final Class<? extends CoreService> coreServicesBaseType) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType);
+			_coreServicesBaseType = coreServicesBaseType;
 		}
-		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep withoutSubModules() {
-			return new ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(_coreAppCode,_coreModule,
-															   			    _coreBootstrapGuiceModuleType,
-															   			    _coreServicesBaseType,
-															   			    _eventHandling,
-															   			    null);
+		@Override
+		ServicesConfigBuilderBeanCOREBootstapModuleBuildStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+																			 final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																			 final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs) {
+			return new ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(coreAppCode,coreModule,
+																			coreBootstrapGuiceModuleType,
+																			subModulesCfgs,
+																			_coreServicesBaseType);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderBeanCOREBootstapModuleBuildStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
+	public final class ServicesConfigBuilderBeanCOREBootstapModuleBuildStep
+		 extends ServicesConfigBuilderCOREBootstapModuleBuildStepBase<BeanImplementedServicesCoreBootstrapGuiceModuleBase,
+		 															  ServicesCoreBootstrapConfigWhenBeanExposed> {
 		protected final Class<? extends CoreService> _coreServicesBaseType;
-		protected final ServicesCoreModuleEventsConfig _eventHandling;
-		protected final Collection<ServicesCoreSubModuleBootstrapConfig<?>> _subModulesCfgs;
 		
+		public ServicesConfigBuilderBeanCOREBootstapModuleBuildStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								    final Class<? extends BeanImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																    final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs,
+																    final Class<? extends CoreService> coreServicesBaseType) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType,
+				  subModulesCfgs);
+			_coreServicesBaseType = coreServicesBaseType;
+		}
+		@Override
 		public ServicesCoreBootstrapConfigWhenBeanExposed build() {
 			return new ServicesCoreGuiceBootstrapConfigWhenBeanExposed(_coreAppCode,_coreModule,
-															   	  	   _coreServicesBaseType,
-															   	  	   _eventHandling,
+																	   _coreBootstrapGuiceModuleType,
 															   	  	   _subModulesCfgs,
-															   	  	   _coreBootstrapGuiceModuleType,
-															   	  	   true);	// isolated by default
+															   	  	   _coreServicesBaseType);
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CORE REST
 /////////////////////////////////////////////////////////////////////////////////////////
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderRESTCOREBootstapGuiceModuleStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		
-		public ServicesConfigBuilderRESTCOREBootstapEndPointStep bootstrappedBy(final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
-			return new ServicesConfigBuilderRESTCOREBootstapEndPointStep(_coreAppCode,_coreModule,
-																		 coreBootstrapGuiceModuleType);
+	public final class ServicesConfigBuilderRESTCOREBootstapGuiceModuleStep 
+	     extends ServicesConfigBuilderCOREBootstapGuiceModuleStepBase<RESTImplementedServicesCoreBootstrapGuiceModuleBase,
+	     															  ServicesConfigBuilderRESTCOREBootstapSubModuleStep> {
+		public ServicesConfigBuilderRESTCOREBootstapGuiceModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule) {
+			super(coreAppCode,coreModule);
+		}
+		@Override
+		ServicesConfigBuilderRESTCOREBootstapSubModuleStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   										   final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
+			return new ServicesConfigBuilderRESTCOREBootstapSubModuleStep(_coreAppCode,_coreModule,
+																	       coreBootstrapGuiceModuleType);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderRESTCOREBootstapEndPointStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
+	public final class ServicesConfigBuilderRESTCOREBootstapSubModuleStep 
+ 		 extends ServicesConfigBuilderCOREBootstapSubModuleStepBase<RESTImplementedServicesCoreBootstrapGuiceModuleBase,
+ 		 															ServicesConfigBuilderRESTCOREBootstapModuleBuildStep> {
 		
-		public ServicesConfigBuilderRESTCOREBootstapClientProxiesStep exposedAt(final Host restEndPointHost,final UrlPath restEndPointBasePath) {
-			return new ServicesConfigBuilderRESTCOREBootstapClientProxiesStep(_coreAppCode,_coreModule,
-																			  _coreBootstrapGuiceModuleType,
-																			  restEndPointHost,restEndPointBasePath);
+		public ServicesConfigBuilderRESTCOREBootstapSubModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								  final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType);
+		}
+		@Override
+		ServicesConfigBuilderRESTCOREBootstapModuleBuildStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+																			 final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																			 final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs) {
+			return new ServicesConfigBuilderRESTCOREBootstapModuleBuildStep(coreAppCode,coreModule,
+																			coreBootstrapGuiceModuleType,
+																			subModulesCfgs);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderRESTCOREBootstapClientProxiesStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Host _restEndPointHost;
-		protected final UrlPath _restEndPointBasePath;
-		
-		public ServicesConfigBuilderRESTCOREBootstapBuildStep findClientProxiesExtending(final Class<? extends ServiceProxyImpl> serviceProxyBaseType) {
-			return new ServicesConfigBuilderRESTCOREBootstapBuildStep(_coreAppCode,_coreModule,
-																	  _coreBootstrapGuiceModuleType,
-																	  _restEndPointHost,_restEndPointBasePath,
-																	  serviceProxyBaseType);
+	public final class ServicesConfigBuilderRESTCOREBootstapModuleBuildStep
+		 extends ServicesConfigBuilderCOREBootstapModuleBuildStepBase<RESTImplementedServicesCoreBootstrapGuiceModuleBase,
+		 															  ServicesCoreBootstrapConfigWhenRESTExposed> {
+		public ServicesConfigBuilderRESTCOREBootstapModuleBuildStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								    final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																    final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType,
+				  subModulesCfgs);
 		}
-	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderRESTCOREBootstapBuildStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends RESTImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Host _restEndPointHost;
-		protected final UrlPath _restEndPointBasePath;
-		protected final Class<? extends ServiceProxyImpl> _serviceProxyImplsBaseType;
-		
+		@Override
 		public ServicesCoreBootstrapConfigWhenRESTExposed build() {
 			return new ServicesCoreGuiceBootstrapConfigWhenRESTExposed(_coreAppCode,_coreModule,
-															   	  	   _restEndPointHost,_restEndPointBasePath,
-															   	  	   _serviceProxyImplsBaseType,
-															   	  	   null,	// no event handling
-															   	  	   null, // no sub-modules
-															   	  	   _coreBootstrapGuiceModuleType);
+																  	   _coreBootstrapGuiceModuleType,
+																  	   _subModulesCfgs);
 		}
 	}
-
 /////////////////////////////////////////////////////////////////////////////////////////
-//  CORE SERVLET 
+//  CORE SERVLET
 /////////////////////////////////////////////////////////////////////////////////////////
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderServletCOREBootstapGuiceModuleStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		
-		public ServicesConfigBuilderServletCOREBootstapEndPointStep bootstrappedBy(final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
-			return new ServicesConfigBuilderServletCOREBootstapEndPointStep(_coreAppCode,_coreModule,
-																		    coreBootstrapGuiceModuleType);
+	public final class ServicesConfigBuilderServletCOREBootstapGuiceModuleStep 
+	     extends ServicesConfigBuilderCOREBootstapGuiceModuleStepBase<ServletImplementedServicesCoreBootstrapGuiceModuleBase,
+	     															  ServicesConfigBuilderServletCOREBootstapSubModuleStep> {
+		public ServicesConfigBuilderServletCOREBootstapGuiceModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule) {
+			super(coreAppCode,coreModule);
+		}
+		@Override
+		ServicesConfigBuilderServletCOREBootstapSubModuleStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   										      final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
+			return new ServicesConfigBuilderServletCOREBootstapSubModuleStep(_coreAppCode,_coreModule,
+																	       coreBootstrapGuiceModuleType);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderServletCOREBootstapEndPointStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
+	public final class ServicesConfigBuilderServletCOREBootstapSubModuleStep 
+ 		 extends ServicesConfigBuilderCOREBootstapSubModuleStepBase<ServletImplementedServicesCoreBootstrapGuiceModuleBase,
+ 		 															ServicesConfigBuilderServletCOREBootstapModuleBuildStep> {
 		
-		public ServicesConfigBuilderServletCOREBootstapClientProxiesStep exposedAt(final Host servletEndPointHost,final UrlPath servletPath) {
-			return new ServicesConfigBuilderServletCOREBootstapClientProxiesStep(_coreAppCode,_coreModule,
-																			     _coreBootstrapGuiceModuleType,
-																			     servletEndPointHost,servletPath);
+		public ServicesConfigBuilderServletCOREBootstapSubModuleStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								    final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType);
+		}
+		@Override
+		ServicesConfigBuilderServletCOREBootstapModuleBuildStep _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+																			    final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																			    final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs) {
+			return new ServicesConfigBuilderServletCOREBootstapModuleBuildStep(coreAppCode,coreModule,
+																			   coreBootstrapGuiceModuleType,
+																			   subModulesCfgs);
 		}
 	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderServletCOREBootstapClientProxiesStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Host _servletEndPointHost;
-		protected final UrlPath _servletPath;
-		
-		public ServicesConfigBuilderServletCOREBootstapBuildStep findClientProxiesExtending(final Class<? extends ServiceProxyImpl> serviceProxyImplsBaseType) {
-			return new ServicesConfigBuilderServletCOREBootstapBuildStep(_coreAppCode,_coreModule,
-																	     _coreBootstrapGuiceModuleType,
-																	     _servletEndPointHost,_servletPath,
-																	     serviceProxyImplsBaseType);
+	public final class ServicesConfigBuilderServletCOREBootstapModuleBuildStep
+		 extends ServicesConfigBuilderCOREBootstapModuleBuildStepBase<ServletImplementedServicesCoreBootstrapGuiceModuleBase,
+		 															  ServicesCoreBootstrapConfigWhenServletExposed> {
+		public ServicesConfigBuilderServletCOREBootstapModuleBuildStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   								       final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> coreBootstrapGuiceModuleType,
+																       final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs) {
+			super(coreAppCode,coreModule,
+				  coreBootstrapGuiceModuleType,
+				  subModulesCfgs);
 		}
-		public ServicesCoreBootstrapConfigWhenServletExposed build() {
-			return new ServicesConfigBuilderServletCOREBootstapBuildStep(_coreAppCode,_coreModule,
-																	     _coreBootstrapGuiceModuleType,
-																	     _servletEndPointHost,_servletPath,
-																	     null)
-							.build();
-		}
-	}
-	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ServicesConfigBuilderServletCOREBootstapBuildStep {
-		protected final CoreAppCode _coreAppCode;
-		protected final CoreModule _coreModule;
-		protected final Class<? extends ServletImplementedServicesCoreBootstrapGuiceModuleBase> _coreBootstrapGuiceModuleType;
-		protected final Host _servletEndPointHost;
-		protected final UrlPath _servletPath;
-		protected final Class<? extends ServiceProxyImpl> _serviceProxyImplsBaseType;
-		
+		@Override
 		public ServicesCoreBootstrapConfigWhenServletExposed build() {
 			return new ServicesCoreGuiceBootstrapConfigWhenServletExposed(_coreAppCode,_coreModule,
-															      	 	  _servletEndPointHost,_servletPath,
-															      	 	  _serviceProxyImplsBaseType,
-															      	 	  null,	// no event handling
-															      	 	  null,	// no sub-modules
-															      	 	  _coreBootstrapGuiceModuleType);
+																  	      _coreBootstrapGuiceModuleType,
+																  	      _subModulesCfgs);
 		}
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  BASE
+/////////////////////////////////////////////////////////////////////////////////////////
+	private interface ServicesCoreConfigBuilderStep {
+		// just a marker interface
+	}
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	abstract class ServicesConfigBuilderCOREBootstapGuiceModuleStepBase<B extends ServicesCoreBootstrapGuiceModule,
+																		S extends ServicesCoreConfigBuilderStep> 
+		implements ServicesCoreConfigBuilderStep {
+		
+		protected final CoreAppCode _coreAppCode;
+		protected final CoreModule _coreModule;
+		
+		public S bootstrappedBy(final Class<? extends B> coreBootstrapGuiceModuleType) {
+			return _createNextStep(_coreAppCode,_coreModule,
+								   coreBootstrapGuiceModuleType);
+		}
+		abstract S _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   final Class<? extends B> coreBootstrapGuiceModuleType);
+	}
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	abstract class ServicesConfigBuilderCOREBootstapSubModuleStepBase<B extends ServicesCoreBootstrapGuiceModule,
+																	  S extends ServicesCoreConfigBuilderStep> 
+		implements ServicesCoreConfigBuilderStep {
+		
+		protected final CoreAppCode _coreAppCode;
+		protected final CoreModule _coreModule;
+		protected final Class<? extends B> _coreBootstrapGuiceModuleType;
+		
+		public S withSubModulesConfigs(final ServicesCoreSubModuleBootstrapConfig<?>... subModulesCfgs) {
+			return _createNextStep(_coreAppCode,_coreModule,
+								   _coreBootstrapGuiceModuleType,
+								   CollectionUtils.hasData(subModulesCfgs) ? Lists.newArrayList(subModulesCfgs) : null);
+		}
+		@SuppressWarnings("unchecked")
+		public <C extends ServicesCoreBootstrapConfig> C build() {
+			S nextStep = this.withoutSubModules();
+			ServicesConfigBuilderCOREBootstapModuleBuildStepBase<?,C> nextStepTyped = (ServicesConfigBuilderCOREBootstapModuleBuildStepBase<?,C>)nextStep;
+			return nextStepTyped.build();
+		}
+		public S withoutSubModules() {
+			return _createNextStep(_coreAppCode,_coreModule,
+								   _coreBootstrapGuiceModuleType,
+								   null);
+		}
+		abstract S _createNextStep(final CoreAppCode coreAppCode,final CoreModule coreModule,
+								   final Class<? extends B> coreBootstrapGuiceModuleType,
+								   final Collection<ServicesCoreSubModuleBootstrapConfig<?>> subModulesCfgs);
+	}
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	abstract class ServicesConfigBuilderCOREBootstapModuleBuildStepBase<B extends ServicesCoreBootstrapGuiceModule,
+																		C extends ServicesCoreBootstrapConfig> 
+		implements ServicesCoreConfigBuilderStep {
+		
+		protected final CoreAppCode _coreAppCode;
+		protected final CoreModule _coreModule;
+		protected final Class<? extends B> _coreBootstrapGuiceModuleType;
+		protected final Collection<ServicesCoreSubModuleBootstrapConfig<?>> _subModulesCfgs;
+		
+		public abstract C build();
 	}
 }

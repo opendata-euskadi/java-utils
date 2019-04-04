@@ -30,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import r01f.ejie.model.shf.SignatureRequestOutputData;
 import r01f.ejie.model.shf.SignatureVerifyOutputData;
-import r01f.ejie.xlnets.login.XLNetsAuthTokenProvider;
+import r01f.ejie.xlnets.api.XLNetsAPI;
 import r01f.exceptions.Throwables;
 import r01f.guids.CommonOIDs.AppCode;
 import r01f.model.pif.PifFileInfo;
@@ -106,14 +106,6 @@ import x43f.ejie.com.X43FNSHF.VerifyAdESSignatureResponse;
  *			<wsURL>http://svc.intra.integracion.jakina.ejiedes.net/ctxapp/X43FNSHF2?WSDL</wsURL>
  *			<certificateId>0035</certificateId>
  *		</signatureService>
- *		... any other properties...
- *		<xlnets loginAppCode='theAppCode' token='httpProvided'>	<!-- token=file/httpProvided/loginApp -->
- *			<sessionToken>
- *				if token=file: 			...path to a mock xlnets token (use https://xlnets.servicios.jakina.ejiedes.net/xlnets/servicios.htm to generate one)
- *				if token=httpProvided:  ...url to the url that provides the token (ie: http://svc.intra.integracion.jakina.ejiedes.net/ctxapp/Y31JanoServiceXlnetsTokenCreatorServlet?login_app=appId)
- *				if token=loginApp		...not used 
- *			</sessionToken>
- *		</xlnets>
  * </pre>
  */
 @Singleton
@@ -126,11 +118,11 @@ public class SignatureServiceImpl
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final SignatureServiceAPIData _apiData;
 	
-	private final XLNetsAuthTokenProvider _xlnetsAuthTokenProvider;	
+	private final XLNetsAPI _xlNetsApi;	
 	private final Memoized<Document> _xlnetsAuthToken = new Memoized<Document>() {
 																		@Override
 																		protected Document supply() {
-																			return _xlnetsAuthTokenProvider.getXLNetsSessionTokenDoc();
+																			return _xlNetsApi.getXLNetsSessionTokenDoc();
 																		}
 																};
 
@@ -181,59 +173,71 @@ public class SignatureServiceImpl
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Inject
 	public SignatureServiceImpl(final SignatureServiceAPIData apiData,
-							    final XLNetsAuthTokenProvider xlnetsAuthTokenProvider,
+							    final XLNetsAPI xlNetsApi,
 								final PifService pifService) {
 		_apiData = apiData;
-		_xlnetsAuthTokenProvider = xlnetsAuthTokenProvider;
+		_xlNetsApi = xlNetsApi;
 		_pifService = pifService;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	API
 /////////////////////////////////////////////////////////////////////////////////////////
+	@Override
 	public SignatureServiceForApp requiredBy(final AppCode appCode) {
 		return new SignatureServiceForAppImpl(appCode);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class SignatureServiceForAppImpl implements  SignatureServiceForApp{
+	public class SignatureServiceForAppImpl 
+	  implements  SignatureServiceForApp {
 		private final AppCode _appCode;
 		
+		@Override
 		public SignatureRequestOutputData createXAdESSignatureOf(final String dataToBeSigned) {		
 			return this.createXAdESSignatureOf(dataToBeSigned.getBytes());
 		}
+		@Override
 		public SignatureRequestOutputData createXAdESSignatureOf(final InputStream dataToBeSigned) throws IOException {		
 			return this.createXAdESSignatureOf(ByteStreams.toByteArray(dataToBeSigned));
 		}
+		@Override
 		public SignatureRequestOutputData createXAdESSignatureOf(final byte[] dataToBeSigned) {		
 			return _creatXAdESSignature(_appCode,
 										dataToBeSigned);
 		}	
+		@Override
 		public SignatureRequestOutputData createXAdESSignatureOf(final File fileToBeSigned) throws IOException {
 			FileInputStream inputStreamToBeSigned = new FileInputStream(fileToBeSigned);
 			return _createXAdESSignatureUsingPif(_appCode,
 												 inputStreamToBeSigned);
 		}
+		@Override
 		public SignatureRequestOutputData createXAdESSignatureOf(final URL urlToBeSigned) throws IOException {
 			return _createXAdESSignatureUsingPif(_appCode,
 												 urlToBeSigned.openStream());
 		}
+		@Override
 		public SignatureVerifyOutputData verifyXAdESSignature(final InputStream signedData,
 										 final InputStream signature) throws IOException {
 			return _verifyXAdESSignature(_appCode,
 								  ByteStreams.toByteArray(signedData),ByteStreams.toByteArray(signature));		
 		}
+		@Override
 		public SignatureVerifyOutputData verifyXAdESSignature(final InputStream signedData,
 										 final Document signature) throws IOException {
 			return _verifyXAdESSignature(_appCode,
 								  ByteStreams.toByteArray(signedData),XMLUtils.asString(signature).getBytes());
 		}
+		@Override
 		public SignatureVerifyOutputData verifyXAdESSignature(final String signedData,final Document signature) {
 			return _verifyXAdESSignature(_appCode,
 								  signedData.getBytes(),XMLUtils.asString(signature).getBytes());
 		}
+		@Override
 		public SignatureVerifyOutputData verifyXAdESSignature(final String signedData,final String signature) {
 			return _verifyXAdESSignature(_appCode,
 								  signedData.getBytes(),signature.getBytes());
 		}
+		@Override
 		public SignatureVerifyOutputData verifyXAdESSignature(final byte[] signedData,final byte[] signature) {
 			return _verifyXAdESSignature(_appCode,
 								  signedData,signature);			

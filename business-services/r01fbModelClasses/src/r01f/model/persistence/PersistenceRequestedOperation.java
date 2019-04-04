@@ -13,8 +13,10 @@ public enum PersistenceRequestedOperation
 	LOAD,
 	CREATE,
 	UPDATE,
+	SAVE,		// create or update
 	DELETE,
 	FIND,
+	COUNT,
 	OTHER;
 	
 /////////////////////////////////////////////////////////////////////////////////////////

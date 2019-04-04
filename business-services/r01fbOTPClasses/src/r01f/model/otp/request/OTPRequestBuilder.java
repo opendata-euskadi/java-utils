@@ -24,7 +24,7 @@ public abstract class OTPRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class OTPTypeStep {
+	public final class OTPTypeStep {
 		private final OTPRequest  _otpRequest;
 
 		public TimeOfLifeStep ofType(final OTPType otpType) {
@@ -36,7 +36,7 @@ public abstract class OTPRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class TimeOfLifeStep {
+	public final class TimeOfLifeStep {
 		private final OTPRequest  _otpRequest;
 
 		public MaxNumOfRetriesStep withSecondOfLife(final long secondOfLife) {
@@ -45,7 +45,7 @@ public abstract class OTPRequestBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MaxNumOfRetriesStep {
+	public final class MaxNumOfRetriesStep {
 		private final OTPRequest  _otpRequest;
 
 		public LengthStep andMaxNumOfRetries(final int numMaxOfRetries) {
@@ -56,7 +56,7 @@ public abstract class OTPRequestBuilder
 	}
 
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class LengthStep {
+	public final class LengthStep {
 		private final OTPRequest  _otpRequest;
 		public LengthStep withLength(final long length) {
 			_otpRequest.setOtpLength(length);

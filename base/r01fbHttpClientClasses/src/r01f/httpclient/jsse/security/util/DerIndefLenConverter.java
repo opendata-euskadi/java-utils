@@ -149,7 +149,7 @@ class DerIndefLenConverter {
             return curLen;
         int lenByte = data[dataPos++] & 0xff;
         if (isIndefinite(lenByte)) {
-            ndefsList.add(new Integer(dataPos));
+            ndefsList.add(Integer.valueOf(dataPos));
             return curLen;
         }
         if (isLongForm(lenByte)) {

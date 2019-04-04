@@ -42,7 +42,7 @@ public class FieldMetaDataForMap
 			 other.getSearchEngineIndexingConfig(),
 			 other.getKeyComponentsType(),other.getValueComponentsType());
 	}
-	public FieldMetaDataForMap(final IndexableFieldID fieldId,
+	public FieldMetaDataForMap(final FieldID fieldId,
 							   final LanguageTexts name,final LanguageTexts description,
 							   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 							   final Class<?> keyComponentsType,final Class<?> valueComponentsType) {

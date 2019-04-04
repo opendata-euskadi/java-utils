@@ -248,7 +248,7 @@ public class KeyTab implements KeyTabConstants {
                     if (EType.isSupported(entry.keyType)) {
                         return new EncryptionKey(entry.keyblock,
                                              entry.keyType,
-                                             new Integer(entry.keyVersion));
+                                             Integer.valueOf(entry.keyVersion));
                     } else if (DEBUG) {
                         System.out.println("Found unsupported keytype (" +
                             entry.keyType + ") for " + service);
@@ -277,7 +277,7 @@ public class KeyTab implements KeyTabConstants {
                     if (EType.isSupported(entry.keyType)) {
                         key = new EncryptionKey(entry.keyblock,
                                             entry.keyType,
-                                            new Integer(entry.keyVersion));
+                                            Integer.valueOf(entry.keyVersion));
                         keys.add(key);
                         if (DEBUG) {
                             System.out.println("Added key: " + entry.keyType +

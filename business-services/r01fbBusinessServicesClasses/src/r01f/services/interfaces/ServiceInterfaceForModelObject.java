@@ -1,6 +1,6 @@
 package r01f.services.interfaces;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 
 /**
@@ -8,7 +8,7 @@ import r01f.model.PersistableModelObject;
  * @param <O>
  * @param <M>
  */
-public interface ServiceInterfaceForModelObject<O extends OID,M extends PersistableModelObject<O>>
+public interface ServiceInterfaceForModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>>
 		 extends ServiceInterface {
 	// just a marker interface
 }

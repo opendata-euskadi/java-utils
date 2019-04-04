@@ -9,6 +9,7 @@ import com.google.common.collect.Lists;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.Accessors;
+import r01f.aspects.interfaces.dirtytrack.ConvertToDirtyStateTrackable;
 import r01f.types.hierarchy.HasChildren;
 import r01f.util.types.collections.CollectionUtils;
 
@@ -16,6 +17,7 @@ import r01f.util.types.collections.CollectionUtils;
  * A node in an hierarchical structure of T objects
  * @param <T>
  */
+@ConvertToDirtyStateTrackable
 @Accessors(prefix="_")
 public abstract class HierarchyNodeNoParentRefBase<T,SELF_TYPE extends HierarchyNodeNoParentRefBase<T,SELF_TYPE>>
   		   implements HasChildren<SELF_TYPE>,		// has an hierarchical structure

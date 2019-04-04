@@ -43,7 +43,7 @@ public class R01F {
 		System.setProperty("mail.mime.charset",DEFAULT_CHARSET.name());
 		
 		// if DNS round robin based services are going to be used (like amazon S3 or a mail cluster),
-		// don’t forget to configure the DNS cache tiemout of Java (which is also infinite by default)
+		// don't forget to configure the DNS cache tiemout of Java (which is also infinite by default)
 		java.security.Security.setProperty("networkaddress.cache.ttl","10"); 	// Only cache DNS lookups for 10 seconds
 	}
 }

@@ -16,25 +16,25 @@ public class CRUDOnModelObjectError<M extends PersistableModelObject<? extends O
 	public CRUDOnModelObjectError() {
 		// nothing
 	}
-	CRUDOnModelObjectError(final Class<M> entityType,
-			  			   final PersistenceRequestedOperation requestedOp,
+	CRUDOnModelObjectError(final PersistenceRequestedOperation requestedOp,
+						   final Class<M> entityType,
 			  			   final Throwable th) {
-		super(entityType,
-			  requestedOp,
+		super(requestedOp,
+			  entityType,
 			  th);	
 	}
-	CRUDOnModelObjectError(final Class<M> entityType,
-			  			   final PersistenceRequestedOperation requestedOp,
+	CRUDOnModelObjectError(final PersistenceRequestedOperation requestedOp,
+						   final Class<M> entityType,
 			  			   final PersistenceErrorType errCode) {
-		super(entityType,
-			  requestedOp,
+		super(requestedOp,
+			  entityType,
 			  errCode);
 	}
-	CRUDOnModelObjectError(final Class<M> entityType,
-						   final PersistenceRequestedOperation requestedOp,
+	CRUDOnModelObjectError(final PersistenceRequestedOperation requestedOp,
+						   final Class<M> entityType,
 						   final String errMsg,final PersistenceErrorType errCode) {
-		super(entityType,
-			  requestedOp,
+		super(requestedOp,
+			  entityType,
 			  errMsg,errCode);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////

@@ -110,6 +110,18 @@ public class FileStoreChecksDelegate {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
+	public void checkFileExists(final Path path) throws IOException {
+        Preconditions.checkArgument(path != null,
+        							"The path cannot be null");
+		if (_fileStoreFilerAPI.existsFolder(path)) throw new IOException(path + " is a folder NOT a file");
+		if (!_fileStoreAPI.existsFile(path)) throw new IOException(path + " file does NOT a folder!");		
+	}
+	public void checkFolderExists(final Path path) throws IOException {
+        Preconditions.checkArgument(path != null,
+        							"The path cannot be null");
+		if (_fileStoreAPI.existsFile(path)) throw new IOException(path + " is a file, NOT a folder!");
+		if (!_fileStoreFilerAPI.existsFolder(path)) throw new IOException(path + " folder does NOT exists");		
+	}	
     public void checkFileId(final FileID... fileIds) throws IOException {
     	for (FileID fileId : fileIds) {
     		if (fileId == null) throw new IllegalArgumentException("The fileId MUST NOT be null!");

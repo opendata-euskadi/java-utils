@@ -5,8 +5,6 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-import com.google.common.annotations.GwtIncompatible;
-
 import r01f.model.ModelObject;
 import r01f.model.metadata.HasMetaDataForModelObject;
 
@@ -20,7 +18,6 @@ import r01f.model.metadata.HasMetaDataForModelObject;
  * 		}
  * </pre>
  */
-@GwtIncompatible
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
 public @interface ModelObjectData {

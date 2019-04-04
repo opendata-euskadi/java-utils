@@ -7,6 +7,7 @@ import r01f.model.ModelObject;
 /**
  * Interface for types that describes {@link ModelObject}s
  */
+
 public interface HasMetaDataForModelObject 
 		 extends HasFieldsMetaData {
 	

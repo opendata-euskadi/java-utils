@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * Anotación que se asocia a un método para que NO se haga log de la llamada a dicho método
+ * Annotation that signs that a method call must not be logged
  * <pre class='brush:java'>
  * 		@LoggedMethodCalls(level=LogLevel.DEBUG,when=LoggedMethodCallsWhen.AROUND,
  * 						   module="[CLIENT API]",start="[START]",end="[END]",

@@ -1,6 +1,11 @@
 package r01f.enums;
 
+import java.util.Collection;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
+
+import r01f.util.types.Strings;
 
 /**
  * Encapsulates operations with an {@link Enum} implementing {@link EnumWithCode}
@@ -89,5 +94,33 @@ public class EnumWithCodeWrapper<C,E extends EnumWithCode<C,E>>
 			/* Nothing to do */
 		}
 		return outT != null;
+	}
+	/**
+	 * @return a list of the codes
+	 */
+	public Collection<C> codes() {
+		return FluentIterable.from(_values)
+	 			   .transform(new Function<E,C>() {
+									@Override
+									public C apply(final E val) {
+										return val.getCode();
+									}
+	 			   			  })
+	 			   .toList();
+	}
+	/**
+	 * Returns the enum names quouted
+	 * @return
+	 */
+	public Collection<String> codesQuoted() {
+		return FluentIterable.from(_values)
+	 			   .transform(new Function<E,String>() {
+									@Override
+									public String apply(final E val) {
+										return Strings.customized("'{}'",
+															 	  val.getCode());
+									}
+	 			   			  })
+	 			   .toList();
 	}
 }

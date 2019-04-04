@@ -11,13 +11,11 @@ import r01f.aspects.core.util.ObjectsHierarchyModifier.StateModifierFunction;
 import r01f.aspects.interfaces.freezable.Freezable;
 
 /**
- * Utilidad para "congelar" una jerarquía de objetos.
- * Utiliza reflection para recorrer la jerarquía de objetos y "congelar" aquellos que son Freezable
+ * Utility to freeze an object hierarchy
  */
 public class Freezer {
 	/**
-	 * Predicado para excluir algunos fields en los métodos que utilizan changeObjectHierarchyState
-	 * para por ejemplo comenzar a controlar cambios en el estado o ver si el objeto está sucio
+	 * Predicate used to exclude some fields at modules using changeObjectHierarchyState
 	 */
 	static final Predicate<Field> _fieldAcceptCriteria = new Predicate<Field>() {
 																@Override
@@ -29,10 +27,11 @@ public class Freezer {
 																	return true;
 																}
 														};
-	/**
-	 * Clase para modificar el estado de un objeto Freezable
-	 */
-	private static class FreezeStateModifierFunction implements StateModifierFunction<Freezable> {
+/////////////////////////////////////////////////////////////////////////////////////////
+//	
+/////////////////////////////////////////////////////////////////////////////////////////
+	private static class FreezeStateModifierFunction 
+			  implements StateModifierFunction<Freezable> {
 		private final boolean _freeze;
 		public FreezeStateModifierFunction(final boolean freeze) {
 			_freeze = freeze;
@@ -42,27 +41,29 @@ public class Freezer {
 			obj.setFrozen(_freeze);
 		}
 	}
-	
+/////////////////////////////////////////////////////////////////////////////////////////
+//	
+/////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Congela un objeto y sus objetos dependientes
-	 * @param freezableObj el objeto freezable
+	 * Freezes an object and it's dependent object
+	 * @param freezableObj
 	 */
 	@SuppressWarnings("serial")
-	public static void freeze(Freezable freezableObj) {
-		ObjectsHierarchyModifier.<Freezable>changeObjectHierarchyState(freezableObj,new TypeToken<Freezable>() {},
+	public static void freeze(final Freezable freezableObj) {
+		ObjectsHierarchyModifier.<Freezable>changeObjectHierarchyState(freezableObj,new TypeToken<Freezable>() { /* nothing */ },
 																	   new FreezeStateModifierFunction(true),
-																	   true,		// congelar toda la jerarquía de objetos
+																	   true,		// freeze all object hierarchy
 																	   _fieldAcceptCriteria);
 	}
 	/**
-	 * Descongela un objeto y sus objetos dependientes
-	 * @param freezableObj el objeto freezable
+	 * Unfreezes an object and it's dependent objects
+	 * @param freezableObj
 	 */
 	@SuppressWarnings("serial")
-	public static void unFreeze(Freezable freezableObj) {
-		ObjectsHierarchyModifier.<Freezable>changeObjectHierarchyState(freezableObj,new TypeToken<Freezable>() {},
+	public static void unFreeze(final Freezable freezableObj) {
+		ObjectsHierarchyModifier.<Freezable>changeObjectHierarchyState(freezableObj,new TypeToken<Freezable>() { /* nothing */ },
 																	   new FreezeStateModifierFunction(false),
-																	   true,		// congelar toda la jerarquía de objetos
+																	   true,		// unfreeze all object hierarchy
 																	   _fieldAcceptCriteria);
 	}
 }

@@ -4,14 +4,19 @@ import java.text.Collator;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Locale;
+import java.util.Map;
 
-import com.google.common.annotations.GwtIncompatible;
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Maps;
 
 import r01f.exceptions.Throwables;
 import r01f.facets.HasLanguage;
 import r01f.locale.Language;
+import r01f.locale.LanguageTexts;
+import r01f.locale.LanguageTexts.LangTextNotFoundBehabior;
+import r01f.locale.LanguageTextsMapBacked;
 import r01f.util.types.collections.CollectionUtils;
 
 /**
@@ -19,7 +24,7 @@ import r01f.util.types.collections.CollectionUtils;
  * (this methods are NOT in the {@link Languages} type because GWT does NOT support
  *  {@link Locale})
  */
-@GwtIncompatible
+
 public class Languages {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  http://www.w3.org/International/articles/language-tags/
@@ -41,6 +46,38 @@ public class Languages {
 	public static final Locale ITALIAN = new Locale("it","IT"); 
 	public static final Locale PORTUGUESE = new Locale("pt","PT");
 	
+/////////////////////////////////////////////////////////////////////////////////////////
+//  LANGUAGE NAME TRANSLATIONS
+/////////////////////////////////////////////////////////////////////////////////////////
+	public static final Map<Language,LanguageTexts> LANGUAGE_NAMES = Maps.newHashMap();
+	static {
+		LANGUAGE_NAMES.put(Language.SPANISH,
+							new LanguageTextsMapBacked(LangTextNotFoundBehabior.RETURN_NULL)
+									.add(Language.SPANISH,"Español")
+									.add(Language.BASQUE,"Gaztelania")
+									.add(Language.ENGLISH,"Spanish"));
+		LANGUAGE_NAMES.put(Language.BASQUE,
+						   new LanguageTextsMapBacked(LangTextNotFoundBehabior.RETURN_NULL)
+									.add(Language.SPANISH,"Euskera")
+									.add(Language.BASQUE,"Euskara")
+									.add(Language.ENGLISH,"Basque"));
+		LANGUAGE_NAMES.put(Language.ENGLISH,
+						   new LanguageTextsMapBacked(LangTextNotFoundBehabior.RETURN_NULL)
+									.add(Language.SPANISH,"Inglés")
+									.add(Language.BASQUE,"Ingelesa")
+									.add(Language.ENGLISH,"English"));
+		LANGUAGE_NAMES.put(Language.DEUTCH,
+						   new LanguageTextsMapBacked(LangTextNotFoundBehabior.RETURN_NULL)
+									.add(Language.SPANISH,"Alemán")
+									.add(Language.BASQUE,"[eu] Alemán")
+									.add(Language.ENGLISH,"Deutch"));
+		LANGUAGE_NAMES.put(Language.FRENCH,
+						   new LanguageTextsMapBacked(LangTextNotFoundBehabior.THROW_EXCEPTION)
+									.add(Language.SPANISH,"Francés")
+									.add(Language.BASQUE,"[eu] Frances")
+									.add(Language.ENGLISH,"French"));
+		// TODO completar
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  BUILDERS
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -113,10 +150,21 @@ public class Languages {
 		if (outLang == null) throw new IllegalArgumentException(Throwables.message("{} is NOT a valid {}",name,Language.class));
 		return outLang;
 	}
+	/**
+	 * This method does ...
+	 * @deprecated replaced by fromCountryCodeLowercase(String langCode)
+	 */
+	@Deprecated
 	public static Language fromContentLangVersionFolder(final String folder) {
 		return Languages.fromLanguageCode(folder);
 	}
+	public static Language fromCountryCodeLowercase(final String langCode) {
+		return Languages.fromLanguageCode(langCode); 
+	}
 	public static Language fromLanguage(final String lang) {
+		return Languages.fromLanguageCode(lang);
+	}
+	public static Language fromLanguageLowercase(final String lang) {
 		return Languages.fromLanguageCode(lang);
 	}
 	public static Language fromLanguageCode(final String langCode) {
@@ -126,6 +174,40 @@ public class Languages {
 		 && (langCode.equalsIgnoreCase("--") 
 				|| langCode.equalsIgnoreCase("any") 
 				|| langCode.equalsIgnoreCase("all"))) outLang = Language.ANY;
+		return outLang;
+	}
+	/**
+	 * Builds a {@link Language} from the iso 639_1 code 
+	 * @param language
+	 * @return
+	 */
+	public static Language fromISO639_1(final String iso) {
+		String theIso = iso.toLowerCase().trim();
+		Language outLang = null;
+		for (Language lang : Language.values()) {
+			if (lang == Language.ANY) continue;
+			if (lang.getIso639_1().equals(theIso)) {
+				outLang = lang;
+				break;
+			}
+		}
+		return outLang;
+	}
+	/**
+	 * Builds a {@link Language} from the iso 639_2 code 
+	 * @param language
+	 * @return
+	 */
+	public static Language fromISO639_2(final String iso) {
+		String theIso = iso.toLowerCase().trim();
+		Language outLang = null;
+		for (Language lang : Language.values()) {
+			if (lang == Language.ANY) continue;
+			if (lang.getIso639_2().equals(theIso)) {
+				outLang = lang;
+				break;
+			}
+		}
 		return outLang;
 	}
 	public static boolean canBe(final String name) {
@@ -238,6 +320,20 @@ public class Languages {
 		return Languages.getLocale(lang)
 						.getLanguage();
 	}
+	/**
+	 * @return the language
+	 */
+	public static String languageLowerCase(final Language lang) {
+		return Languages.language(lang)
+						.toLowerCase();
+	}
+	/**
+	 * @return the language
+	 */
+	public static String languageUpperCase(final Language lang) {
+		return Languages.language(lang)
+						.toUpperCase();
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -246,26 +342,74 @@ public class Languages {
 	 * @return ie: es,eu,en,fr,...
 	 */
 	public static String[] countries() {
-		String[] outCountries = new String[Language.values().length-1];	// Language.UNKNOWN do not have locale
-		int i=0;
-		for (Language l : Language.values()) {
-			if (l == Language.ANY) continue;
-			if (Languages.getLocale(l) != null) outCountries[i++] = Languages.getLocale(l).getLanguage();
-		}
-		return outCountries;
+		return _collectionBuilder(new Function<Language,String>() {
+										@Override
+										public String apply(final Language lang) {
+											return Languages.getLocale(lang).getCountry();
+										}
+								  });
 	}
-	/**
+	/**THROW_EXCEPTION
 	 * Returns a regular expression to match the countries
 	 * @param captureGroup if the regular expression conforms a capture group 
 	 * @return (es|eu|en|fr...) if captureGroup=true and (?:es|eu|en|fr...) if captureGroup=false
 	 */
 	public static String countryMatchRegEx(final boolean captureGroup) {
 		String[] countries = Languages.countries();
-		StringBuilder sb = new StringBuilder(2 + countries.length*3);	// ( + 2 chars, the country and the separator)
+		return _matchRegEx(countries,
+						   captureGroup);
+	}
+	/**
+	 * Returns a list of the languages
+	 * @return ie: es,eu,en,fr,...
+	 */
+	public static String[] languages() {
+		return _collectionBuilder(new Function<Language,String>() {
+										@Override
+										public String apply(final Language lang) {
+											return Languages.getLocale(lang).getLanguage();
+										}
+								  });
+	}
+	/**
+	 * Returns the language name in a given language
+	 * (ie: spanish in Language.SPANISH is "Español"
+	 * @param lang
+	 * @return
+	 */
+	public static String languageNameIn(final Language lang) {
+		LanguageTexts names = LANGUAGE_NAMES.get(lang);
+		if (names == null) return Languages.language(lang);
+		String nameIn = names.get(lang);
+		if (nameIn == null) return Languages.language(lang);
+		return nameIn;
+	}
+	/**
+	 * Returns a regular expression to match the language
+	 * @param captureGroup if the regular expression conforms a capture group 
+	 * @return (es|eu|en|fr...) if captureGroup=true and (?:es|eu|en|fr...) if captureGroup=false
+	 */
+	public static String languageMatchRegEx(final boolean captureGroup) {
+		String[] languages = Languages.languages();
+		return _matchRegEx(languages,
+						   captureGroup);
+	}
+	private static String[] _collectionBuilder(final Function<Language,String> valFunc) {
+		String[] out = new String[Language.values().length-1];	// Language.UNKNOWN do not have locale
+		int i=0;
+		for (Language l : Language.values()) {
+			if (l == Language.ANY) continue;
+			if (Languages.getLocale(l) != null) out[i++] = valFunc.apply(l);
+		}
+		return out;
+	}
+	private static String _matchRegEx(final String[] col,
+									  final boolean captureGroup) {
+		StringBuilder sb = new StringBuilder(2 + col.length*3);	// ( + 2 chars, the country and the separator)
 		sb.append(captureGroup ? "(" : "(?:");
-		for (int i=0; i<countries.length; i++) {
-			sb.append(countries[i]);
-			if (i < countries.length-1) sb.append("|");
+		for (int i=0; i<col.length; i++) {
+			sb.append(col[i]);
+			if (i < col.length-1) sb.append("|");
 		}
 		sb.append(")");
 		return sb.toString();
@@ -289,10 +433,10 @@ public class Languages {
 					  .toString();
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  COMPARATOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
-	 * Returns a {@link String} compartor that takes the language into account
+	 * Returns a {@link String} comparator that takes the language into account
 	 * @param lang
 	 * @return
 	 */
@@ -305,6 +449,17 @@ public class Languages {
 						@Override
 						public int compare(final String arg0,final String arg1) {
 							return collator.compare(arg0,arg1);
+						}
+			   };
+	}
+	public static Comparator<Language> comparator() {
+		return new Comparator<Language>() {
+						@Override
+						public int compare(final Language o1,final Language o2) {
+							return o1.ordinal() == o2.ordinal() 
+										? 0
+										: o1.ordinal() > o2.ordinal() ? 1
+																	  : -1;
 						}
 			   };
 	}

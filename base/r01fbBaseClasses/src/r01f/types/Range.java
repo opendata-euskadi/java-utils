@@ -1,12 +1,18 @@
 package r01f.types;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.joda.time.LocalDate;
+import org.joda.time.LocalDateTime;
+import org.joda.time.LocalTime;
+
 import com.google.common.annotations.GwtIncompatible;
 import com.google.common.collect.BoundType;
+import com.google.common.collect.ContiguousSet;
 import com.google.common.collect.DiscreteDomain;
 
 import lombok.AllArgsConstructor;
@@ -19,10 +25,11 @@ import r01f.aspects.interfaces.dirtytrack.NotDirtyStateTrackable;
 import r01f.objectstreamer.annotations.MarshallIgnoredField;
 import r01f.objectstreamer.annotations.MarshallType;
 import r01f.util.types.Dates;
+import r01f.util.types.Strings;
 
 /**
  * Wraps a Guava {@link com.google.common.collect.Range} in order to be serializable
- * If 
+ * If
  * <ul>
  * 		<li>"[" or "]" represents a lower or upper bound where the bound itself is included in the range</li>
  * 		<li>"(" or ")" represents a lower or upper bound where the bound itself is EXCLUDED from the range</li>
@@ -36,9 +43,9 @@ import r01f.util.types.Dates;
  * 		[a..+oo)	atLeast(C)
  * 		(-oo..b)	lessThan(C)
  * 		(-oo..b]	atMost(C)
- * 		(-oo..+oo)	all() 
+ * 		(-oo..+oo)	all()
  * </pre>
- * 
+ *
  * Usage:
  * <pre class='brush:java'>
  *		// Create an integer range
@@ -52,13 +59,12 @@ import r01f.util.types.Dates;
  * </pre>
  * @param <T>
  */
-@GwtIncompatible("Range NOT usable in GWT")
 @Immutable
-@MarshallType(as="range") 
+@MarshallType(as="range")
 @Accessors(prefix="_")
 @NoArgsConstructor
 @SuppressWarnings("rawtypes")
-public class Range<T extends Comparable<T>>
+public class Range<T extends Comparable<? super T>>
   implements CanBeRepresentedAsString,
   			 Serializable {
 
@@ -66,6 +72,7 @@ public class Range<T extends Comparable<T>>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTANTS
 ////////////////////////////////////////////////////////////////////////////////////////
+	@GwtIncompatible
 	private static final Pattern RANGE_PATTERN = Pattern.compile("(?:\\(|\\[)(.+)?\\.\\.(.+)?(?:\\)|\\])");
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -87,13 +94,13 @@ public class Range<T extends Comparable<T>>
 	 * The upper bound type
 	 */
 	@Getter private BoundType _upperBoundType;
-	
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //  NON-SERIALIZABLE FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallIgnoredField @NotDirtyStateTrackable
 	private transient com.google.common.collect.Range<T> _range;
-	
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -101,7 +108,7 @@ public class Range<T extends Comparable<T>>
 		_range = range;
 		_upperBound = range.hasUpperBound() ? range.upperEndpoint() : null;
 		_lowerBound = range.hasLowerBound() ? range.lowerEndpoint() : null;
-		
+
 		_upperBoundType = range.hasUpperBound() ? range.upperBoundType() : BoundType.OPEN;
 		_lowerBoundType = range.hasLowerBound() ? range.lowerBoundType() : BoundType.OPEN;
 	}
@@ -110,13 +117,13 @@ public class Range<T extends Comparable<T>>
 		// store the lower and upper bounds
 		_lowerBound = lower;
 		_upperBound = upper;
-		
+
 		_lowerBoundType = lowerBoundType;
 		_upperBoundType = upperBoundType;
-		
+
 		// Create the delegate
 		if (_lowerBound != null && _upperBound != null) {
-			if (lowerBoundType == BoundType.OPEN && upperBoundType == BoundType.OPEN) { 
+			if (lowerBoundType == BoundType.OPEN && upperBoundType == BoundType.OPEN) {
 				_range = com.google.common.collect.Range.open(_lowerBound,_upperBound);
 			} else if (lowerBoundType == BoundType.OPEN && upperBoundType == BoundType.CLOSED) {
 				_range = com.google.common.collect.Range.openClosed(_lowerBound,_upperBound);
@@ -143,8 +150,8 @@ public class Range<T extends Comparable<T>>
 			throw new IllegalArgumentException("Cannot create range, at least lower or upper bound SHOULD be not null");
 		}
 	}
-	public static <T extends Comparable<T>> Range<T> range(final T lower,final BoundType lowerBoundType,
-				 									       final T upper,final BoundType upperBoundType) {
+	public static <T extends Comparable<? super T>> Range<T> range(final T lower,final BoundType lowerBoundType,
+				 									       		   final T upper,final BoundType upperBoundType) {
 		return new Range<T>(lower,lowerBoundType,
 						 	upper,upperBoundType);
 	}
@@ -154,7 +161,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> open(final T lower,final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> open(final T lower,final T upper) {
 		if (lower == null || upper == null) throw new IllegalArgumentException("Both lower and upper bounds must be not null in an open Range");
 		return new Range<T>(lower,BoundType.OPEN,
 							upper,BoundType.OPEN);
@@ -165,7 +172,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> openClosed(final T lower,final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> openClosed(final T lower,final T upper) {
 		if (lower == null || upper == null) throw new IllegalArgumentException("Both lower and upper bounds must be not null in an open-closed Range");
 		return new Range<T>(lower,BoundType.OPEN,
 							upper,BoundType.CLOSED);
@@ -176,7 +183,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> closed(final T lower,final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> closed(final T lower,final T upper) {
 		if (lower == null || upper == null) throw new IllegalArgumentException("Both lower and upper bounds must be not null in a closed Range");
 		return new Range<T>(lower,BoundType.CLOSED,
 							upper,BoundType.CLOSED);
@@ -187,7 +194,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> closedOpen(final T lower,final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> closedOpen(final T lower,final T upper) {
 		if (lower == null || upper == null) throw new IllegalArgumentException("Both lower and upper bounds must be not null in an closed-open Range");
 		return new Range<T>(lower,BoundType.CLOSED,
 							upper,BoundType.OPEN);
@@ -198,7 +205,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> greaterThan(final T lower) {
+	public static <T extends Comparable<? super T>> Range<T> greaterThan(final T lower) {
 		if (lower == null) throw new IllegalArgumentException("lower bound must be not null in an greaterThan Range");
 		return new Range<T>(lower,BoundType.OPEN,
 							null,null);
@@ -209,7 +216,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> atLeast(final T lower) {
+	public static <T extends Comparable<? super T>> Range<T> atLeast(final T lower) {
 		if (lower == null) throw new IllegalArgumentException("lower bound must be not null in an atLeast Range");
 		return new Range<T>(lower,BoundType.CLOSED,
 							null,null);
@@ -220,7 +227,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> lessThan(final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> lessThan(final T upper) {
 		if (upper == null) throw new IllegalArgumentException("upper bound must be not null in an lessThan Range");
 		return new Range<T>(null,null,
 							upper,BoundType.OPEN);
@@ -231,7 +238,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> atMost(final T upper) {
+	public static <T extends Comparable<? super T>> Range<T> atMost(final T upper) {
 		if (upper == null) throw new IllegalArgumentException("upper bound must be not null in an atMost Range");
 		return new Range<T>(null,null,
 							upper,BoundType.CLOSED);
@@ -242,7 +249,7 @@ public class Range<T extends Comparable<T>>
 	 * @param upper
 	 * @return
 	 */
-	public static <T extends Comparable<T>> Range<T> all() {
+	public static <T extends Comparable<? super T>> Range<T> all() {
 		return new Range<T>(null,null,
 							null,null);
 	}
@@ -254,6 +261,7 @@ public class Range<T extends Comparable<T>>
 	 * @return
 	 */
 	@SuppressWarnings({"unchecked"})
+	@GwtIncompatible
 	public static Range<?> unsafeParse(final String rangeStr,
 									   final Class<?> dataType) {
 		Class<? extends Comparable> comparableDataType = (Class<? extends Comparable>)dataType;
@@ -266,29 +274,42 @@ public class Range<T extends Comparable<T>>
 	 * @param dataType
 	 */
 	@SuppressWarnings("unchecked")
-	public static <T extends Comparable<T>> Range<T> parse(final String rangeStr,
-							 	 	  					   final Class<T> dataType) {
+	@GwtIncompatible
+	public static <T extends Comparable<? super T>> Range<T> parse(final String rangeStr,
+							 	 	  					   		   final Class<T> dataType) {
 		Object outRange = null;
-		
+
 		// Errores de compilacion:  Incomparable Types
-		//[javac] /softbase_ejie/aplic/r01fb/tmp/compileLib/r01fbClasses/src/r01f/types/Range.java:407: 
+		//[javac] /softbase_ejie/aplic/r01fb/tmp/compileLib/r01fbClasses/src/r01f/types/Range.java:407:
 		//incomparable types: java.lang.Class<T> and java.lang.Class<java.util.Date>
 	    // [javac] 		if (dataType == java.util.Date.class || dataType == java.sql.Date.class) {
-		
+
 		Class<?> java_util_Date_class = java.util.Date.class;
 		Class<?> java_sql__Date_class = java.sql.Date.class;
+		Class<?> joda_LocalTime = org.joda.time.LocalTime.class;
+		Class<?> joda_LocalDate = org.joda.time.LocalDate.class;
+		Class<?> joda_LocalDateTime = org.joda.time.LocalDateTime.class;
 		Class<?> java_lang_Byte_class = Byte.class;
 		Class<?> java_lang_Integer_class = Integer.class;
 		Class<?> java_lang_Short_class = Short.class;
 		Class<?> java_lang_Long_class = Long.class;
 		Class<?> java_lang_Double_class = Double.class;
 		Class<?> java_lang_Float_class = Float.class;
-		
-		
+
+
 		RangeDef bounds = _parseBounds(rangeStr);
 		if (dataType == java_util_Date_class|| dataType == java_sql__Date_class) {
 			outRange = _parseDateRange(bounds.getLowerBound(),bounds.getLowerBoundType(),
 									   bounds.getUpperBound(),bounds.getUpperBoundType());
+		} else if (dataType == joda_LocalDate) {
+			outRange = _parseLocalDateRange(bounds.getLowerBound(),bounds.getLowerBoundType(),
+									   		bounds.getUpperBound(),bounds.getUpperBoundType());
+		} else if (dataType == joda_LocalDateTime) {
+			outRange = _parseLocalDateTimeRange(bounds.getLowerBound(),bounds.getLowerBoundType(),
+									   			bounds.getUpperBound(),bounds.getUpperBoundType());
+		} else if (dataType == joda_LocalTime) {
+			outRange = _parseLocalTimeRange(bounds.getLowerBound(),bounds.getLowerBoundType(),
+									   		bounds.getUpperBound(),bounds.getUpperBoundType());
 		} else if (dataType == java_lang_Byte_class) {
 			outRange = _parseByteRange(bounds.getLowerBound(),bounds.getLowerBoundType(),
 									   bounds.getUpperBound(),bounds.getUpperBoundType());
@@ -312,16 +333,16 @@ public class Range<T extends Comparable<T>>
 		}
 		return  (Range<T>)outRange;
 	}
-	
-	
+
+	@GwtIncompatible
 	private static RangeDef _parseBounds(final String rangeStr) {
 		RangeDef outBounds = null;
 		Matcher m = RANGE_PATTERN.matcher(rangeStr);
-		if (m.matches()) {			
+		if (m.matches()) {
 			outBounds = new RangeDef();
 			if (m.groupCount() == 2) {
 				if (rangeStr.startsWith("(") || rangeStr.startsWith("..")) {
-					outBounds.setLowerBoundType(BoundType.OPEN); 
+					outBounds.setLowerBoundType(BoundType.OPEN);
 				} else if (rangeStr.startsWith("[")) {
 					outBounds.setLowerBoundType(BoundType.CLOSED);
 				} else {
@@ -350,7 +371,7 @@ public class Range<T extends Comparable<T>>
 				outBounds.setLowerBound(m.group(1));
 			} else {
 				throw new IllegalArgumentException(rangeStr + " is NOT a valid range!");
-			}	
+			}
 		} else {
 			throw new IllegalArgumentException("The range string representation: " + rangeStr + " does NOT match the pattern " + RANGE_PATTERN.pattern());
 		}
@@ -362,6 +383,37 @@ public class Range<T extends Comparable<T>>
 		Date upperBoundDate = upperBound != null ? Dates.fromMillis(Long.parseLong(upperBound)) : null;
 		return new Range<Date>(lowerBoundDate,lowerBoundType,
 							   upperBoundDate,upperBoundType);
+	}
+	private static Range<LocalDate> _parseLocalDateRange(final String lowerBound,final BoundType lowerBoundType,
+											   			 final String upperBound,final BoundType upperBoundType) {
+		LocalDate lowerBoundDate = lowerBound != null ? new LocalDate(Dates.fromMillis(Long.parseLong(lowerBound))) : null;
+		LocalDate upperBoundDate = upperBound != null ? new LocalDate(Dates.fromMillis(Long.parseLong(upperBound))) : null;
+		return new Range<LocalDate>(lowerBoundDate,lowerBoundType,
+							   		upperBoundDate,upperBoundType);
+	}
+	private static Range<LocalDateTime> _parseLocalDateTimeRange(final String lowerBound,final BoundType lowerBoundType,
+											   			 	     final String upperBound,final BoundType upperBoundType) {
+		LocalDateTime lowerBoundDate = lowerBound != null ? new LocalDateTime(Dates.fromMillis(Long.parseLong(lowerBound))) : null;
+		LocalDateTime upperBoundDate = upperBound != null ? new LocalDateTime(Dates.fromMillis(Long.parseLong(upperBound))) : null;
+		return new Range<LocalDateTime>(lowerBoundDate,lowerBoundType,
+							   			upperBoundDate,upperBoundType);
+	}
+	private static Range<LocalTime> _parseLocalTimeRange(final String lowerBound,final BoundType lowerBoundType,
+											   			 final String upperBound,final BoundType upperBoundType) {
+		LocalTime lowerBoundDate = lowerBound != null ? _localTimeFromString(lowerBound) : null;
+		LocalTime upperBoundDate = upperBound != null ? _localTimeFromString(upperBound) : null;
+		return new Range<LocalTime>(lowerBoundDate,lowerBoundType,
+							   			upperBoundDate,upperBoundType);
+	}
+	private static final transient Pattern LOCAL_TIME_PATTERN = Pattern.compile("([0-9]|0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9]):([0-9]{3})");
+	private static LocalTime _localTimeFromString(final String str) {
+		Matcher m = LOCAL_TIME_PATTERN.matcher(str);
+		if (!m.find()) throw new IllegalStateException(str + " is not a valid time: MUST match " + LOCAL_TIME_PATTERN);
+		int hour = Integer.parseInt(m.group(1));
+		int minutes = Integer.parseInt(m.group(2));
+		int seconds = Integer.parseInt(m.group(3));
+		int milis = Integer.parseInt(m.group(4));
+		return new LocalTime(hour,minutes,seconds,milis);
 	}
 	private static Range<Byte>  _parseByteRange(final String lowerBound,final BoundType lowerBoundType,
 											    final String upperBound,final BoundType upperBoundType) {
@@ -406,7 +458,7 @@ public class Range<T extends Comparable<T>>
 							    upperBoundFloat,upperBoundType);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * @return the data type of the range
@@ -420,30 +472,48 @@ public class Range<T extends Comparable<T>>
 	public com.google.common.collect.Range<T> asGuavaRange() {
 		return _range;
 	}
+	/**
+	 * As a collection of the values between the range. Must provide a class implementing {@link import com.google.common.collect.DiscreteDomain}<T>
+	 * @param discreteDomain
+	 * @return
+	 */
+	public Collection<T> asCollectionUsingDiscreteDomain(final DiscreteDomain<T> discreteDomain) {
+		return ContiguousSet.create(this.asGuavaRange(),discreteDomain);
+	}
 	@Override
 	public String toString() {
 		return this.asString();
 	}
+
 	@Override
 	public String asString() {
 		RangeDef rangeDef = null;
 		Class<T> dataType = Range.guessDataType(this);
 		/// Compilation errors:  Incomparable Types
-		//[javac] /softbase_ejie/aplic/r01fb/tmp/compileLib/r01fbClasses/src/r01f/types/Range.java:407: 
+		//[javac] /softbase_ejie/aplic/r01fb/tmp/compileLib/r01fbClasses/src/r01f/types/Range.java:407:
 		//incomparable types: java.lang.Class<T> and java.lang.Class<java.util.Date>
 	    // [javac] 		if (dataType == java.util.Date.class || dataType == java.sql.Date.class) {
-		
+
 		Class<?> java_util_Date_class = java.util.Date.class;
 		Class<?> java_sql_Date_class = java.sql.Date.class;
+		Class<?> joda_LocalTime = org.joda.time.LocalTime.class;
+		Class<?> joda_LocalDate = org.joda.time.LocalDate.class;
+		Class<?> joda_LocalDateTime = org.joda.time.LocalDateTime.class;
 		Class<?> java_lang_Byte_class = Byte.class;
 		Class<?> java_lang_Integer_class = Integer.class;
 		Class<?> java_lang_Short_class = Short.class;
 		Class<?> java_lang_Long_class = Long.class;
 		Class<?> java_lang_Double_class = Double.class;
 		Class<?> java_lang_Float_class = Float.class;
-		
+
 		if (dataType == java_util_Date_class || dataType == java_sql_Date_class) {
 			rangeDef = _toDateBoundStrings(this);
+		} else if (dataType == joda_LocalDate) {
+			rangeDef = _toLocalDateBoundStrings(this);
+		} else if (dataType == joda_LocalDateTime) {
+			rangeDef = _toLocalDateTimeBoundStrings(this);
+		} else if (dataType == joda_LocalTime) {
+			rangeDef = _toLocalTimeBoundStrings(this);
 		} else if (dataType == java_lang_Byte_class) {
 			rangeDef = _toByteBoundStrings(this);
 		} else if (dataType == java_lang_Integer_class) {
@@ -459,65 +529,110 @@ public class Range<T extends Comparable<T>>
 		} else {
 			throw new IllegalArgumentException("Type " + dataType + " is NOT supported in Range");
 		}
-		String outStr = String.format("%s%s..%s%s",
+
+
+		String outStr = Strings.customized("{}{}..{}{}",
 							   (rangeDef.getLowerBoundType() == BoundType.CLOSED ? "[" : "("),(rangeDef.getLowerBound() != null ? rangeDef.getLowerBound() : ""),
 							   (rangeDef.getUpperBound() != null ? rangeDef.getUpperBound() : ""),(rangeDef.getUpperBoundType() == BoundType.CLOSED ? "]" : ")"));
 		return outStr;
 	}
-	
-	
-	
-	
-	
-	
-	
+
+
 	private static RangeDef _toDateBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Long.toString(Dates.asMillis(((java.util.Date)range.getLowerBound()))) : null;
-		String upper = range.getUpperBound() != null ? Long.toString(Dates.asMillis(((java.util.Date)range.getUpperBound()))) : null;
+		Date l = (java.util.Date)((Object)range.getLowerBound());
+		Date u = (java.util.Date)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Long.toString(Dates.asMillis(l)) : null;
+		String upper = range.getUpperBound() != null ? Long.toString(Dates.asMillis(u)) : null;
+		return new RangeDef(lower,range.getLowerBoundType(),
+							upper,range.getUpperBoundType());
+	}
+	private static RangeDef _toLocalDateBoundStrings(final Range<? extends Comparable> range) {
+		LocalDate l = (LocalDate)((Object)range.getLowerBound());
+		LocalDate u = (LocalDate)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Long.toString(Dates.asMillis(l.toDate())) : null;
+		String upper = range.getUpperBound() != null ? Long.toString(Dates.asMillis(u.toDate())) : null;
+		return new RangeDef(lower,range.getLowerBoundType(),
+							upper,range.getUpperBoundType());
+	}
+	private static RangeDef _toLocalDateTimeBoundStrings(final Range<? extends Comparable> range) {
+		LocalDateTime l = (LocalDateTime)((Object)range.getLowerBound());
+		LocalDateTime u = (LocalDateTime)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Long.toString(Dates.asMillis(l.toDate())) : null;
+		String upper = range.getUpperBound() != null ? Long.toString(Dates.asMillis(u.toDate())) : null;
+		return new RangeDef(lower,range.getLowerBoundType(),
+							upper,range.getUpperBoundType());
+	}
+	private static RangeDef _toLocalTimeBoundStrings(final Range<? extends Comparable> range) {
+		LocalTime l = (LocalTime)((Object)range.getLowerBound());
+		LocalTime u = (LocalTime)((Object)range.getUpperBound());
+		String lower = l != null ? Strings.customized("{}:{}:{}:{}",
+								   Strings.leftPad(Integer.toString(l.getHourOfDay()),2,'0'),
+								   Strings.leftPad(Integer.toString(l.getMinuteOfHour()),2,'0'),
+								   Strings.leftPad(Integer.toString(l.getSecondOfMinute()),2,'0'),
+								   Strings.leftPad(Integer.toString(l.getMillisOfSecond()),3,'0'))
+								 : null;
+		String upper = u != null ? Strings.customized("{}:{}:{}:{}",
+								   Strings.leftPad(Integer.toString(u.getHourOfDay()),2,'0'),
+								   Strings.leftPad(Integer.toString(u.getMinuteOfHour()),2,'0'),
+								   Strings.leftPad(Integer.toString(u.getSecondOfMinute()),2,'0'),
+								   Strings.leftPad(Integer.toString(u.getMillisOfSecond()),3,'0'))
+								 : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toByteBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Byte.toString((Byte)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Byte.toString((Byte)range.getUpperBound()) : null;
+		Byte l = (Byte)((Object)range.getLowerBound());
+		Byte u = (Byte)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Byte.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Byte.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toIntegerBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Integer.toString((Integer)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Integer.toString((Integer)range.getUpperBound()) : null;
+		Integer l = (Integer)((Object)range.getLowerBound());
+		Integer u = (Integer)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Integer.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Integer.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toShortBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Short.toString((Short)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Short.toString((Short)range.getUpperBound()) : null;
+		Short l = (Short)((Object)range.getLowerBound());
+		Short u = (Short)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Short.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Short.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toLongBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Long.toString((Long)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Long.toString((Long)range.getUpperBound()) : null;
+		Long l = (Long)((Object)range.getLowerBound());
+		Long u = (Long)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Long.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Long.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toDoubleBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Double.toString((Double)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Double.toString((Double)range.getUpperBound()) : null;
+		Double l = (Double)((Object)range.getLowerBound());
+		Double u = (Double)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Double.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Double.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 	private static RangeDef _toFloatBoundStrings(final Range<? extends Comparable> range) {
-		String lower = range.getLowerBound() != null ? Float.toString((Float)range.getLowerBound()) : null;
-		String upper = range.getUpperBound() != null ? Float.toString((Float)range.getUpperBound()) : null;
+		Float l = (Float)((Object)range.getLowerBound());
+		Float u = (Float)((Object)range.getUpperBound());
+		String lower = range.getLowerBound() != null ? Float.toString(l) : null;
+		String upper = range.getUpperBound() != null ? Float.toString(u) : null;
 		return new RangeDef(lower,range.getLowerBoundType(),
 							upper,range.getUpperBoundType());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@SuppressWarnings("unchecked")
-	public static <T extends Comparable<T>> Class<T> guessDataType(final Range<T> range) {
+	public static <T extends Comparable<? super T>> Class<T> guessDataType(final Range<T> range) {
 		Class<T> outDataType = null;
 		if (range.getLowerBound() != null) {
 			outDataType = (Class<T>)range.getLowerBound().getClass();
@@ -529,7 +644,7 @@ public class Range<T extends Comparable<T>>
 		return outDataType;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Accessors(prefix="_")
 	@NoArgsConstructor @AllArgsConstructor
@@ -550,7 +665,7 @@ public class Range<T extends Comparable<T>>
 			com.google.common.collect.Range<?> otherGuavaRange = (com.google.common.collect.Range<?>)object;
 			return _range != null ? _range.equals(otherGuavaRange)
 								  : false;
-		} 
+		}
 		else if (object instanceof Range) {
 			Range<?> otherRange = (Range<?>)object;
 			return _range != null ? otherRange.asGuavaRange() != null ? _range.equals(otherRange.asGuavaRange())
@@ -567,7 +682,7 @@ public class Range<T extends Comparable<T>>
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //	Guava Range DELEGATED
-/////////////////////////////////////////////////////////////////////////////////////////	
+/////////////////////////////////////////////////////////////////////////////////////////
 	public boolean hasLowerBound() {
 		return _range.hasLowerBound();
 	}

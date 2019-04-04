@@ -145,7 +145,7 @@ public class HttpClientRequestBuilderPOSTMultiPartMethodStep
 							//
 							//		param_value
 							if (CollectionUtils.hasData(textParams)) {
-								for(final HttpRequestFormParameter param : textParams) {
+								for (final HttpRequestFormParameter param : textParams) {
 									dos.write("--**R01BOUNDR01**\r\n".getBytes());
 									dos.write(param._serializeFormParam(_targetServerCharset,
 																		true));
@@ -153,7 +153,7 @@ public class HttpClientRequestBuilderPOSTMultiPartMethodStep
 							}
 							// Send the binary params in the second place; be carefull if there are more than one file
 							if (CollectionUtils.hasData(binaryParams)) {
-								for(final HttpRequestFormParameter param : binaryParams) {
+								for (final HttpRequestFormParameter param : binaryParams) {
 									dos.write("--**R01BOUNDR01**\r\n".getBytes());
 									dos.write(param._serializeFormParam(_targetServerCharset,
 																		true));

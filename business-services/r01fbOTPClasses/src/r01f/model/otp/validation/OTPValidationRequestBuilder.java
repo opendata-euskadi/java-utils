@@ -29,7 +29,7 @@ public abstract class OTPValidationRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class OTPOIDStep {
+	public final class OTPOIDStep {
 		private final OTPValidationRequest  _otpRequest;
 
 		public ValueStep validate(final OTPOID otpOID) {
@@ -49,7 +49,7 @@ public abstract class OTPValidationRequestBuilder
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class ValueStep {
+	public final class ValueStep {
 		private final OTPValidationRequest  _otpRequest;
 		public ValueStep usingValue(final Password value) {
 			_otpRequest.setOtpToValidate(value);

@@ -1,9 +1,8 @@
 package r01f.filestore.api.local;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
-import java.util.List;
+import java.util.Collection;
 
 import org.apache.commons.io.FileUtils;
 
@@ -16,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import r01f.file.FileNameAndExtension;
 import r01f.file.FileProperties;
 import r01f.filestore.api.FileFilter;
+import r01f.filestore.api.FileFilters;
 import r01f.filestore.api.FileStoreChecksDelegate;
 import r01f.filestore.api.FileStoreFilerAPI;
 import r01f.types.Path;
@@ -40,6 +40,13 @@ public class LocalFileStoreFilerAPI
 //  CHECK
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
+	public FileProperties getFolderProperties(final Path path) throws IOException {
+		// check
+		_check.checkFolderExists(path);
+		File f = new File(path.asAbsoluteString());
+		return LocalFileProperties.from(f);
+	}
+	@Override
 	public boolean existsFolder(final Path path) throws IOException {
 		File f = new File(path.asAbsoluteString());
 		return f.exists() && f.isDirectory();
@@ -59,7 +66,7 @@ public class LocalFileStoreFilerAPI
 		// copy folder
 		File src = new File(srcPath.asAbsoluteString());
 		File dst = new File(dstPath.asAbsoluteString());
-		if(fileFilter != null) {
+		if (fileFilter != null) {
 			FileUtils.copyDirectory(src,dst,
 									new java.io.FileFilter() {
 											@Override
@@ -141,66 +148,32 @@ public class LocalFileStoreFilerAPI
 		// check
 		_check.checkBeforeListFolderContents(folderPath);
 		
-		// filter
-		FilenameFilter newFilter = null;
-		if (fileFilter != null) {
-			newFilter = new FilenameFilter() {
-								@Override
-								public boolean accept(File dir, String name) {				
-									return fileFilter.accept(Path.from(dir.getAbsolutePath()));				
-								}
-			};
-		}
-		
 		// list
 		File folder = new File(folderPath.asAbsoluteString());
 		
-		Path[] allFilesPaths;
-		if (recursive) {
-			LocalFileListing listing = new LocalFileListing();
-			List<File> allFiles = listing.getFileListing(folder,newFilter);
-			allFilesPaths = FluentIterable.from(allFiles)
-									 .transform(new Function<File,Path>() {
-														@Override
-														public Path apply(final File file) {
-															return Path.from(file);
-														}
-									 			})
-									 .toArray(Path.class);
-		} else {
-			allFilesPaths = FluentIterable.from(folder.listFiles())
-										  .transform(new Function<File,Path>() {
-															@Override
-															public Path apply(final File file) {
-																return Path.from(file);
-															}
-										  			 })
-										  .toArray(Path.class);
-		}
-		
-		// transform to file properties
 		FileProperties[] out = null;
-		if (CollectionUtils.hasData(allFilesPaths)) {
-			out = FluentIterable.from(allFilesPaths)
-								.transform(new Function<Path,FileProperties>() {
-													@Override
-													public FileProperties apply(final Path filePath) {
-														File f = new File(filePath.asAbsoluteString());
-														FileProperties outProps = null;
-														try {
-															outProps = LocalFileProperties.from(f);
-														} catch(IOException ioEx) {
-															log.error("Error creating a {} object from {}: {}",
-																	  LocalFileProperties.class,filePath,ioEx.getMessage(),
-																	  ioEx);
-														}
-														return outProps;
-													}
-										   })
-								.filter(Predicates.notNull())
-								.toArray(FileProperties.class);
+		if (recursive) {
+			LocalFolderRecursiveListing recursiveList = new LocalFolderRecursiveListing(fileFilter);
+			Collection<FileProperties> allContents = recursiveList.recurseFolderContents(folder);
+			out = CollectionUtils.hasData(allContents)
+						? allContents.toArray(new FileProperties[allContents.size()])
+						: null;
 		} else {
-			out = new FileProperties[] {};
+			java.io.FileFilter ioFileFilter = FileFilters.ioFileFilterFor(fileFilter);
+			File[] files = folder.listFiles(ioFileFilter);
+			if (CollectionUtils.hasData(files)) {
+				out = FluentIterable.from(files)
+						  .transform(new Function<File,FileProperties>() {
+											@Override
+											public FileProperties apply(final File f) {
+												return LocalFileProperties.fromOrNull(f);
+											}
+						  			 })
+						  .filter(Predicates.notNull())
+						  .toArray(FileProperties.class);
+			} else {
+				out = new FileProperties[] { /* empty */ };
+			}
 		}
 		return out;
     }

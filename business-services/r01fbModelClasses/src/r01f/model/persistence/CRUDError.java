@@ -24,32 +24,33 @@ public class CRUDError<T>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public CRUDError() {
-		// nothing
+		super(PersistenceRequestedOperation.OTHER);
 	}
-	CRUDError(final Class<T> entityType,
-	  		  final PersistenceRequestedOperation requestedOp,
+	CRUDError(final PersistenceRequestedOperation reqOp,
+			  final Class<T> entityType,
 	  		  final Throwable th) {
-		super(entityType,
-			  requestedOp,
+		super(reqOp,
+			  entityType,
 			  th);	
 	}
-	CRUDError(final Class<T> entityType,
-	  		  final PersistenceRequestedOperation requestedOp,
+	CRUDError(final PersistenceRequestedOperation reqOp,
+		      final Class<T> entityType,
 	  		  final PersistenceErrorType errCode) {
-		super(entityType,
-			  requestedOp,
+		super(reqOp,
+			  entityType,
 			  errCode);
 	}
-	CRUDError(final Class<T> entityType,
-	  		  final PersistenceRequestedOperation requestedOp,
+	CRUDError(final PersistenceRequestedOperation reqOp,
+			  final Class<T> entityType,
 	  		  final String errMsg,final PersistenceErrorType errCode) {
-		super(entityType,
-			  requestedOp,
+		super(reqOp,
+			  entityType,
 			  errMsg,errCode);
 	}
 	public CRUDError(final Class<T> entityType,
 					 final CRUDError<?> otherCRUDError) {
-		super(entityType);
+		super(PersistenceRequestedOperation.OTHER,
+			  entityType);
 		this.setError(otherCRUDError.getError());
 		this.setErrorDebug(otherCRUDError.getErrorDebug());
 		this.setErrorMessage(otherCRUDError.getErrorMessage());

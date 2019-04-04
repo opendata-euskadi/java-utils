@@ -9,8 +9,8 @@ import com.google.common.annotations.GwtIncompatible;
 
 
 /**
- * Encapsula las operaciones habituales en un Enum que implementa {@link CodeAndDescriptionEnum}
- * El uso habitual es el siguiente:
+ * Encapsulates {@link CodeAndDescriptionEnum} operations
+ * Usage_
  * <pre class='brush:java'>
  * @Accessors(prefix="_")
  * public enum MyEnum implements EnumWithRexEx<MyEnum> {
@@ -23,7 +23,6 @@ import com.google.common.annotations.GwtIncompatible;
  *			_patterns = patterns;
  *		}
  *
- *		// Wrapper estático del enum que implementa toda la funcionalidad de CodeEnum
  *		private static EnumWithRegExLabelWrapper<MyEnum> _enums = new EnumWithRegExLabelWrapper<MyEnum>(MyEnum.values());
  *		
  *		@Override
@@ -49,42 +48,42 @@ import com.google.common.annotations.GwtIncompatible;
  *		}
  * }
  * </pre> 
- * @param <T> el Enum concreto
+ * @param <T> 
  */
 @GwtIncompatible
 public class EnumWithRegExWrapper<T extends EnumWithRegEx<T>> 
      extends EnumExtendedWrapper<T> {
-	/**
-	 * Constructor 
-	 * @param values 
-	 */
+/////////////////////////////////////////////////////////////////////////////////////////
+//	CONSTRUCTOR
+/////////////////////////////////////////////////////////////////////////////////////////	
 	public EnumWithRegExWrapper(final T[] values) {
 		super(values);
 	}
-	
+/////////////////////////////////////////////////////////////////////////////////////////
+//	
+/////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
-	public EnumWithRegExWrapper<T> strict() {		// Es necesario sobre escribir este método para adecuar el tipo devuelto
+	public EnumWithRegExWrapper<T> strict() {		
 		super.strict();
 		return this;
 	}
 	/**
-	 * Comprueba si un elemento del enum puede ser asignado a partir de un texto 
-	 * macheando con la expresión regular
-	 * @param label el texto 
-	 * @return true si puede ser asignado
+	 * Checks if an enum element can be assigned from a text matching the given expression
+	 * @param label
+	 * @return true
 	 */
 	public boolean canBeFrom(final String label) {
 		T outT = _fromLabel(label);
 		return outT != null ? true : false;
 	}
 	/**
-	 * Obtiene el elemento del enum a partir de la descripcion
-	 * @param desc descripcion del elemento
-	 * @return el elemento del enum
+	 * Gets an enum element from a label
+	 * @param label
+	 * @return 
 	 */
 	public T fromLabel(final String label) {
 		T outT = _fromLabel(label);
-		if (_strict && outT == null)  throw new IllegalArgumentException("NO existe un elemento del enum con descripcion = " + label);
+		if (_strict && outT == null)  throw new IllegalArgumentException("There does NOT exists an enum element with label = " + label);
 		return outT;
 	}
 	

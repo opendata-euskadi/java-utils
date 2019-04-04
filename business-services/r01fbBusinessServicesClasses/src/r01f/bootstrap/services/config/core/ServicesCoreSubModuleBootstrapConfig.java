@@ -28,4 +28,7 @@ public class ServicesCoreSubModuleBootstrapConfig<C extends ContainsConfigData>
 	public static <CFG extends ContainsConfigData> ServicesCoreSubModuleBootstrapConfig<CFG> createForSearchPersistenceSubModule(final CFG cfg) {
 		return new ServicesCoreSubModuleBootstrapConfig<CFG>(CoreModule.SEARCHPERSISTENCE,cfg);
 	}
+	public static <CFG extends ContainsConfigData> ServicesCoreSubModuleBootstrapConfig<CFG> createForFSPersistenceSubModule(final CFG cfg) {
+		return new ServicesCoreSubModuleBootstrapConfig<CFG>(CoreModule.FSPERSISTENCE,cfg);
+	}
 }

@@ -63,6 +63,9 @@ public class FileStoreAPIWrapper {
 // 	METHODS
 /////////////////////////////////////////////////////////////////////////////////////////	
 	public FileApiLoadWrapper forLoading(final Path filePath) {
+		return this.forReading(filePath);
+	}
+	public FileApiLoadWrapper forReading(final Path filePath) {
 		return new FileApiLoadWrapper(_api,
 									  filePath);
 	}

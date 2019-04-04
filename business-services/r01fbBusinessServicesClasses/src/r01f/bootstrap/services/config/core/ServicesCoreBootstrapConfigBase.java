@@ -18,9 +18,8 @@ import r01f.util.types.collections.CollectionUtils;
 
 @Accessors(prefix="_")
 @RequiredArgsConstructor
-abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExposition,
-											P extends ServicesClientProxyToCoreServices> 
-    implements ServicesCoreBootstrapConfig<E,P> {
+abstract class ServicesCoreBootstrapConfigBase 
+    implements ServicesCoreBootstrapConfig {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -33,18 +32,6 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 	 */
 	@Getter protected final CoreModule _coreModule;
 	/**
-	 * How is this module exposed to the client API
-	 */
-	@Getter protected final E _exposition;
-	/**
-	 * Client proxy to core exposition
-	 */
-	@Getter protected final P _clientProxyConfig;
-	/**
-	 * How are core events handleds
-	 */
-	@Getter protected final ServicesCoreModuleEventsConfig _eventHandling;
-	/**
 	 * Sub-modules config
 	 */
 	@Getter protected final Collection<ServicesCoreSubModuleBootstrapConfig<?>> _subModulesCfgs;
@@ -52,7 +39,7 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 //  CAST
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
-	public <C extends ServicesCoreBootstrapConfig<?,?>> C as(final Class<C> type) {
+	public <C extends ServicesCoreBootstrapConfig> C as(final Class<C> type) {
 		return (C)this;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -60,21 +47,24 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override
 	public ServicesImpl getImplType() {
-		if (_exposition instanceof ServicesCoreModuleExpositionForBeanImpl) {
+		if (this instanceof ServicesCoreBootstrapConfigWhenBeanExposed) {
 			return ServicesImpl.Bean;
-		} else if (_exposition instanceof ServicesCoreModuleExpositionForRESTImpl) {
+		} else if (this instanceof ServicesCoreBootstrapConfigWhenRESTExposed) {
 			return ServicesImpl.REST;
-		} else if (_exposition instanceof ServicesCoreModuleExpositionForServletImpl) {
+		} else if (this instanceof ServicesCoreBootstrapConfigWhenServletExposed) {
 			return ServicesImpl.Servlet;
 		} 
-		throw new IllegalStateException("Illegal exposition type: " + _exposition.getClass());
+		throw new IllegalStateException("Illegal exposition type: " + this.getClass());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  SUB-MODULE CONFIGS
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Override @SuppressWarnings("unchecked")
 	public <CFG extends ContainsConfigData> CFG getSubModuleConfigFor(final AppComponent component) {
-		if (CollectionUtils.isNullOrEmpty(_subModulesCfgs)) throw new IllegalStateException("NO sub-modules config was set!");
+		if (CollectionUtils.isNullOrEmpty(_subModulesCfgs)) {
+//			log.warn("NO sub-modules config was set for {}",component);
+			throw new IllegalStateException("NO sub-modules config was set for " + component);
+		}
 		ServicesCoreSubModuleBootstrapConfig<CFG> subCfg = (ServicesCoreSubModuleBootstrapConfig<CFG>)FluentIterable.from(_subModulesCfgs)
 																	 .filter(new Predicate<ServicesCoreSubModuleBootstrapConfig<?>>() {
 																					@Override
@@ -90,9 +80,8 @@ abstract class ServicesCoreBootstrapConfigBase<E extends ServicesCoreModuleExpos
 /////////////////////////////////////////////////////////////////////////////////////////	
 	@Override
 	public CharSequence debugInfo() {
-		return Strings.customized("{}/{} as {}; {}",
+		return Strings.customized("{}/{} as {}",
 								  _coreAppCode,_coreModule,
-				   				  _exposition.debugInfo(),
-				   				  _eventHandling != null ? _eventHandling.debugInfo() : "");
+				   				  this.getImplType());
 	}
 }

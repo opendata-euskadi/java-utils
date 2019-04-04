@@ -17,7 +17,7 @@ import r01f.types.url.Url;
 @ConvertToDirtyStateTrackable
 @Accessors(prefix="_")
 @NoArgsConstructor @AllArgsConstructor
-public class WeightedLangDependentTag 
+public class WeightedLangDependentTag
   implements Comparable<WeightedLangDependentTag>,
   			 HasLanguage {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -26,15 +26,15 @@ public class WeightedLangDependentTag
   	@MarshallField(as="tag",
   				   whenXml=@MarshallFieldAsXml(attr=true))
 	@Getter @Setter private String _tag;
-  	
+
    	@MarshallField(as="lang",
   				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter private Language _language; 	
-  
+	@Getter @Setter private Language _language;
+
   	@MarshallField(as="weight",
   				   whenXml=@MarshallFieldAsXml(attr=true))
   	@Getter @Setter private int _weight;
-  	
+
   	@MarshallField(as="url",
   				   whenXml=@MarshallFieldAsXml(attr=true))
   	@Getter @Setter private Url _url;
@@ -44,7 +44,7 @@ public class WeightedLangDependentTag
   	@Override
 	public int compareTo(final WeightedLangDependentTag other) {
 	    if (other == null) return 1;
-	
+
     	int tagComp = this.getTag() != null && other.getTag() != null
     							? this.getTag().compareTo(other.getTag())
     							: this.getTag() != null && other.getTag() == null
@@ -54,15 +54,15 @@ public class WeightedLangDependentTag
     											: 0;		// both null
     	int langComp = this.getLanguage() != null && other.getLanguage() != null
     							? this.getLanguage().compareTo(other.getLanguage())
-    							: this.getLanguage() != null && other.getLanguage() == null 
+    							: this.getLanguage() != null && other.getLanguage() == null
     									? 1
     									: this.getLanguage() == null && other.getLanguage() != null
     											? -1
     											: 0;		// both langs null
-    	int weightComp = new Integer(this.getWeight()).compareTo(new Integer(other.getWeight()));
-    	
-    	int urlComp = this.getUrl() != null && other.getUrl() != null 
-    						? this.getUrl().is(other.getUrl()) 
+    	int weightComp = Integer.valueOf(this.getWeight()).compareTo(Integer.valueOf(other.getWeight()));
+
+    	int urlComp = this.getUrl() != null && other.getUrl() != null
+    						? this.getUrl().is(other.getUrl())
     								? 0
     								: -1
     						: this.getUrl() != null && other.getUrl() == null
@@ -70,8 +70,8 @@ public class WeightedLangDependentTag
 	    							: this.getUrl() == null && other.getUrl() != null
 		    								? -1
 		    								: 0; //noth null
-    				
-	    
+
+
     	int outComp = 0;
     	if (tagComp == 0 && langComp == 0 && urlComp == 0) {
     		outComp = weightComp;
@@ -79,7 +79,7 @@ public class WeightedLangDependentTag
     		outComp = langComp;
     	} else if (tagComp != 0 && langComp == 0 && urlComp == 0) {
     		outComp = tagComp;
-    	} else if(tagComp == 0 && langComp == 0 && urlComp != 0) {
+    	} else if (tagComp == 0 && langComp == 0 && urlComp != 0) {
     		outComp = urlComp;
     	} else if (tagComp != 0 && langComp != 0  && urlComp != 0) {
     		outComp = tagComp;

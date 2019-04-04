@@ -7,9 +7,6 @@ public class TimeOutController {
 ///////////////////////////////////////////////////////////////////////////////
 // CONSTRUCTOR
 ///////////////////////////////////////////////////////////////////////////////
-	/**
-	 * No instanciar métodos de esta clase.
-	 */
 	private TimeOutController() {
 		super();
 	}
@@ -17,22 +14,19 @@ public class TimeOutController {
 //	METODOS
 ///////////////////////////////////////////////////////////////////////////////
     /**
-     * Ejecuta la tarea y espera los milisegundos especificados en timeout para devolver
-     * Si la tarea no retorna en el número de milisegundos especificado, el thread se interrumpe
-     * y se lanza una excepción
-     * El llamante debe sobrecarga el método Thread.interrupt() para hacer algo 
-     * que mate el thread o bien utilice el método Thread.isInterrupted();
-     *
-     * @param task: La tarea a ejecutar
-     * @param timeout: El timeout a esperar a que el thread retorne. 0 significa esperar para siempre
-     * @throws TimeoutException si se cumple el timeout y el thread no ha retornado.
+     * Runs the task and waits the given timeout milis befoure returning
+     * If the task does NOT returns within the given timeout milis the thread is interrupted and an exception is thrown
+     * Caller must override Thread.interrupt() to kill the thread or anything
+     * @param task
+     * @param timeout
+     * @throws TimeoutException 
      */
     public static void execute(final Thread task,final long timeout) throws TimeoutException {
         task.start();
         try {
             task.join(timeout);
         } catch (InterruptedException e) {
-            /* Si alguien interrumpe, el sabrá que está haciendo */
+            /* Interrupted */
         }
         if (task.isAlive()) {
             task.interrupt();
@@ -40,16 +34,15 @@ public class TimeOutController {
         }
     }
     /**
-     * Ejecuta la tarea en un nuevo deamon Thread y espera el tiempo especificado
-     * en el timeout.
-     * @param task: La tarea a ejecutar
-     * @param timeout: El timeout en milisegundos. 0 significa esperar para siempre
-     * @throws TimeoutException: si pasa el tiempo especificado y la tarea no ha retornado
+     * Runs the task in a daemon Thread and waits the given time
+     * @param task
+     * @param timeout
+     * @throws TimeoutException if time is out and task is not finished
      */
     public static void execute(final Runnable task,final long timeout) throws TimeoutException {
-        Thread t = new Thread(task,"Timeout guard");	// Convertir en thread
+        Thread t = new Thread(task,"Timeout guard");	
         t.setDaemon(true);
-        execute(t,timeout);	// Ejecutarla igual que el metodo anterior
+        execute(t,timeout);
     }
     /**
      * Signals that the task timed out.

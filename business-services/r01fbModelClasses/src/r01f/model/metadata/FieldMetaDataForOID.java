@@ -27,7 +27,7 @@ public class FieldMetaDataForOID
 			 other.getSearchEngineIndexingConfig(),			 
 			 (Class<? extends OID>)other.getDataType());
 	}
-	public FieldMetaDataForOID(final IndexableFieldID fieldId,
+	public FieldMetaDataForOID(final FieldID fieldId,
 							   final LanguageTexts name,final LanguageTexts description,
 							   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 							   final Class<? extends OID> oidType) {

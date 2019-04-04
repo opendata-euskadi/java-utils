@@ -166,9 +166,9 @@ public class ResourcesLoaderFromBBDD
 		}
 		return outOK;
 	}
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 //  METHODS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	@Override
     protected InputStream _doGetInputStream(final IsPath resourceName,
     								  	    final boolean reload) throws IOException {
@@ -198,7 +198,7 @@ public class ResourcesLoaderFromBBDD
 	 * Actualizar con la fecha actual la fecha de �ltima recarga del fichero de propiedades.
 	 */
 	private void _updateReloadTS() {
-		if(!_dbConnectionProps.containsKey("updatets")) {
+		if (!_dbConnectionProps.containsKey("updatets")) {
 			throw new IllegalStateException("Revisar la definici�n del componente cuyo 'resourcesLoader' debe contener una propiedad denominada 'updatets' con " +
 					 						"la update para la actualizaci�n de la fecha con la �ltima recarga del fichero de propiedades.");
 		}

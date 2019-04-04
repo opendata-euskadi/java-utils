@@ -14,15 +14,27 @@ public abstract class PersistenceOperationExecResult<T>
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FIELDS
 /////////////////////////////////////////////////////////////////////////////////////////
+	/**
+	 * The requested operation
+	 */
+	@MarshallField(as="requestedOperation",
+				   whenXml=@MarshallFieldAsXml(attr=true))
+	@Getter @Setter protected PersistenceRequestedOperation _requestedOperation;
+	
 	@MarshallField(as="requestedOperationName",
 				   whenXml=@MarshallFieldAsXml(attr=true))
-	@Getter @Setter protected String _requestedOperationName;
+		    @Setter protected String _requestedOperationName;
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
-	public PersistenceOperationExecResult() {
-		/* nothing */
+	public PersistenceOperationExecResult(final PersistenceRequestedOperation reqOp,final String reqOpName) {
+		_requestedOperation = reqOp;
+		_requestedOperationName = reqOpName;
+	}
+	public PersistenceOperationExecResult(final PersistenceRequestedOperation reqOp) {
+		_requestedOperation = reqOp;
+		_requestedOperationName = reqOp.name();
 	} 
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -38,6 +50,14 @@ public abstract class PersistenceOperationExecResult<T>
 								  .throwAsPersistenceException();
 		return this.asOperationExecOK()
 				   .getOrThrow();
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  METHODS
+/////////////////////////////////////////////////////////////////////////////////////////
+	@Override
+	public String getRequestedOperationName() {
+		return _requestedOperation != null ? _requestedOperation.name() 
+										   : "unknown persistence operation";
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

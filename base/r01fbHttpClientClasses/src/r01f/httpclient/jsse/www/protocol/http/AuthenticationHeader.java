@@ -106,7 +106,7 @@ public class AuthenticationHeader {
 
         if (authPref != null) {
             authPref = authPref.toLowerCase();
-            if(authPref.equals("spnego") || authPref.equals("kerberos")) {
+            if (authPref.equals("spnego") || authPref.equals("kerberos")) {
                 authPref = "negotiate";
             }
         }
@@ -186,19 +186,19 @@ public class AuthenticationHeader {
         SchemeMapValue v = null;
         if (authPref == null || (v=(SchemeMapValue)schemes.get (authPref)) == null) {
 
-            if(v == null) {
+            if (v == null) {
                 SchemeMapValue tmp = (SchemeMapValue)schemes.get("negotiate");
-                if(tmp != null) {
-                    if(host == null || !NegotiateAuthentication.isSupported(host, "Negotiate")) {
+                if (tmp != null) {
+                    if (host == null || !NegotiateAuthentication.isSupported(host, "Negotiate")) {
                         tmp = null;
                     }
                     v = tmp;
                 }
             }
 
-            if(v == null) {
+            if (v == null) {
                 SchemeMapValue tmp = (SchemeMapValue)schemes.get("kerberos");
-                if(tmp != null) {
+                if (tmp != null) {
                     // the Kerberos scheme is only observed in MS ISA Server. In
                     // fact i think it's a Kerberos-mechnism-only Negotiate.
                     // Since the Kerberos scheme is always accompanied with the
@@ -209,14 +209,14 @@ public class AuthenticationHeader {
                     //
                     // The only chance this line get executed is that the server
                     // only suggest the Kerberos scheme.
-                    if(host == null || !NegotiateAuthentication.isSupported(host, "Kerberos")) {
+                    if (host == null || !NegotiateAuthentication.isSupported(host, "Kerberos")) {
                         tmp = null;
                     }
                     v = tmp;
                 }
             }
 
-            if(v == null) {
+            if (v == null) {
                 if ((v=(SchemeMapValue)schemes.get ("digest")) == null) {
                     if (((v=(SchemeMapValue)schemes.get("ntlm"))==null)) {
                         v = (SchemeMapValue)schemes.get ("basic");

@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import r01f.guids.OID;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.metadata.HasMetaDataForHasOIDModelObject;
 import r01f.model.metadata.HasTypesMetaData;
@@ -61,7 +62,7 @@ public class FindOIDsResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindOIDsResultBuilderEntityStep {
+	public final class FindOIDsResultBuilderEntityStep {
 		private final SecurityContext _securityContext;
 		
 		public FindOIDsResultBuilderOperationStep on(final Class<? extends PersistableModelObject<? extends OID>> entityType) {
@@ -73,7 +74,7 @@ public class FindOIDsResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindOIDsResultBuilderOperationStep {
+	public final class FindOIDsResultBuilderOperationStep {
 		protected final SecurityContext _securityContext;
 		protected final Class<? extends PersistableModelObject<? extends OID>> _modelObjType;
 
@@ -84,8 +85,8 @@ public class FindOIDsResultBuilder
 													 _modelObjType);	
 		}
 		// ---------- SUCCESS FINDING 
-		public <DB extends DBEntity,O extends OID> FindOIDsOK<O> foundDBEntities(final Collection<DB> dbEntities,
-															 					 final Function<DB,O> transformFunction) {
+		public <DB extends DBEntity,O extends PersistableObjectOID> FindOIDsOK<O> foundDBEntities(final Collection<DB> dbEntities,
+															 					 				  final Function<DB,O> transformFunction) {
 			FindOIDsOK<O> outFoundOids = new FindOIDsOK<O>();
 			outFoundOids.setModelObjectType(_modelObjType);
 			outFoundOids.setRequestedOperation(PersistenceRequestedOperation.FIND);
@@ -96,7 +97,7 @@ public class FindOIDsResultBuilder
 			return outFoundOids;
 		}
 		@SuppressWarnings("unchecked")
-		public <O extends OID> FindOIDsOK<O> foundEntitiesWithOids(final Collection<O> oids) {
+		public <O extends PersistableObjectOID> FindOIDsOK<O> foundEntitiesWithOids(final Collection<O> oids) {
 			Class<? extends PersistableModelObject<O>> modelObjType = (Class<? extends PersistableModelObject<O>>)_modelObjType;
 			Class<O> oidType = _guessOidType(_modelObjType);
 			
@@ -107,7 +108,7 @@ public class FindOIDsResultBuilder
 			return outFoundOids;
 		}
 		@SuppressWarnings("unchecked")
-		public <O extends OID> FindOIDsOK<O> noEntityFound() {
+		public <O extends PersistableObjectOID> FindOIDsOK<O> noEntityFound() {
 			Class<? extends PersistableModelObject<O>> modelObjType = (Class<? extends PersistableModelObject<O>>)_modelObjType;
 			Class<O> oidType = _guessOidType(_modelObjType);
 			
@@ -122,12 +123,12 @@ public class FindOIDsResultBuilder
 //  ERROR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class FindOIDsResultBuilderForError {
+	public final class FindOIDsResultBuilderForError {
 		protected final SecurityContext _securityContext;
 		protected final Class<? extends PersistableModelObject<? extends OID>> _modelObjType;
 		
 		@SuppressWarnings("unchecked")
-		public <O extends OID> FindOIDsError<O> causedBy(final Throwable th) {
+		public <O extends PersistableObjectOID> FindOIDsError<O> causedBy(final Throwable th) {
 			Class<? extends PersistableModelObject<O>> modelObjType = (Class<? extends PersistableModelObject<O>>)_modelObjType;
 			Class<O> oidType = _guessOidType(_modelObjType);
 			
@@ -135,7 +136,7 @@ public class FindOIDsResultBuilder
 										th);
 		}
 		@SuppressWarnings("unchecked")
-		public <O extends OID> FindOIDsError<O> causedBy(final String cause) {
+		public <O extends PersistableObjectOID> FindOIDsError<O> causedBy(final String cause) {
 			Class<? extends PersistableModelObject<O>> modelObjType = (Class<? extends PersistableModelObject<O>>)_modelObjType;
 			Class<O> oidType = _guessOidType(_modelObjType);
 			
@@ -144,7 +145,7 @@ public class FindOIDsResultBuilder
 										PersistenceErrorType.SERVER_ERROR);
 		}
 		@SuppressWarnings("unchecked")
-		public <O extends OID> FindOIDsError<O> causedByClientBadRequest(final String msg,final Object... vars) {
+		public <O extends PersistableObjectOID> FindOIDsError<O> causedByClientBadRequest(final String msg,final Object... vars) {
 			Class<? extends PersistableModelObject<O>> modelObjType = (Class<? extends PersistableModelObject<O>>)_modelObjType;
 			Class<O> oidType = _guessOidType(_modelObjType);
 			
@@ -158,7 +159,7 @@ public class FindOIDsResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@SuppressWarnings("unchecked")
-	private <O extends OID> Class<O> _guessOidType(final Class<? extends PersistableModelObject<? extends OID>> modelObjType) {
+	private <O extends PersistableObjectOID> Class<O> _guessOidType(final Class<? extends PersistableModelObject<? extends OID>> modelObjType) {
 		// [1] - Try to guess the oid type using the type info
 		Class<O> oidType = OIDs.oidTypeOrNullFor(modelObjType);
 		// [2] - Try to guess the oid type using the metadata info

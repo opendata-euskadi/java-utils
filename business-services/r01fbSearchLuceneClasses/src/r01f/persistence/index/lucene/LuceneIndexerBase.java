@@ -24,10 +24,11 @@ import r01f.guids.OIDForVersionableModelObject;
 import r01f.guids.VersionIndependentOID;
 import r01f.guids.VersionOID;
 import r01f.locale.Language;
+import r01f.locale.LanguageTexts;
 import r01f.model.IndexableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.FieldMetaData;
-import r01f.model.metadata.IndexableFieldID;
 import r01f.model.metadata.TypeMetaData;
 import r01f.model.metadata.TypeMetaDataForPersistableModelObjectBase;
 import r01f.model.persistence.PersistenceRequestedOperation;
@@ -60,7 +61,7 @@ import r01f.util.types.locale.Languages;
  */
 @Slf4j
 @Accessors(prefix="_")
-public abstract class LuceneIndexerBase<P extends IndexableModelObject> 
+public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		      extends IndexerBase<P> {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  FINAL STATUS
@@ -75,7 +76,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 	@Getter(AccessLevel.PROTECTED) private final LuceneIndex _luceneIndex;
 
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Constructor
@@ -91,9 +92,9 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 							 final IndexDocumentFieldConfigSet<P> fieldsConfigSet,
 						 	 final LuceneIndex luceneIndex,
 							 final Provider<IndexableFieldValuesExtractor<P>> indexableFieldValuesExtractorProvider) {	// IndexableFieldValuesExtractor are NOT thread safe!
-		super(modelObjectType,modelObjectTypeMetaData,	
+		super(modelObjectType,modelObjectTypeMetaData,
 			  indexableFieldValuesExtractorProvider);
-		_fieldsConfigSet = fieldsConfigSet;			
+		_fieldsConfigSet = fieldsConfigSet;
 		_luceneIndex = luceneIndex;																						// indexes documents with fields
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -116,10 +117,10 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		Document doc = _createLuceneDocumentFor(securityContext,
 												modelObject,
 												PersistenceRequestedOperation.UPDATE);	// update an existing record
-		
+
 		// update lucene index (it deletes the reg and inserts it again)
-		IndexableFieldID docIdFieldId = TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID.getFieldId();
-		_luceneIndex.reIndex(new Term(docIdFieldId.asString(),			
+		FieldID docIdFieldId = FieldID.from(TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID);
+		_luceneIndex.reIndex(new Term(docIdFieldId.asString(),
 								  	  _luceneDOCIDFieldValueFrom(modelObject)),
 							 doc);
 	}
@@ -137,21 +138,20 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 							 oid);
 		}
 	}
-	@SuppressWarnings("unused") 
+	@SuppressWarnings("unused")
 	private void _removeFromIndex(final SecurityContext securityContext,
 								  final OID oid) {
-		IndexableFieldID docIdFieldId = TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID.getFieldId();
+		FieldID docIdFieldId = FieldID.from(TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID);
 		Term idTerm = new Term(docIdFieldId.asString(),
 							   _idFor(oid));
 		// UN-index
 		_luceneIndex.unIndex(idTerm);
 	}
-	@SuppressWarnings("unused") 
 	private void _removeFromIndex(final SecurityContext securityContext,
 								  final VersionIndependentOID oid,final VersionOID version) {
 		if (!this.getModelObjectMetaData().hasFacet(HasVersionableFacet.class)) throw new UnsupportedOperationException(Throwables.message("The model object {} is NOT a versionable object, so removeFromIndex(oid) MUST be used",
 																																		  this.getModelObjectType()));
-		IndexableFieldID docIdFieldId = TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID.getFieldId();
+		FieldID docIdFieldId = FieldID.from(TypeMetaDataForPersistableModelObjectBase.SEARCHABLE_METADATA.DOCID);
 		Term idTerm = new Term(docIdFieldId.asString(),
 							   _idFor(oid,version));
 		// UN-index
@@ -177,15 +177,15 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 									  								return _luceneDOCIDFieldValueFrom(modelObj);
 									  							}
 									  					  }));
-		
+
 		// [3] - Create a fields factory that uses the fields config to create the lucene fields
 		LuceneDocumentFactoryForIndexableObject docFactory = LuceneDocumentFactoryForIndexableObject.of(_fieldsConfigSet);	// creates fields using the fieldsConfigSet
-		
+
 		// [4] - Create the fields using the factory
 		if (fieldsValues.hasData()) {
 			log.debug("Creating a Lucene document for {} with fields: {}",
 					  fieldsValues.getFieldIdsAsString(),_fieldsConfigSet.getClass().getSimpleName());
-			
+
 			for (IndexDocumentFieldValue<?> fieldValue : fieldsValues) {
 				// If a field's creation fails... continue: create the document with the other fields
 				try {
@@ -194,7 +194,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 							  fieldValue.getValue() != null ? fieldValue.getValue().getClass() : "[NO VALUE]");
 					_createField(docFactory,
 								 fieldValue);
-				} catch(Throwable th) {
+				} catch (Throwable th) {
 					log.error("Error {} while creating the field {} > {} of type {}",
 							  th.getMessage(),
 							  _fieldsConfigSet.getClass().getSimpleName(),fieldValue.getIndexableFieldId(),
@@ -221,7 +221,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 	private String _luceneDOCIDFieldValueFrom(final P modelObj) {
 		OID oid = Facetables.asFacet(modelObj,HasOID.class)
 							.getOid();
-		
+
 		String luceneIdStr = null;
 		if (oid instanceof OIDForVersionableModelObject) {
 			OIDForVersionableModelObject vOid = (OIDForVersionableModelObject)oid;
@@ -251,16 +251,16 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 	private <T> void _createField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
 								  final IndexDocumentFieldValue<T> indexableFieldValue) {
 		FieldMetaData fieldMetaDataConfig = indexableFieldValue.getMetaDataConfig();
-		IndexableFieldID fieldId = indexableFieldValue.getIndexableFieldId();
+		FieldID fieldId = indexableFieldValue.getIndexableFieldId();
 		T fieldValue = indexableFieldValue.getValue();
-		
+
 		if (fieldValue == null) return;	// do not waste time
-		
+
 		if (fieldValue instanceof OID) {
 			log.debug("\t-OID field: {}={}",fieldId,fieldValue);
 			_createOidField(fieldsFactory,
 							(IndexDocumentFieldValue<OID>)indexableFieldValue);
-		} 
+		}
 		else if (fieldValue instanceof Class) {
 			log.debug("\t-java type field: {}={}",fieldId,fieldValue);
 			_createJavaTypeField(fieldsFactory,
@@ -283,29 +283,29 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		}
 		else if (fieldValue instanceof Boolean) {
 			log.debug("\t-boolean field: {}={}",fieldId,fieldValue);
-			_createBooleanField(fieldsFactory, 
+			_createBooleanField(fieldsFactory,
 								(IndexDocumentFieldValue<Boolean>)indexableFieldValue);
 		}
 		else if (fieldValue instanceof Integer) {
 			log.debug("\t-int field: {}={}",fieldId,fieldValue);
 			_createIntegerField(fieldsFactory,
 								(IndexDocumentFieldValue<Integer>)indexableFieldValue);
-		} 
+		}
 		else if (fieldValue instanceof Long) {
 			log.debug("\t-long field: {}={}",fieldId,fieldValue);
 			_createLongField(fieldsFactory,
 							 (IndexDocumentFieldValue<Long>)indexableFieldValue);
-		} 
+		}
 		else if (fieldValue instanceof Float) {
 			log.debug("\t-float field: {}={}",fieldId,fieldValue);
 			_createFloatField(fieldsFactory,
 							  (IndexDocumentFieldValue<Float>)indexableFieldValue);
-		} 
+		}
 		else if (fieldValue instanceof Double) {
 			log.debug("\t-double field: {}={}",fieldId,fieldValue);
 			_createDoubleField(fieldsFactory,
 							  (IndexDocumentFieldValue<Double>)indexableFieldValue);
-		} 
+		}
 		else if (fieldValue instanceof Date) {
 			log.debug("\t-Date field: {}={}",fieldId,fieldValue);
 			_createDateField(fieldsFactory,
@@ -320,6 +320,11 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 			log.debug("\t-Range field: {}={}",fieldId,((Range<? extends Comparable<?>>)fieldValue).asString());
 			_createRangeField(fieldsFactory,
 							 (IndexDocumentFieldValue<Range<? extends Comparable<?>>>)indexableFieldValue);
+		}
+		else if (fieldValue instanceof LanguageTexts) {
+			log.debug("\t-lang texts field: {}",fieldId);
+			_createLanguageTextsFields(fieldsFactory,
+									   (IndexDocumentFieldValue<LanguageTexts>)indexableFieldValue);			
 		}
 		else if (fieldValue instanceof Summary) {
 			log.debug("\t-summary field: {}",fieldId);
@@ -342,7 +347,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 			Collection<?> col = (Collection<?>)indexableFieldValue.getValue();
 			for (Object colVal : col) {
 				if (colVal == null) continue;
-				// A recursive call with the same metadata id (multiple value) 
+				// A recursive call with the same metadata id (multiple value)
 				// BUT do not check the type when creating the field value since it's NOT a collection
 				_createField(fieldsFactory,
 							 IndexDocumentFieldValue.forMetaDataNotCheckingType(fieldMetaDataConfig)
@@ -361,7 +366,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 			for (Map.Entry<?,?> me : fieldValues.entrySet()) {
 				IndexDocumentFieldID luceneFieldId = IndexDocumentFieldID.fieldIdOf(indexableFieldValue.getIndexableFieldId(),
 																   					me.getKey());		// the point
-				Object pointValue = me.getValue();				
+				Object pointValue = me.getValue();
 				_createField(fieldsFactory,
 							 luceneFieldId,
 							 pointValue);
@@ -375,7 +380,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 	@SuppressWarnings("unchecked")
 	private static <T> void _createField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
 								  		 final IndexDocumentFieldID luceneFieldId,
-								  		 final T value) { 
+								  		 final T value) {
 		if (value instanceof OID) {
 			_createOidField(fieldsFactory,luceneFieldId,
 						    (OID)value);
@@ -384,7 +389,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 								(Boolean)value);
 		} else if (value instanceof Integer) {
 			_createIntegerField(fieldsFactory,luceneFieldId,
-						    	(Integer)value);				
+						    	(Integer)value);
 		} else if (value instanceof Long) {
 			_createLongField(fieldsFactory,luceneFieldId,
 						    (Long)value);
@@ -426,7 +431,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  OID 
+//  OID
 /////////////////////////////////////////////////////////////////////////////////////////
 	private static void _createOidField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
 								 		final IndexDocumentFieldValue<OID> indexableField) {
@@ -674,15 +679,15 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 				 });
 	}
 
-	
 
-	private static <T extends Comparable<T>> void _createRangeField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
-										 							final IndexDocumentFieldID luceneFieldId,
-										 							final Range<T> range) {		
-		
+
+	private static <T extends Comparable<? super T>> void _createRangeField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
+										 									final IndexDocumentFieldID luceneFieldId,
+										 									final Range<T> range) {
+
 		Class<?> java_util_Date_class = java.util.Date.class;
 		Class<?> java_lang_Integer_class = Integer.class;
-		Class<?> java_lang_Long_class = Long.class;	
+		Class<?> java_lang_Long_class = Long.class;
 		Class<?> java_lang_Double_class = Double.class;
 		Class<?> java_lang_Float_class = Float.class;
 		/*
@@ -693,11 +698,11 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		 *   [javac] 			                                      ^
 		 */
 		Object lowerBoundRaw = range.getLowerBound();
-		Object upperBoundRaw =	range.getUpperBound();	
-		
-		if (range.getDataType() == java_util_Date_class ) {		
+		Object upperBoundRaw =	range.getUpperBound();
+
+		if (range.getDataType() == java_util_Date_class ) {
 			Date lowerBound = (Date)lowerBoundRaw;
-			Date upperBound = (Date)upperBoundRaw;		
+			Date upperBound = (Date)upperBoundRaw;
 			if (lowerBound != null) _createDateField(fieldsFactory,
 													 IndexDocumentFieldID.forId(luceneFieldId.asString() + ".lower"),
 													 lowerBound);
@@ -706,18 +711,18 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 													 upperBound);
 		} else if (range.getDataType() == java_lang_Integer_class) {
 			Integer lowerBound = (Integer) lowerBoundRaw;
-			Integer upperBound = (Integer) upperBoundRaw;	
+			Integer upperBound = (Integer) upperBoundRaw;
 			if (lowerBound != null) _createIntegerField(fieldsFactory,
 														IndexDocumentFieldID.forId(luceneFieldId.asString() + ".lower"),
 														lowerBound);
 			if (upperBound != null) _createIntegerField(fieldsFactory,
 														IndexDocumentFieldID.forId(luceneFieldId.asString() + ".upper"),
-														upperBound);			
+														upperBound);
 		} else if (range.getDataType() == java_lang_Long_class) {
-			
+
 			Long lowerBound = (Long)lowerBoundRaw;
-			Long upperBound = (Long)upperBoundRaw;	
-		
+			Long upperBound = (Long)upperBoundRaw;
+
 			if (lowerBound!= null) _createLongField(fieldsFactory,
 													IndexDocumentFieldID.forId(luceneFieldId.asString() + ".lower"),
 													lowerBound);
@@ -725,10 +730,10 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 													 IndexDocumentFieldID.forId(luceneFieldId.asString() + ".upper"),
 													 upperBound);
 		} else if (range.getDataType() == java_lang_Double_class) {
-			
+
 			Double lowerBound = (Double)lowerBoundRaw;
-			Double upperBound = (Double)upperBoundRaw;	
-		
+			Double upperBound = (Double)upperBoundRaw;
+
 			if (lowerBound!= null) _createDoubleField(fieldsFactory,
 													  IndexDocumentFieldID.forId(luceneFieldId.asString() + ".lower"),
 													  lowerBound);
@@ -737,7 +742,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 													   upperBound);
 		} else if (range.getDataType() == java_lang_Float_class) {
 			Float lowerBound = (Float)lowerBoundRaw;
-			Float upperBound = (Float)upperBoundRaw;	
+			Float upperBound = (Float)upperBoundRaw;
 			if (lowerBound != null) _createFloatField(fieldsFactory,
 													  IndexDocumentFieldID.forId(luceneFieldId.asString() + ".lower"),
 													  lowerBound);
@@ -806,7 +811,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 												 luceneFieldId,
 											   	 indexableField.getValue());
 							}
-				 });	
+				 });
 	}
 	private static void _createEnumField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
 								  		 final IndexDocumentFieldID luceneFieldId,
@@ -819,7 +824,7 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 			if (code instanceof Integer) {
 				_createIntegerField(fieldsFactory,
 									luceneFieldId,(Integer)code);
-			} 
+			}
 			else if (code instanceof Long) {
 				_createLongField(fieldsFactory,
 								 luceneFieldId,(Long)code);
@@ -840,6 +845,32 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 			fieldsFactory.createField(luceneFieldId)
 						 .setStringValue(en.name());
 		}
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  LanguageTexts
+/////////////////////////////////////////////////////////////////////////////////////////
+	private static void _createLanguageTextsFields(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
+												   final IndexDocumentFieldValue<LanguageTexts> indexableField) {
+		_process(indexableField,
+				 new FieldFactory<LanguageTexts>() {
+							@Override
+							public void create(final IndexDocumentFieldID luceneFieldId,
+											   final LanguageTexts value) {
+								_createLanguageTextsField(fieldsFactory,
+												 		  luceneFieldId,
+												 		  indexableField.getValue());
+							}
+				 });
+	}
+	private static void _createLanguageTextsField(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
+									 			  final IndexDocumentFieldID luceneFieldId,
+									 			  final LanguageTexts langTexts) {
+		// Guess the language from the id
+		Language lang = Languages.fromNameOrThrow(IndexDocumentFieldID.dynamicDimensionPointFromFieldId(luceneFieldId));
+
+		_createStringField(fieldsFactory,
+						   luceneFieldId,
+						   langTexts.get(lang));		// dynamic dimension (language) dependent
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  Summary
@@ -869,24 +900,24 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 				_createLangDependentSummaryFields(fieldsFactory,
 												  luceneFieldId,
 												  langDepSummary);
-				
+
 			} else if (summary.isLangIndependent()) {
 				LangIndependentSummary langIndSummary = summary.asLangIndependent();
 				log.debug("\t-Lang Independent Summary field: {} = {}",
 						  luceneFieldId,langIndSummary.asString());
-				
+
 				_createLangIndependentSummaryField(fieldsFactory,
 												   luceneFieldId,
-												   langIndSummary);					
+												   langIndSummary);
 			}
-		}		
+		}
 	}
 	private static void _createLangDependentSummaryFields(final LuceneDocumentFactoryForIndexableObject fieldsFactory,
 												   		  final IndexDocumentFieldID luceneFieldId,
 												   		  final LangDependentSummary summary) {
 		// Guess the language from the id
 		Language lang = Languages.fromNameOrThrow(IndexDocumentFieldID.dynamicDimensionPointFromFieldId(luceneFieldId));
-		
+
 		// Field value: note that summaries are only stored but full-text summaries are indexed and not stored
 		if (summary.isFullTextSummary()) {
 			_createReaderField(fieldsFactory,
@@ -913,12 +944,12 @@ public abstract class LuceneIndexerBase<P extends IndexableModelObject>
 		}
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//
 /////////////////////////////////////////////////////////////////////////////////////////
 	/**
 	 * Process a field value
 	 * - If the field value is language dependent creates N fields, one per lang
-	 * - If the field value is language independent creates only ONE field 
+	 * - If the field value is language independent creates only ONE field
 	 * @param indexableField
 	 * @param fieldFactory
 	 */

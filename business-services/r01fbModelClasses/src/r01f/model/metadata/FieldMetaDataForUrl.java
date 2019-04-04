@@ -24,7 +24,7 @@ public class FieldMetaDataForUrl
 			 other.getName(),other.getDescription(),
 			 other.getSearchEngineIndexingConfig());
 	}
-	public FieldMetaDataForUrl(final IndexableFieldID fieldId,
+	public FieldMetaDataForUrl(final FieldID fieldId,
 							   final LanguageTexts name,final LanguageTexts description,
 							   final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig) {
 		super(fieldId,

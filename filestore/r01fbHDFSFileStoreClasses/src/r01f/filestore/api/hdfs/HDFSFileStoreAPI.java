@@ -25,6 +25,31 @@ import r01f.filestore.api.FileStoreChecksDelegate;
 import r01f.util.types.Strings;
 
 /**
+ * [1] - Build a <pre>Configuration</pre> object that sets where in the classpath 
+ * 		 the core-site.xml & hdfs-site.xml files resides
+ * 
+ * 		 	<pre class='brush:java'> 
+ *				Configuration conf = new Configuration();
+ *				conf.addResource("hadoop/core-site.xml");
+ *				conf.addResource("hadoop/hdfs-site.xml");
+ *			</pre>
+ *
+ * [2] - Just create the api
+ * 		 	<pre class='brush:java'>
+ *				HDFSFileStoreAPI api = new HDFSFileStoreAPI(conf);
+ * 			</pre>
+ * 
+ * For local testing (use the hdfs api to access the local file system):
+ * 	[1] Copy winutils from http://public-repo-1.hortonworks.com/hdp-win-alpha/winutils.exe to HADOOP_HOME/bin
+ * 	[2] Set at core-site.xml
+ * 			<pre class='brush:xml'>
+ * 				   <property>
+ * 				      <name>fs.defaultFS</name>
+ *	   				  <value>file:///</value>
+ *				   </property>
+ *			</pre>
+ * 
+ * 
  * see: http://hadoop.apache.org/docs/current/
  *
  * Hadoop HDFS basic commands.
@@ -62,15 +87,15 @@ public class HDFSFileStoreAPI
 	 extends HDFSFileStoreAPIBase
   implements FileStoreAPI {
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	CONSTANTS
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	public static final int HADOOP_BLOCK_SIZE = 4 * 1024;	// 4k
 
 
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 // 	FILESYSTEM STATIC INIT
-///////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////
 	public HDFSFileStoreAPI(final Configuration conf) throws IOException {
 		super(conf);
 		_check = new FileStoreChecksDelegate(this,
@@ -92,7 +117,7 @@ public class HDFSFileStoreAPI
 		return (r01f.types.Path)fileId;
 	}
 	private Path _fileIdToHDFSPath(final FileID fileId) {
-		return _pathToHDFSPath(_fileIdToPath(fileId));
+		return r01fPathToHDFSPath(_fileIdToPath(fileId));
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  EXISTS
@@ -172,21 +197,12 @@ public class HDFSFileStoreAPI
         Preconditions.checkArgument(srcIS != null,"The source input stream cannot be null");
 
         // prepare source & destination
-    	InputStream in = null;
-    	OutputStream out = null;
-    	try {
-	    	in = new BufferedInputStream(srcIS);
-	    	out = this.getFileOutputStreamForWriting(dstFileId,0,		// offset = 0 > start writing at the beginning of the file
-	    											 overwrite);
-			// write
-			IOUtils.copyBytes(in,out,
-							  _conf);
-    	} finally {
-    		//FIXME IOUtils.copyBytes close input and output streams
-    		in.close();
-    		out.flush();
-    		out.close();
-    	}
+    	InputStream in = new BufferedInputStream(srcIS);
+    	OutputStream out = this.getFileOutputStreamForWriting(dstFileId,0,		// offset = 0 > start writing at the beginning of the file
+    											 			  overwrite);
+		// IOUtils.copyBytes close input and output streams
+		IOUtils.copyBytes(in,out,
+						  _conf);
     }
 	@Override
     public void writeChunkToFile(final byte[] data,
@@ -216,20 +232,14 @@ public class HDFSFileStoreAPI
         Preconditions.checkArgument(srcIS != null,"The source input stream cannot be null");
 
         // prepare source & destination
-        InputStream in = null;
-        OutputStream out = null;
-        try {
-	    	in = new BufferedInputStream(srcIS);
-	    	out = this.getFileOutputStreamForAppending(dstFileId);
-	
-			// write
-			IOUtils.copyBytes(in,out,
-							  _conf);
-    	} finally {
-    		in.close();
-    		out.flush();
-    		out.close();
-    	}
+    	InputStream in = new BufferedInputStream(srcIS);
+    	OutputStream out = this.getFileOutputStreamForAppending(dstFileId);
+
+		// write
+    	// IOUtils.copyBytes close input and output streams
+		IOUtils.copyBytes(in,out,
+						  _conf);
+    
     }
     @Override
     public void appendChunkToFile(final byte[] srcDataChunk,
@@ -242,19 +252,14 @@ public class HDFSFileStoreAPI
         }
 
     	// Prepare source and destination
-        InputStream srcIS = null;
-        OutputStream out = null;
-        try {
-	        srcIS = new BufferedInputStream(new ByteArrayInputStream(srcDataChunk));
-	    	out = this.getFileOutputStreamForAppending(dstFileId);
-	    	// write
-	        IOUtils.copyBytes(srcIS,out,
-	        				  _conf);
-    	} finally {
-    		srcIS.close();
-    		out.flush();
-    		out.close();
-    	}
+        InputStream srcIS = new BufferedInputStream(new ByteArrayInputStream(srcDataChunk));
+    	OutputStream out = this.getFileOutputStreamForAppending(dstFileId);
+    	
+    	// write
+    	// IOUtils.copyBytes close input and output streams
+        IOUtils.copyBytes(srcIS,out,
+        				  _conf);
+    	
     }
     private FSDataOutputStream _prepareFileOutputStream(final FileID dstFileId,
     												    final boolean appendToFile,
@@ -347,7 +352,7 @@ public class HDFSFileStoreAPI
 			in.readFully(offset,
 						 btbuffer);
 		} finally {
-			in.close();			
+			if (in != null) in.close();			
 		}
 		return btbuffer;
     }

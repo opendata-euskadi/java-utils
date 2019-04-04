@@ -11,6 +11,7 @@ import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.exceptions.Throwables;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.guids.VersionIndependentOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
@@ -38,7 +39,7 @@ import r01f.util.types.collections.CollectionUtils;
  */
 @Accessors(prefix="_")
 @Slf4j
-public abstract class DBCRUDForVersionableModelObjectBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet,
+public abstract class DBCRUDForVersionableModelObjectBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet,
 							  		 					  PK extends DBPrimaryKeyForVersionableModelObject,DB extends DBEntity & DBEntityForVersionableModelObject<PK>>
 			  extends DBCRUDForModelObjectBase<O,M,
 			  				     			   PK,DB>

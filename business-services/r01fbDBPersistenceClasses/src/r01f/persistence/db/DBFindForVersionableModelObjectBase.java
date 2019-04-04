@@ -4,12 +4,13 @@ import javax.persistence.EntityManager;
 
 import lombok.experimental.Accessors;
 import r01f.guids.OIDForVersionableModelObject;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.model.facets.Versionable.HasVersionableFacet;
 import r01f.model.persistence.FindResult;
 import r01f.objectstreamer.Marshaller;
 import r01f.persistence.db.config.DBModuleConfig;
-import r01f.persistence.db.entities.DBEntityForModelObject;
+import r01f.persistence.db.entities.DBEntityForVersionableModelObject;
 import r01f.persistence.db.entities.primarykeys.DBPrimaryKeyForVersionableModelObject;
 import r01f.securitycontext.SecurityContext;
 import r01f.services.interfaces.FindServicesForVersionableModelObject;
@@ -22,8 +23,8 @@ import r01f.services.interfaces.FindServicesForVersionableModelObject;
  * @param <DB>
  */
 @Accessors(prefix="_")
-public abstract class DBFindForVersionableModelObjectBase<O extends OIDForVersionableModelObject,M extends PersistableModelObject<O> & HasVersionableFacet,
-							     						  PK extends DBPrimaryKeyForVersionableModelObject,DB extends DBEntity & DBEntityForModelObject<PK>>
+public abstract class DBFindForVersionableModelObjectBase<O extends OIDForVersionableModelObject & PersistableObjectOID,M extends PersistableModelObject<O> & HasVersionableFacet,
+							     						  PK extends DBPrimaryKeyForVersionableModelObject,DB extends DBEntity & DBEntityForVersionableModelObject<PK>>
 			  extends DBFindForModelObjectBase<O,M,
 			  				 				   PK,DB>
 	       implements FindServicesForVersionableModelObject<O,M> {

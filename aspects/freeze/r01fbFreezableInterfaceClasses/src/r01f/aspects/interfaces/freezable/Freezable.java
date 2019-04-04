@@ -3,42 +3,40 @@ package r01f.aspects.interfaces.freezable;
 
 
 /**
- * Interfaz que indica que un objeto es "congelable" (Freezable).
- * El uso habitual es:
- * PASO 1: Crear una clase que implementa el interfaz Freezable
- * 		public class MyFreezableObj implements Freezable {
- * 		}
+ * Interface that signs than an object is freezable
+ * Usage
+ * [1] Create a type implementing {@link Freezable}
+ * 		<pre class='brush:java'>
+ * 			public class MyFreezableObj implements Freezable {
+ * 			}
+ *		</pre>
  * 
- * PASO 2: Establecer el estado del objeto y congelar
- * 		MyFreezableObj obj = new MyFreezableObj();
- * 		obj.setXX
- * 		obj.setYY
- * 		obj.freeze();	<-- congelar: NO se puede cambiar el estado del objeto
- * 		obj.setXX 		<-- IllegalStateException!!!
- * 					  		Una vez que el estado de un objeto se congela, NO puede ser modificado.
- * 
- * IMPORTANTE! Ver FreezableAspect
- * 		El funcionamiento se basa en ASPECT-J que "intercepta" todas las modificaciones a los 
- * 		miembros de la clase y ANTES de establecer un nuevo valor en el miembro se comprueba si
- * 		el estado del objeto está congelado
+ * [2] Set the object state and freeze it
+ * 		<pre class='brush:java'>
+ * 			MyFreezableObj obj = new MyFreezableObj();
+ * 			obj.setXX
+ * 			obj.setYY
+ * 			obj.freeze();	<-- freeze: object state cannot be changed
+ * 			obj.setXX 		<-- IllegalStateException!!! once an object is freezed it cannot be changed
+ * 		</pre>
  */
 public interface Freezable {
 	/**
-	 * Devuelve si el objeto está congelado o no
-	 * @return true si está congelado
+	 * Returns true if the object is frozen
+	 * @return 
 	 */
 	public boolean isFrozen();
 	/**
-	 * Establece el estado de congelación
-	 * @param value true congela / false descongela
+	 * Sets the frozen status
+	 * @param value 
 	 */
 	public void setFrozen(boolean value);
 	/**
-	 * Congela el estado
+	 * Freezes object
 	 */
 	public void freeze();
 	/**
-	 * Descongela el estado
+	 * Unfreezes an object
 	 */
 	public void unFreeze();
 }

@@ -116,7 +116,7 @@ class TreeViewUtils {
 											final LIElement element) {
 		TreeViewItem outItem = null;
 		if (items != null && items.size() > 0) {
-			for(TreeViewItem item : items) {
+			for (TreeViewItem item : items) {
 				if (outItem != null) break;
 				if (item.getElement().cast() == element) {
 					outItem = item;

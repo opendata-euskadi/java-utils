@@ -1,6 +1,6 @@
 package r01f.persistence.db;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.PersistableModelObject;
 import r01f.services.interfaces.CRUDServicesForDependentModelObject;
 import r01f.services.interfaces.CRUDServicesForModelObject;
@@ -10,7 +10,7 @@ import r01f.services.interfaces.CRUDServicesForModelObject;
  * @param <O>
  * @param <M>
  */
-public interface DBCRUDForDependentModelObject<O extends OID,M extends PersistableModelObject<O>,
+public interface DBCRUDForDependentModelObject<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
 											   P extends PersistableModelObject<?>> 
 	     extends CRUDServicesForDependentModelObject<O,M,P> {
 	// nothing

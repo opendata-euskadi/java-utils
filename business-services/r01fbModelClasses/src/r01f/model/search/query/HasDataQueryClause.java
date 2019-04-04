@@ -4,8 +4,7 @@ import com.google.common.annotations.GwtIncompatible;
 
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-import r01f.model.metadata.IndexableFieldID;
-import r01f.model.metadata.SearchableFieldID;
+import r01f.model.metadata.FieldID;
 import r01f.objectstreamer.annotations.MarshallType;
 import r01f.util.types.Strings;
 
@@ -28,13 +27,10 @@ public class HasDataQueryClause
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	HasDataQueryClause(final IndexableFieldID fieldId) {
+	HasDataQueryClause(final FieldID fieldId) {
 		super(fieldId);
 	}
-	public static <ID extends SearchableFieldID> HasDataQueryClause forField(final ID id) {
-		return HasDataQueryClause.forField(id.getFieldId());
-	}
-	public static HasDataQueryClause forField(final IndexableFieldID fieldId) {
+	public static HasDataQueryClause forField(final FieldID fieldId) {
 		return new HasDataQueryClause(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -61,7 +57,7 @@ public class HasDataQueryClause
 		if (obj == this) return true;
 		if (!(obj instanceof HasDataQueryClause)) return false;
 		
-		return super.equals(obj);
+		return super.equals(obj);	// checks fieldId
 	}
 	@Override
 	public int hashCode() {

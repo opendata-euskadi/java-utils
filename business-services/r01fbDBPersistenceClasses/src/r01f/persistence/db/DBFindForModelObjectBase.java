@@ -21,13 +21,16 @@ import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import lombok.AccessLevel;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import r01f.facets.util.Facetables;
 import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.OID;
 import r01f.guids.OIDs;
+import r01f.guids.PersistableObjectOID;
 import r01f.model.HasTrackingInfo;
 import r01f.model.PersistableModelObject;
 import r01f.model.SummarizedModelObject;
@@ -40,6 +43,7 @@ import r01f.model.persistence.FindResultBuilder;
 import r01f.model.persistence.FindSummariesResult;
 import r01f.model.persistence.FindSummariesResultBuilder;
 import r01f.objectstreamer.Marshaller;
+import r01f.patterns.FactoryFrom;
 import r01f.persistence.db.config.DBModuleConfig;
 import r01f.persistence.db.entities.DBEntityForModelObject;
 import r01f.persistence.db.entities.primarykeys.DBPrimaryKeyForModelObject;
@@ -57,7 +61,7 @@ import r01f.util.types.collections.CollectionUtils;
  */
 @Slf4j
 @Accessors(prefix="_")
-public abstract class DBFindForModelObjectBase<O extends OID,M extends PersistableModelObject<O>,
+public abstract class DBFindForModelObjectBase<O extends PersistableObjectOID,M extends PersistableModelObject<O>,
 							     			   PK extends DBPrimaryKeyForModelObject,DB extends DBEntity & DBEntityForModelObject<PK>>
 			  extends DBBaseForModelObject<O,M,
 			  				 			   PK,DB>
@@ -130,35 +134,35 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 	@Override
 	public FindOIDsResult<O> findAll(final SecurityContext securityContext) {
 		return new QueryWrapper()
-						.exec(securityContext);
+						.findOidsUsing(securityContext);
 	}
 	@Override
 	public FindOIDsResult<O> findByCreateDate(final SecurityContext securityContext,
 											  final Range<Date> createDate) {
 		return new QueryWrapper()
 						.addFilterByDateRangePredicate(createDate,"_createDate")
-						.exec(securityContext);
+						.findOidsUsing(securityContext);
 	}
 	@Override
 	public FindOIDsResult<O> findByLastUpdateDate(final SecurityContext securityContext,
 												  final Range<Date> lastUpdateDate) {
 		return new QueryWrapper()
 					.addFilterByDateRangePredicate(lastUpdateDate,"lastUpdateDate")
-					.exec(securityContext);
+					.findOidsUsing(securityContext);
 	}
 	@Override
 	public FindOIDsResult<O> findByCreator(final SecurityContext securityContext,
 										   final UserCode creatorUserCode) {
 		return new QueryWrapper()
 					.addFilterByUserPredicate(creatorUserCode,"_creator")
-					.exec(securityContext);
+					.findOidsUsing(securityContext);
 	}
 	@Override
 	public FindOIDsResult<O> findByLastUpdator(final SecurityContext securityContext,
 											   final UserCode lastUpdatorUserCode) {
 		return new QueryWrapper()
 						.addFilterByUserPredicate(lastUpdatorUserCode,"_lastUpdator")
-						.exec(securityContext);
+						.findOidsUsing(securityContext);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -172,7 +176,8 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 		protected Collection<Predicate> _filterPredicates;
 
 		public CriteriaQuery<? extends DB> composeCriteriaQuery() {
-			if (CollectionUtils.hasData(_filterPredicates)) this.getCriteriaQuery().where(_filterPredicates.toArray(new Predicate[_filterPredicates.size()]));
+			if (CollectionUtils.hasData(_filterPredicates)) this.getCriteriaQuery()
+																.where(_filterPredicates.toArray(new Predicate[_filterPredicates.size()]));
 			return this.getCriteriaQuery();
 		}
 
@@ -292,7 +297,15 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 			_criteriaQuery = _criteriaBuilder.createQuery(dbEntityType);
 			_root = _criteriaQuery.from(dbEntityType);
 		}
+		@Deprecated
 		public FindResult<M> exec(final SecurityContext securityContext) {
+			return this.findUsing(securityContext);
+		}
+		@Deprecated
+		public FindOIDsResult<O> execFindOids(final SecurityContext securityContext) {
+			return this.findOidsUsing(securityContext);
+		}
+		public FindResult<M> findUsing(final SecurityContext securityContext) {
 			this.composeCriteriaQuery();
 			Collection<? extends DB> dbEntities = _entityManager.createQuery(_criteriaQuery)
 																	.setHint(QueryHints.READ_ONLY,HintValues.TRUE)
@@ -301,7 +314,7 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 															    dbEntities);
 			return outObjs;
 		}
-		public FindOIDsResult<O> execFindOids(final SecurityContext securityContext) {
+		public FindOIDsResult<O> findOidsUsing(final SecurityContext securityContext) {
 			this.composeCriteriaQuery();
 			Collection<? extends DB> dbEntities = _entityManager.createQuery(_criteriaQuery)
 																	.setHint(QueryHints.READ_ONLY,HintValues.TRUE)
@@ -349,7 +362,17 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 														.toList();
 			if (CollectionUtils.hasData(multisel)) _criteriaQuery.multiselect(multisel);
 		}
+		@Deprecated
 		public FindOIDsResult<O> exec(final SecurityContext securityContext) {
+			return this.findOidsUsing(securityContext);
+		}
+		@Deprecated
+		public <S extends SummarizedModelObject<M>> FindSummariesResult<M> exec(final SecurityContext securityContext,
+										   										final Function<Object[],S> dbTupleToSummaryConverter) {
+			return this.findSummariesUsing(securityContext)
+					   .convertingTupleValuesUsing(dbTupleToSummaryConverter);
+		}
+		public FindOIDsResult<O> findOidsUsing(final SecurityContext securityContext) {
 			this.composeCriteriaQuery();
 			List<Tuple> tupleResult = _entityManager.createQuery(_criteriaQuery)
 															.setHint(QueryHints.READ_ONLY,HintValues.TRUE)
@@ -358,14 +381,28 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 															      	  tupleResult);
 			return outOids;
 		}
-		public <S extends SummarizedModelObject<M>> FindSummariesResult<M> exec(final SecurityContext securityContext,
-										   										final Function<Object[],S> dbTupleToSummaryConverter) {
+		public QueryWrapperExecResultTransform findSummariesUsing(final SecurityContext securityContext) {
 			if (CollectionUtils.hasData(_filterPredicates)) _criteriaQuery.where(_filterPredicates.toArray(new Predicate[_filterPredicates.size()]));
 			List<Tuple> tupleResult = _entityManager.createQuery(_criteriaQuery)
-															.setHint(QueryHints.READ_ONLY,HintValues.TRUE)
+														.setHint(QueryHints.READ_ONLY,HintValues.TRUE)
 												    .getResultList();
-			FindSummariesResult<M> outSummaries = _buildSummariesResultFromTuple(securityContext,
-															 					 tupleResult,dbTupleToSummaryConverter);
+			return new QueryWrapperExecResultTransform(securityContext,
+													   tupleResult);
+		}
+	}
+	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
+	public class QueryWrapperExecResultTransform {
+		private final SecurityContext _securityContext;
+		private final List<Tuple> _tupleResult;
+		
+		public <S extends SummarizedModelObject<M>> FindSummariesResult<M> convertingTupleValuesUsing(final Function<Object[],S> dbTupleToSummaryConverter) {
+			FindSummariesResult<M> outSummaries = _buildSummariesResultFromTupleValues(_securityContext,
+															 					 	   _tupleResult,dbTupleToSummaryConverter);
+			return outSummaries;
+		}
+		public <S extends SummarizedModelObject<M>> FindSummariesResult<M> convertingTuplesUsing(final Function<Tuple,S> dbTupleToSummaryConverter) {
+			FindSummariesResult<M> outSummaries = _buildSummariesResultFromTuple(_securityContext,
+															 					 _tupleResult,dbTupleToSummaryConverter);
 			return outSummaries;
 		}
 	}
@@ -442,15 +479,30 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 	}
 	protected FindOIDsResult<O> _buildOIDsResultsFromDBTuples(final SecurityContext securityContext,
 													      	  final Collection<Tuple> dbTuples) {
-
 		FindOIDsResult<O> outOids = null;
 		if (CollectionUtils.hasData(dbTuples)) {
 			Class<O> oidType = OIDs.oidTypeFor(_modelObjectType);
 			boolean isVersionableOid = Facetables.hasFacet(_modelObjectType,HasVersionableFacet.class);
+			FactoryFrom<Tuple,O> oidFactory = _createDefaultOidFromTupleFactory(oidType,isVersionableOid);
+			outOids = _buildOIDsResultsFromDBTuples(securityContext,
+													dbTuples,
+													oidFactory);
+		} else {
+			outOids = FindOIDsResultBuilder.using(securityContext)
+										   .on(_modelObjectType)
+										   .noEntityFound();
+		}
+		return outOids;
+	}
+	protected FindOIDsResult<O> _buildOIDsResultsFromDBTuples(final SecurityContext securityContext,
+													      	  final Collection<Tuple> dbTuples,
+													      	  final FactoryFrom<Tuple,O> oidFromStringFactory) {
+
+		FindOIDsResult<O> outOids = null;
+		if (CollectionUtils.hasData(dbTuples)) {
 			Collection<O> oids = Lists.newArrayListWithExpectedSize(dbTuples.size());
 			for (Tuple tuple : dbTuples) {
-				O oid = _tupleOid(oidType,isVersionableOid,
-								  tuple);
+				O oid = oidFromStringFactory.from(tuple);
 				oids.add(oid);
 			}
 			outOids = FindOIDsResultBuilder.using(securityContext)
@@ -463,8 +515,8 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 		}
 		return outOids;
 	}
-	protected <S extends SummarizedModelObject<M>> FindSummariesResult<M> _buildSummariesResultFromTuple(final SecurityContext securityContext,
-																										 final Collection<Tuple> dbTuples,final Function<Object[],S> dbTupleToSummaryConverter) {
+	protected <S extends SummarizedModelObject<M>> FindSummariesResult<M> _buildSummariesResultFromTupleValues(final SecurityContext securityContext,
+																										 	   final Collection<Tuple> dbTuples,final Function<Object[],S> dbTupleToSummaryConverter) {
 		FindSummariesResult<M> outSummaries = null;
 		if (CollectionUtils.hasData(dbTuples)) {
 			Collection<S> summaries = Lists.newArrayListWithExpectedSize(dbTuples.size());
@@ -482,19 +534,57 @@ public abstract class DBFindForModelObjectBase<O extends OID,M extends Persistab
 		}
 		return outSummaries;
 	}
-	private O _tupleOid(final Class<O> oidType,final boolean isVersionableOid,
-						final Tuple dbTuple) {
-		O oid = null;
-		if (isVersionableOid) {
-			String versionIndependentOidAsString = (String)dbTuple.get(0);
-			String versionOid = (String)dbTuple.get(1);
-			oid = OIDs.createVersionableOIDFromString(oidType,
-					 					 		      versionIndependentOidAsString,versionOid);
+	protected <S extends SummarizedModelObject<M>> FindSummariesResult<M> _buildSummariesResultFromTuple(final SecurityContext securityContext,
+																										 final Collection<Tuple> dbTuples,final Function<Tuple,S> dbTupleToSummaryConverter) {
+		FindSummariesResult<M> outSummaries = null;
+		if (CollectionUtils.hasData(dbTuples)) {
+			Collection<S> summaries = Lists.newArrayListWithExpectedSize(dbTuples.size());
+			for (Tuple tuple : dbTuples) {
+				S summary = dbTupleToSummaryConverter.apply(tuple);
+				summaries.add(summary);
+			}
+			outSummaries = FindSummariesResultBuilder.using(securityContext)
+													 .on(_modelObjectType)
+													 .foundSummaries(summaries);
 		} else {
-			String oidAsString = (String)dbTuple.get(0);
-			oid = OIDs.createOIDFromString(oidType,
-										   oidAsString);
+			outSummaries = FindSummariesResultBuilder.using(securityContext)
+													 .on(_modelObjectType)
+													 .noSummaryFound();
 		}
-		return oid;
+		return outSummaries;
 	}
+	private FactoryFrom<Tuple,O> _createDefaultOidFromTupleFactory(final Class<O> oidType,final boolean isVersionableOid) {
+		return new FactoryFrom<Tuple,O>() {
+						@Override
+						public O from(final Tuple dbTuple) {
+							O oid = null;
+							if (isVersionableOid) {
+								String versionIndependentOidAsString = (String)dbTuple.get(0);
+								String versionOid = (String)dbTuple.get(1);
+								oid = OIDs.createVersionableOIDFromString(oidType,
+										 					 		      versionIndependentOidAsString,versionOid);
+							} else {
+								String oidAsString = (String)dbTuple.get(0);
+								oid = OIDs.createOIDFromString(oidType,
+															   oidAsString);
+							}
+							return oid;
+						}
+			   };
+	}
+//	private O _tupleOid(final Class<O> oidType,final boolean isVersionableOid,
+//						final Tuple dbTuple) {
+//		O oid = null;
+//		if (isVersionableOid) {
+//			String versionIndependentOidAsString = (String)dbTuple.get(0);
+//			String versionOid = (String)dbTuple.get(1);
+//			oid = OIDs.createVersionableOIDFromString(oidType,
+//					 					 		      versionIndependentOidAsString,versionOid);
+//		} else {
+//			String oidAsString = (String)dbTuple.get(0);
+//			oid = OIDs.createOIDFromString(oidType,
+//										   oidAsString);
+//		}
+//		return oid;
+//	}
 }

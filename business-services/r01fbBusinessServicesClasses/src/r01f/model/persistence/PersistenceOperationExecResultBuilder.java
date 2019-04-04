@@ -5,11 +5,6 @@ import com.google.common.annotations.GwtIncompatible;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import r01f.model.persistence.CRUDError;
-import r01f.model.persistence.PersistenceErrorType;
-import r01f.model.persistence.PersistenceOperationExecError;
-import r01f.model.persistence.PersistenceOperationExecOK;
-import r01f.model.persistence.PersistenceOperationExecResult;
 import r01f.patterns.IsBuilder;
 import r01f.securitycontext.SecurityContext;
 import r01f.util.types.Strings;
@@ -48,7 +43,7 @@ public class PersistenceOperationExecResultBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersistenceOperationExecResultBuilderResultStep {
+	public final class PersistenceOperationExecResultBuilderResultStep {
 		private final SecurityContext _securityContext;
 		
 		public PersistenceOperationExecResultBuilderReturnedObjStep executed(final String requestedOpName) {
@@ -64,7 +59,7 @@ public class PersistenceOperationExecResultBuilder
 //  Operation
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersistenceOperationExecResultBuilderReturnedObjStep {
+	public final class PersistenceOperationExecResultBuilderReturnedObjStep {
 		protected final SecurityContext _securityContext;
 		protected final String _requestedOpName;
 		
@@ -80,31 +75,35 @@ public class PersistenceOperationExecResultBuilder
 //  ERROR
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PersistenceOperationExecResultBuilderErrorStep {
+	public final class PersistenceOperationExecResultBuilderErrorStep {
 		protected final SecurityContext _securityContext;
 		protected final String _requestedOpName;
 		
 		
 		public <T> PersistenceOperationExecError<T> because(final Throwable th) {
-			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(th);
+			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(PersistenceRequestedOperation.OTHER,
+																							 th);
 			outError.setRequestedOperationName(_requestedOpName);
 			return outError;
 		}
 		public <T> PersistenceOperationExecError<T> because(final String error,
 															final PersistenceErrorType errType) {
-			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(error,
+			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(PersistenceRequestedOperation.OTHER,
+																							 error,
 																							 errType);
 			outError.setRequestedOperationName(_requestedOpName);
 			return outError;
 		}
 		public <T> PersistenceOperationExecError<T> becauseClientBadRequest(final String msg,final Object... vars) {
-			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(Strings.customized(msg,vars),			// the error message
+			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(PersistenceRequestedOperation.OTHER,
+																							 Strings.customized(msg,vars),			// the error message
 											     		 					   		   	     PersistenceErrorType.BAD_REQUEST_DATA);// is a client error
 			outError.setRequestedOperationName(_requestedOpName);
 			return outError;
 		}
 		public <T,M> PersistenceOperationExecResult<T> because(final CRUDError<M> crudError) {
-			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(crudError.getErrorMessage(),
+			PersistenceOperationExecError<T> outError = new PersistenceOperationExecError<T>(PersistenceRequestedOperation.OTHER,
+																							 crudError.getErrorMessage(),
 																							 crudError.getErrorType());
 			outError.setRequestedOperationName(_requestedOpName);
 			return outError;

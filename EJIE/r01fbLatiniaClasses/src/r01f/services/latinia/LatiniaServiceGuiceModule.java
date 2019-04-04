@@ -5,9 +5,9 @@ import javax.inject.Singleton;
 import com.google.inject.Binder;
 import com.google.inject.Module;
 
-import lombok.RequiredArgsConstructor;
+import r01f.objectstreamer.Marshaller;
+import r01f.objectstreamer.MarshallerBuilder;
 
-@RequiredArgsConstructor
 public class LatiniaServiceGuiceModule 
   implements Module {
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -21,7 +21,19 @@ public class LatiniaServiceGuiceModule
 // 	named 'latinia' so this component MUST be created here
 /////////////////////////////////////////////////////////////////////////////////////////
 	private final LatiniaServiceAPIData _cfg;
-	
+	private final Marshaller _marshaller;
+/////////////////////////////////////////////////////////////////////////////////////////
+//  CONSTRUCTOR
+/////////////////////////////////////////////////////////////////////////////////////////
+	public LatiniaServiceGuiceModule(final LatiniaServiceAPIData cfg,
+									 final Marshaller marshaller) {
+		_cfg = cfg;
+		_marshaller = marshaller;
+	}
+	public LatiniaServiceGuiceModule(final LatiniaServiceAPIData cfg) {
+		this(cfg,
+			 null);		// no marshaller provided: a new one will be created
+	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -30,9 +42,17 @@ public class LatiniaServiceGuiceModule
 		// bind the config
 		binder.bind(LatiniaServiceAPIData.class)
 			  .toInstance(_cfg);
+		// If Marshaller not provide one will be created.
+		if (_marshaller != null) {
+			binder.bind(Marshaller.class)
+			         .toInstance(_marshaller);
+		} else {
+			binder.bind(Marshaller.class)
+			       .toInstance(MarshallerBuilder.build());
+		}
 	
 		// bind the service
-		binder.bind(LatiniaService.class)
+		binder.bind(LatiniaService.class)			 
 		 	  .in(Singleton.class);
 	}
 }

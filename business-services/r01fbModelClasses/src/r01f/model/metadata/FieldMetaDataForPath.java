@@ -26,7 +26,7 @@ public class FieldMetaDataForPath
 			 other.getSearchEngineIndexingConfig(),
 			 (Class<? extends IsPath>)other.getDataType());
 	}
-	public FieldMetaDataForPath(final IndexableFieldID fieldId,
+	public FieldMetaDataForPath(final FieldID fieldId,
 							    final LanguageTexts name,final LanguageTexts description,
 							    final FieldMetaDataSearchEngineIndexingConfig searchEngineIndexingConfig,
 								final Class<? extends IsPath> pathType) {

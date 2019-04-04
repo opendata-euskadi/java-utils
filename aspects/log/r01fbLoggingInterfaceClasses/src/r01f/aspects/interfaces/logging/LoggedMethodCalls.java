@@ -7,9 +7,7 @@ import java.lang.annotation.Target;
 
 
 /**
- * Anotación que se pone a los tipos para los que se quiere mostrar una traza justo antes 
- * de invocar a cualquier método público y justo después de terminar la invocación
- * Ej:
+ * Annotation used to sign methods that will be logged when invoked
  * <pre class='brush:java'>
  * 		@LoggedMethodCalls(level=LogLevel.DEBUG,when=LoggedMethodCallsWhen.AROUND,
  * 						   module="[CLIENT API]",start="[START]",end="[END]",
@@ -20,7 +18,7 @@ import java.lang.annotation.Target;
  * 			}
  * 		}
  * </pre>
- * Es equivalente a:
+ * It's the same as:
  * <pre class='brush:java'>
  * 		@Sl4fj
  * 		public class ClientAPI {
@@ -31,18 +29,14 @@ import java.lang.annotation.Target;
  * 			}
  * 		}
  * </pre>
- * es decir, "inyecta" trazas al principio de la llamada a cada método y al final de la invocación del mismo
- * de forma transparente para el desarrollador.
- * Esta anotación se utiliza en el aspecto LoggedMethodCallsAspect
+ * it injects logs before and after each method call
  * 
- * Hay diferentes formateadores para los parámetros:
- * 		LoggedMethodCallsParamsDefaultFormatter --> Devuelve inforación sobre número y tipo de parámetros
- * 		LoggedMethodCallsParamsVoidFormatter	--> NO devuelve información sobre los parámetros
- * 		custom --> basta con proporcionar una clase que implemente el interfaz {@link LoggedMethodCallsParamsFormatter}
+ * Many formatters can be used
+ * 		LoggedMethodCallsParamsDefaultFormatter --> Returns info about params
+ * 		LoggedMethodCallsParamsVoidFormatter	--> Doew not log anything
+ * 		custom --> just implement {@link LoggedMethodCallsParamsFormatter}
  * 
- * NOTA:
- * Si NO se quiere que un método sea loggeado, basta con anotarlo con @DoNotLog
- * Ej:
+ * If invocations to a method should NOT be logged, just annotate it with @DoNotLog
  * <pre class='brush:java'>
  * 		@LoggedMethodCalls(level=LogLevel.DEBUG,when=LoggedMethodCallsWhen.AROUND,
  * 						   module="[CLIENT API]",start="[START]",end="[END]",
@@ -62,31 +56,31 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 public @interface LoggedMethodCalls {
 	/**
-	 * Nivel de la traza
+	 * Log level
 	 */
 	LogLevel level() default LogLevel.DEBUG;
 	/**
-	 * Cuándo se hace log
+	 * When to log
 	 */
 	LoggedMethodCallsWhen when() default LoggedMethodCallsWhen.AROUND;
 	/**
-	 * Módulo (aparece al principo del mensaje de log)
+	 * Module name (it appears at the beginning of the log message)
 	 */
 	String module() default "";
 	/**
-	 * Indentado del log (número de tabs que se insertan al principio de la traza)
+	 * Log indent (number of tabs before the log)
 	 */
 	int indent() default 0;
 	/**
-	 * Indicador de comienzo del método
+	 * Method call start
 	 */
 	String start() default "[START]";
 	/**
-	 * Indicador de fin del método
+	 * Method call end
 	 */
 	String end() default "[END]";
 	/**
-	 * Formateador de los parámetros
+	 * Param formatter
 	 */
 	Class<? extends LoggedMethodCallsParamsFormatter> paramsFormatter() default LoggedMethodCallsParamsVoidFormatter.class;
 }

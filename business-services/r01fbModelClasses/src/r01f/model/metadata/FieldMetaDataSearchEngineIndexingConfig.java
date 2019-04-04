@@ -1,7 +1,7 @@
 package r01f.model.metadata;
 
-import java.sql.Date;
 import java.util.Collection;
+import java.util.Date;
 
 import com.google.common.annotations.GwtIncompatible;
 

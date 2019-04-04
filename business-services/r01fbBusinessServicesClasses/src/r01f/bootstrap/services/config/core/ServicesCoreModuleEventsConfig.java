@@ -20,19 +20,23 @@ public class ServicesCoreModuleEventsConfig
 	 */
 	@Getter private final ExecutionMode _executionMode;
 	/**
-	 * If events are executed asynchronously, this property holds the number of backgroud threads
+	 * If events are executed asynchronously, this property holds the number of background threads
 	 */
 	@Getter private final int _numberOfBackgroundThreads;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	public ServicesCoreModuleEventsConfig(final ExecutionMode execMode,final int numOfBackgroundThreads) {
 		_executionMode = execMode;
 		_numberOfBackgroundThreads = numOfBackgroundThreads;
+
 	}
+
 	public ServicesCoreModuleEventsConfig(final ExecutionMode executionMode) {
 		_executionMode = executionMode;
 		_numberOfBackgroundThreads = executionMode == ExecutionMode.ASYNC ? 5 : 0;
+
 	}
 	public ServicesCoreModuleEventsConfig(final XMLPropertiesForAppComponent xmlProps) {
 		// Get from the properties the way CRUD events are to be consumed: synchronously or asynchronously
@@ -53,12 +57,14 @@ public class ServicesCoreModuleEventsConfig
 		} else {
 			_numberOfBackgroundThreads = 0;
 		}
+
 	}
 	public static ServicesCoreModuleEventsConfig asyncEventHandlingUsingThreadPoolOf(final int numberOfBackgroundThreads) {
 		return new ServicesCoreModuleEventsConfig(ExecutionMode.ASYNC,
-											numberOfBackgroundThreads);
+												  numberOfBackgroundThreads);
 	}
-	public static ServicesCoreModuleEventsConfig syncEventHandling(final int numberOfBackgroundThreads) {
+
+	public static ServicesCoreModuleEventsConfig syncEventHandling() {
 		return new ServicesCoreModuleEventsConfig(ExecutionMode.SYNC);
 	}
 	public static ServicesCoreModuleEventsConfig from(final XMLPropertiesForAppComponent xmlProps) {

@@ -64,9 +64,17 @@ public class PersistenceOperationExecError<T>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public PersistenceOperationExecError() {
-		// nothing
+		this(PersistenceRequestedOperation.OTHER);
 	}
-	PersistenceOperationExecError(final Throwable th) {
+	public PersistenceOperationExecError(final PersistenceRequestedOperation reqOp) {
+		super(reqOp);
+	}
+	public PersistenceOperationExecError(final PersistenceRequestedOperation reqOp,final String reqOpName) {
+		super(reqOp,reqOpName);
+	}
+	PersistenceOperationExecError(final PersistenceRequestedOperation reqOp,
+								  final Throwable th) {
+		this(reqOp);
 		_error = th;		
 		_errorMessage = th.getMessage();
 		_errorDebug = Throwables.getStackTraceAsString(th);
@@ -82,8 +90,10 @@ public class PersistenceOperationExecError<T>
 			
 		}
 	}
-	PersistenceOperationExecError(final String errMsg,
+	PersistenceOperationExecError(final PersistenceRequestedOperation reqOp,
+								  final String errMsg,
 						 		  final PersistenceErrorType errorCode) {
+		this(reqOp);
 		_errorMessage = errMsg;
 		_errorDebug = null;
 		_errorType = errorCode;
@@ -119,9 +129,7 @@ public class PersistenceOperationExecError<T>
 		String errorMsg = Strings.isNOTNullOrEmpty(_errorMessage) ? _errorMessage
 																  : this.getDetailedMessage();
 		PersistenceErrorType errorType = _errorType != null ? _errorType : PersistenceErrorType.UNKNOWN;
-		PersistenceRequestedOperation reqOp = PersistenceRequestedOperation.canBe(_requestedOperationName) ? PersistenceRequestedOperation.valueOf(_requestedOperationName)
-																										   : PersistenceRequestedOperation.OTHER;
-		return new PersistenceException(reqOp,_requestedOperationName,
+		return new PersistenceException(_requestedOperation,_requestedOperationName,
 										errorMsg,
 									    errorType,_extendedErrorCode);
 	}

@@ -4,7 +4,6 @@ import lombok.experimental.Accessors;
 
 @Accessors(prefix="_")
 public interface ServicesCoreBootstrapConfigWhenServletExposed
-	     extends ServicesCoreBootstrapConfig<ServicesCoreModuleExpositionForServletImpl,
-	 									     ServicesClientProxyForCoreServletExposed> {
+	     extends ServicesCoreBootstrapConfig {
 	// just a marker interface
 }

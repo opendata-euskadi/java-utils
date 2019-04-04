@@ -1,6 +1,7 @@
 package r01f.facets;
 
 import lombok.RequiredArgsConstructor;
+import r01f.annotations.Immutable;
 import r01f.types.summary.Summary;
 
 /**
@@ -45,14 +46,14 @@ public interface Summarizable {
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
+	@Immutable
 	@RequiredArgsConstructor
 	public static abstract class ImmutableSummarizable
 				      implements Summarizable {
-		private final Class<?> _type;
-		
 		@Override
-		public void setSummary(final Summary summary) {
-			throw new UnsupportedOperationException("Cannot set summary on " + _type + " objects");
+		public void setSummary(Summary summary) {
+			throw new UnsupportedOperationException("Cannot set summary!");
 		}
+
 	}
 }

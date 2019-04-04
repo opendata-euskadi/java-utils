@@ -75,7 +75,7 @@ public class HttpClientRequestBuilderMethodStep
 	 */
 	public HttpClientRequestBuilderMethodStep settingCookies(final Map<String,String> cookies) {
 		if (cookies == null || cookies.size() == 0) return this;
-		for(final Map.Entry<String,String> me : cookies.entrySet()) _setCookie(me.getKey(),me.getValue());
+		for (final Map.Entry<String,String> me : cookies.entrySet()) _setCookie(me.getKey(),me.getValue());
 		return this;
 	}
 	/**
@@ -108,7 +108,7 @@ public class HttpClientRequestBuilderMethodStep
 	 */
 	public HttpClientRequestBuilderMethodStep withHeaders(final Map<String,String> headers) {
 		if (CollectionUtils.isNullOrEmpty(headers)) return this;
-		for(final Map.Entry<String,String> me : headers.entrySet()) _setHeader(me.getKey(),me.getValue());
+		for (final Map.Entry<String,String> me : headers.entrySet()) _setHeader(me.getKey(),me.getValue());
 		return this;
 	}
 	/**

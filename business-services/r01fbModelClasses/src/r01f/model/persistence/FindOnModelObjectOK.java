@@ -21,7 +21,7 @@ public class FindOnModelObjectOK<M extends PersistableModelObject<? extends OID>
 //  CONSTRUCTOR & BUILDER
 /////////////////////////////////////////////////////////////////////////////////////////
 	public FindOnModelObjectOK() {
-		/* nothing */
+		super();
 	}
 	protected FindOnModelObjectOK(final Class<M> entityType) {
 		super(entityType);

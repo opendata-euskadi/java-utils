@@ -1,6 +1,7 @@
 package r01f.model.search;
 
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
@@ -9,6 +10,7 @@ import com.google.common.annotations.GwtIncompatible;
 import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 
 import lombok.AccessLevel;
@@ -22,15 +24,16 @@ import r01f.guids.CommonOIDs.UserCode;
 import r01f.guids.OID;
 import r01f.locale.Language;
 import r01f.model.ModelObject;
+import r01f.model.metadata.FieldID;
 import r01f.model.metadata.HasMetaDataForHasFullTextSummaryModelObject;
 import r01f.model.metadata.HasMetaDataForHasOIDModelObject;
 import r01f.model.metadata.HasMetaDataForHasTrackableFacetForModelObject;
 import r01f.model.metadata.HasTypesMetaData;
-import r01f.model.metadata.IndexableFieldID;
 import r01f.model.metadata.MetaDataDescribable;
 import r01f.model.metadata.TypeMetaDataForModelObjectBase;
 import r01f.model.metadata.TypeMetaDataInspector;
 import r01f.model.search.query.BooleanQueryClause;
+import r01f.model.search.query.BooleanQueryClause.QualifiedQueryClause;
 import r01f.model.search.query.BooleanQueryClause.QueryClauseOccur;
 import r01f.model.search.query.ContainedInQueryClause;
 import r01f.model.search.query.ContainsTextQueryClause;
@@ -77,10 +80,10 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 //  WRAPPERS & UTILs
 /////////////////////////////////////////////////////////////////////////////////////////
 	@MarshallIgnoredField
-	@Getter private transient final SearchFilterForModelObjectAccessorWrapper<SELF_TYPE> _accessorWrapper;
+	@Getter protected transient final SearchFilterForModelObjectAccessorWrapper<SELF_TYPE> _accessorWrapper;
 	
 	@MarshallIgnoredField
-	@Getter private transient final SearchFilterForModelObjectModifierWrapper<SELF_TYPE> _modifierWrapper;
+	@Getter protected transient final SearchFilterForModelObjectModifierWrapper<SELF_TYPE> _modifierWrapper;
 	
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CONSTRUCTOR
@@ -92,30 +95,43 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 	}
 	public <M extends ModelObject> SearchFilterForModelObjectBase(final Class<? extends M> modelObjectType) {
 		this();
-		Collection<Class<? extends ModelObject>> modelObjectTypes = new HashSet<Class<? extends ModelObject>>(1);
-		modelObjectTypes.add(modelObjectType);
-		this.setModelObjectTypesToBeFiltered(modelObjectTypes);
+		if (modelObjectType != null) {
+			Collection<Class<? extends ModelObject>> modelObjectTypes = new HashSet<Class<? extends ModelObject>>(1);
+			modelObjectTypes.add(modelObjectType);
+			this.setModelObjectTypesToBeFiltered(modelObjectTypes);
+		}
 	}
 	public <M extends ModelObject> SearchFilterForModelObjectBase(final Class<? extends M>... modelObjectTypes) {
 		this();
-		Collection<Class<? extends ModelObject>> col = Arrays.<Class<? extends ModelObject>>asList(modelObjectTypes);
-		this.setModelObjectTypesToBeFiltered(col);
+		if (CollectionUtils.hasData(modelObjectTypes)) {
+			Collection<Class<? extends ModelObject>> col = Arrays.<Class<? extends ModelObject>>asList(modelObjectTypes);
+			this.setModelObjectTypesToBeFiltered(col);
+		}
 	}
 	public <M extends ModelObject> SearchFilterForModelObjectBase(final Collection<Class<? extends M>> modelObjectTypes) {
 		this();
-		Collection<Class<? extends ModelObject>> col = FluentIterable.from(modelObjectTypes)
-															  .transform(new Function<Class<? extends M>,Class<? extends ModelObject>>() {
-																				@Override @SuppressWarnings("cast")
-																				public Class<? extends ModelObject> apply(final Class<? extends M> type) {
-																					return (Class<? extends ModelObject>)type;
-																				}
-															  			 })
-															  .toList();
-		this.setModelObjectTypesToBeFiltered(col);
+		if (CollectionUtils.hasData(modelObjectTypes)) {
+			Collection<Class<? extends ModelObject>> col = FluentIterable.from(modelObjectTypes)
+																  .transform(new Function<Class<? extends M>,Class<? extends ModelObject>>() {
+																					@Override @SuppressWarnings("cast")
+																					public Class<? extends ModelObject> apply(final Class<? extends M> type) {
+																						return (Class<? extends ModelObject>)type;
+																					}
+																  			 })
+																  .toList();
+			this.setModelObjectTypesToBeFiltered(col);
+		}
 	}
 	protected <F extends SearchFilterForModelObjectBase<F>> void _copy(final F other) {
 		_UILanguage = other.getUILanguage();
 		_booleanQuery = other.getBooleanQuery();
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  NO QUERY CLAUSES
+/////////////////////////////////////////////////////////////////////////////////////////
+	public boolean isEmpty() {
+		return _booleanQuery == null
+			|| CollectionUtils.isNullOrEmpty(_booleanQuery.getClauses());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  UI LANGUAGE
@@ -179,13 +195,15 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		
 		// All the type's facets are stored at the TYPE_FACETS_FIELD_ID as a multi-valued field
 		Collection<Long> typesCodes = this.getFilteredModelObjectTypesCodesUsing(TypeMetaDataInspector.singleton());
-		IndexableFieldID fieldId = TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA.TYPE_FACETS.getFieldId();
+		FieldID fieldId = FieldID.from(TypeMetaDataForModelObjectBase.SEARCHABLE_METADATA.TYPE_FACETS);
 		
 		QueryClause clause = _accessorWrapper.queryClauses()
 											 .find(fieldId);
 		if (clause != null) {
-			ContainedInQueryClause<Long> typeContainedIn = clause.as(new TypeRef<ContainedInQueryClause<Long>>() { /* nothing */ });
-			typeContainedIn.setSpectrumFrom(typesCodes);
+			@SuppressWarnings({ "unchecked","cast" })
+			ContainedInQueryClause<Long> typeContainedIn = (ContainedInQueryClause<Long>)clause.as(ContainedInQueryClause.class);
+			typeContainedIn.setSpectrumFrom(typesCodes,
+											Long.class);
 		} else {
 			ContainedInQueryClause<Long> typeContainedIn = ContainedInQueryClause.<Long>forField(fieldId)
 									   					   						 .within(typesCodes.toArray(new Long[typesCodes.size()]));
@@ -198,7 +216,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 	@Override @SuppressWarnings("unchecked")
 	public <O extends OID> O getOid() {
 		// obviously, only a single model object type can be set to be filtered if also an oid is set
-		IndexableFieldID fieldId = HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID);
 		
 		// Get the equals query clause if it exists
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
@@ -210,7 +228,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		if (oid == null) return;
 		
 		// obviously, only a single model object type can be set to be filtered if also an oid is set
-		IndexableFieldID fieldId = HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasOIDModelObject.SEARCHABLE_METADATA.OID);
 		
 		// If there exists an equals query clause, modify it; if not set it
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
@@ -252,7 +270,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		return _getTextFilter(false);	// not strict
 	}
 	private ContainsTextQueryClause _getTextFilter(final boolean strict) {
-		IndexableFieldID fieldId = HasMetaDataForHasFullTextSummaryModelObject.SEARCHABLE_METADATA.FULL_TEXT.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasFullTextSummaryModelObject.SEARCHABLE_METADATA.FULL_TEXT);
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		ContainsTextQueryClause textClause = clause != null ? clause.as(ContainsTextQueryClause.class)
 															: null;
@@ -275,7 +293,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 						final Language lang) {
 		if (Strings.isNullOrEmpty(text)) return;
 		
-		IndexableFieldID fieldId = HasMetaDataForHasFullTextSummaryModelObject.SEARCHABLE_METADATA.FULL_TEXT.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasFullTextSummaryModelObject.SEARCHABLE_METADATA.FULL_TEXT);
 		
 		Preconditions.checkState(CollectionUtils.hasData(_modelObjectTypes),
 								 "No model object type was set at fieldId filter so a text clause cannot be set");
@@ -329,7 +347,7 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		Preconditions.checkArgument(creator != null,
 									"The creator cannot be null");
 		
-		IndexableFieldID fieldId = HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATOR.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATOR);
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
@@ -343,13 +361,14 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		return (SELF_TYPE)this;
     }
 	public UserCode getCreator() {
-		return _accessorWrapper.queryClauses().getValueOrNull(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATOR);
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATOR);
+		return _accessorWrapper.queryClauses().getValueOrNull(fieldId);
 	}
     @SuppressWarnings("unchecked")
 	public SELF_TYPE lastEditedBy(final UserCode lastEditor) {
 		Preconditions.checkArgument(lastEditor != null,"The creator cannot be null");
 		
-		IndexableFieldID fieldId = HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATOR.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATOR);
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
@@ -363,7 +382,28 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		return (SELF_TYPE)this;
     }
 	public UserCode getLastEditor() {
-		return _accessorWrapper.queryClauses().getValueOrNull(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATOR);
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATOR);
+		return _accessorWrapper.queryClauses().getValueOrNull(fieldId);
+	}
+	@SuppressWarnings("unchecked")
+	public SELF_TYPE createdOrEditedBy(final UserCode lastCreatorOrUpdator) {
+		Preconditions.checkArgument(lastCreatorOrUpdator != null,"The creator or updator cannot be null");
+
+		// creator = userCode OR lastUpdator = userCode
+		FieldID creatorFieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATOR);
+		FieldID updatorFieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATOR);
+		BooleanQueryClause booleanClause = BooleanQueryClause.create("createdOrEditedBy")
+														.field(creatorFieldId).should().beEqualTo(lastCreatorOrUpdator)
+														.field(updatorFieldId).should().beEqualTo(lastCreatorOrUpdator)
+														.build();
+		_modifierWrapper.addClause(booleanClause,QueryClauseOccur.MUST);
+		return (SELF_TYPE)this;
+	}
+	public UserCode getCreatedOrEditedByUser() {
+		QualifiedQueryClause<BooleanQueryClause> bQryClause = _booleanQuery.findBooleanQueryClause("createdOrEditedBy");
+		return bQryClause != null ? Iterables.getFirst(bQryClause.getClause().getClauses(),null)	// any clause
+											 .getClause().<UserCode>getValue()
+								  : null;
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  CREATE / LAST UPDATE DATE
@@ -371,28 +411,38 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 	@SuppressWarnings("unchecked")
 	public SELF_TYPE createdInRange(final Range<Date> range) {
 		Preconditions.checkArgument(range != null,"The time range cannot be null");
+		// Search for a full day
+		Range<Date> newDateRange = range;
+		if(range.getLowerBound() != null && 
+				range.getUpperBound() != null) {
+			Calendar c = Calendar.getInstance();
+			c.setTime(range.getUpperBound());
+			c.add(Calendar.DAY_OF_MONTH, 1);
+			newDateRange = Range.openClosed(range.getLowerBound(), c.getTime());
+		}
 		
-		IndexableFieldID fieldId = HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATE_DATE.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATE_DATE);
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
 			RangeQueryClause<Date> rangeClause = (RangeQueryClause<Date>)clause;	// clause.as(new TypeRef<RangeQueryClause<Date>>() { /* nothing */ });
-			rangeClause.setRange(range);
+			rangeClause.setRange(newDateRange);
 		} else {
 			RangeQueryClause<Date> rangeClause = RangeQueryClause.forField(fieldId)
-																 .of(range);
+																 .of(newDateRange);
 			_modifierWrapper.addClause(rangeClause,QueryClauseOccur.MUST);
 		}
 		return (SELF_TYPE)this;
 	}
 	public Range<Date> getCreatedRange() {
-		return _accessorWrapper.queryClauses().getValueOrNull(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATE_DATE);
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.CREATE_DATE);
+		return _accessorWrapper.queryClauses().getValueOrNull(fieldId);
 	}
 	@SuppressWarnings("unchecked")
 	public SELF_TYPE lastUpdatedInRange(final Range<Date> range) {
 		Preconditions.checkArgument(range != null,"The time range cannot be null");
 		
-		IndexableFieldID fieldId = HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATE_DATE.getFieldId();
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATE_DATE);
 		
 		QueryClause clause = _accessorWrapper.queryClauses().find(fieldId);
 		if (clause != null) {
@@ -406,7 +456,8 @@ public abstract class SearchFilterForModelObjectBase<SELF_TYPE extends SearchFil
 		return (SELF_TYPE)this;
 	}
 	public Range<Date> getLastUpdatedRange() {
-		return _accessorWrapper.queryClauses().getValueOrNull(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATE_DATE);
+		FieldID fieldId = FieldID.from(HasMetaDataForHasTrackableFacetForModelObject.SEARCHABLE_METADATA.LAST_UPDATE_DATE);
+		return _accessorWrapper.queryClauses().getValueOrNull(fieldId);
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  

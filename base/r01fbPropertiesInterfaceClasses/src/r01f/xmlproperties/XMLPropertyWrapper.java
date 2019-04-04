@@ -37,8 +37,7 @@ import r01f.types.contact.EMail;
 import r01f.types.url.Host;
 import r01f.types.url.Url;
 import r01f.types.url.UrlPath;
-import r01f.util.OSUtils;
-import r01f.util.OSUtils.OSType;
+import r01f.util.OSType;
 import r01f.util.enums.Enums;
 import r01f.util.types.Strings;
 import r01f.util.types.locale.Languages;
@@ -413,11 +412,16 @@ public final class XMLPropertyWrapper {
 		return outPath != null ? outPath
 							   : valByEnv.getFor(_props.getEnvironment());
 	}
+	public Path asPath(final XMLPropertyDefaultValueByOS<Path> valByOS) {
+		Path outPath = this.asPath();
+		return outPath != null ? outPath
+							   : valByOS.getFor(OSType.getOS());
+	}
 	private static String _replacePathVars(final String pathAsString) {
 		if (Strings.isNullOrEmpty(pathAsString)) return null;
 
 		String outPathAsString = pathAsString;
-		OSType osType = OSUtils.getOS();
+		OSType osType = OSType.getOS();
 		if (pathAsString.startsWith("%ROOT%")) {
 			if (osType == OSType.Linux || osType == OSType.NIX) {
 				outPathAsString = pathAsString.replace("%ROOT%","/");

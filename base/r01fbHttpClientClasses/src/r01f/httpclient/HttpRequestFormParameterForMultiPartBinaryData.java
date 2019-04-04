@@ -129,7 +129,7 @@ public class HttpRequestFormParameterForMultiPartBinaryData
 													"Content-Transfer-Encoding: {}\r\n\r\n",
 									    			_name,
 									    			filePart.getFileName(),
-									    			filePart.getMimeType().getTypeName(),
+									    			filePart.getMimeType().getName(),
 									    			filePart.getTransferEncoding().toString().toLowerCase())
 									    .getBytes(theTargetServerCharset);
 			// File Part contents
@@ -157,14 +157,14 @@ public class HttpRequestFormParameterForMultiPartBinaryData
 			
 			List<byte[]> partsBytes = new ArrayList<byte[]>(_binaryParts.size());
 			int partsBytesLength = 0;
-			for(HttpRequestPayloadForFileParameter filePart : _binaryParts) {
+			for (HttpRequestPayloadForFileParameter filePart : _binaryParts) {
 				// Current file part header
 				byte[] partHeaderBytes = Strings.customized("--**R01MXBOUNDR01**\r\n" +
 															"Content-Disposition: file; filename=\"{}\"\r\n" +
 															"Content-Type: {}\r\n" + 
 															"Content-Transfer-Encoding: {}\r\n\r\n",
 															filePart.getFileName(),
-											    			filePart.getMimeType().getTypeName(),
+											    			filePart.getMimeType().getName(),
 											    			filePart.getTransferEncoding().toString().toLowerCase())
 											    .getBytes(theTargetServerCharset);
 				// Current file part contents
@@ -187,7 +187,7 @@ public class HttpRequestFormParameterForMultiPartBinaryData
 			ByteArrayOutputStream bos = new ByteArrayOutputStream(headerBytes.length + partsBytesLength);
 			
 			bos.write(headerBytes);						// header
-			for(byte[] partBytes : partsBytes) {		// parts
+			for (byte[] partBytes : partsBytes) {		// parts
 				bos.write(partBytes);
 			}
 			bos.write("--**R01MXBOUNDR01**--\r\n".getBytes());	// boundary end

@@ -64,7 +64,7 @@ abstract class FieldMetaDataBuilder
 	}
 	@SuppressWarnings("unchecked")
 	@RequiredArgsConstructor(access=AccessLevel.MODULE)
-	static class FieldMetaDataBuilderAsFieldUsingHasTypeMetaDataStep<F extends FieldMetaData> {
+	static final class FieldMetaDataBuilderAsFieldUsingHasTypeMetaDataStep<F extends FieldMetaData> {
 		private final TypeFieldMetaData _field;
 		
 		public F using(final HasTypesMetaData hasTypesMetaData) {			
@@ -109,13 +109,13 @@ abstract class FieldMetaDataBuilder
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
-	public static MetaDataConfigBuilderNameStep forId(final IndexableFieldID fieldId) {
+	public static MetaDataConfigBuilderNameStep forId(final FieldID fieldId) {
 		return new FieldMetaDataBuilder() { /* nothing */ }
 						.new MetaDataConfigBuilderNameStep(fieldId);
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderNameStep {
-		private final IndexableFieldID _fieldId;
+	public final class MetaDataConfigBuilderNameStep {
+		private final FieldID _fieldId;
 		
 		public MetaDataConfigBuilderDescriptionStep withName(final LanguageTexts name) {
 			return new MetaDataConfigBuilderDescriptionStep(_fieldId,
@@ -123,8 +123,8 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderDescriptionStep {
-		private final IndexableFieldID _fieldId;
+	public final class MetaDataConfigBuilderDescriptionStep {
+		private final FieldID _fieldId;
 		private final LanguageTexts _name;
 		
 		public MetaDataConfigBuilderInspectorStep withDescription(final LanguageTexts description) {
@@ -137,8 +137,8 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderInspectorStep {
-		private final IndexableFieldID _fieldId;
+	public final class MetaDataConfigBuilderInspectorStep {
+		private final FieldID _fieldId;
 		private final LanguageTexts _name;
 		private final LanguageTexts _description;
 		
@@ -149,8 +149,8 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderTypeStep {
-		private final IndexableFieldID _fieldId;
+	public final class MetaDataConfigBuilderTypeStep {
+		private final FieldID _fieldId;
 		private final LanguageTexts _name;
 		private final LanguageTexts _description;
 		private final HasTypesMetaData _hasTypesMetaData;
@@ -550,7 +550,7 @@ abstract class FieldMetaDataBuilder
 /////////////////////////////////////////////////////////////////////////////////////////
 	@Accessors(prefix="_")
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PolimorphicFieldMetaDataConfigBuilderTypeStep1 {
+	public final class PolimorphicFieldMetaDataConfigBuilderTypeStep1 {
 		@Getter(AccessLevel.PRIVATE) private final FieldMetaDataForPolymorphicType _fieldMetaData;
 		
 		public PolimorphicFieldMetaDataConfigBuilderTypeStep2 forModelObjectType(final Class<? extends MetaDataDescribable> modelObjType) {
@@ -565,7 +565,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class PolimorphicFieldMetaDataConfigBuilderTypeStep2 {
+	public final class PolimorphicFieldMetaDataConfigBuilderTypeStep2 {
 		private final Class<? extends MetaDataDescribable> _modelObjType;
 		private final PolimorphicFieldMetaDataConfigBuilderTypeStep1 _step1;
 		
@@ -579,7 +579,7 @@ abstract class FieldMetaDataBuilder
 //  
 /////////////////////////////////////////////////////////////////////////////////////////
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgAll<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgAll<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;
 		
 		public F searchEngine(final FieldMetaDataSearchEngineIndexingConfig searchEngineCfg) {
@@ -588,8 +588,8 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfg<F extends FieldMetaData,
-											      BUILDER_NEXT_STEP> {
+	public final class MetaDataConfigBuilderIndexingCfg<F extends FieldMetaData,
+											            BUILDER_NEXT_STEP> {
 		private final F _fieldMetaDataCfg;
 		private final BUILDER_NEXT_STEP _builderNextStep;
 		
@@ -603,7 +603,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingAlwaysStoredCfg<BUILDER_NEXT_STEP> {
+	public final class MetaDataConfigBuilderIndexingAlwaysStoredCfg<BUILDER_NEXT_STEP> {
 		private final BUILDER_NEXT_STEP _builderNextStep;
 		
 		public BUILDER_NEXT_STEP searchEngine() {
@@ -611,8 +611,8 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgStoreStep<F extends FieldMetaData,
-														   BUILDER_NEXT_STEP> {
+	public final class MetaDataConfigBuilderIndexingCfgStoreStep<F extends FieldMetaData,
+														         BUILDER_NEXT_STEP> {
 		private final F _fieldMetaDataCfg;
 		private final BUILDER_NEXT_STEP _builderNextStep;
 	
@@ -628,7 +628,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgAlwaysTokenizedStep<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgAlwaysTokenizedStep<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;
 		
 		public F notIndexed() {
@@ -645,7 +645,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}																  
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgNotTokenizableStep<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgNotTokenizableStep<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;
 		
 		public F notIndexed() {
@@ -662,7 +662,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgTokenizableStep<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgTokenizableStep<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;	
 		
 		public F notIndexed() {
@@ -677,7 +677,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgTokenizeStep<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgTokenizeStep<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;
 		
 		public F notTokenized() {
@@ -692,7 +692,7 @@ abstract class FieldMetaDataBuilder
 		}
 	}
 	@RequiredArgsConstructor(access=AccessLevel.PRIVATE)
-	public class MetaDataConfigBuilderIndexingCfgBoostingStep<F extends FieldMetaData> {
+	public final class MetaDataConfigBuilderIndexingCfgBoostingStep<F extends FieldMetaData> {
 		private final F _fieldMetaDataCfg;
 		
 		public F withDefaultBoosting() {

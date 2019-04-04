@@ -21,7 +21,7 @@ public class FieldMetaDataIDs {
 	 * @param id the metadata id
 	 * @return
 	 */
-	public static IndexableFieldID idFor(final ClientApiAppCode appCode,final String... ids) {
+	public static FieldID idFor(final ClientApiAppCode appCode,final String... ids) {
 		return FieldMetaDataIDs.idFor(appCode.asAppCode(),ids);
 	}
 	/**
@@ -30,7 +30,7 @@ public class FieldMetaDataIDs {
 	 * @param id the metadata id
 	 * @return
 	 */
-	public static IndexableFieldID idFor(final CoreAppCode appCode,final String... ids) {
+	public static FieldID idFor(final CoreAppCode appCode,final String... ids) {
 		return FieldMetaDataIDs.idFor(appCode.asAppCode(),ids);
 	}
 	/**
@@ -39,7 +39,7 @@ public class FieldMetaDataIDs {
 	 * @param id the metadata id
 	 * @return
 	 */
-	public static IndexableFieldID idFor(final AppCode appCode,final String... ids) {
+	public static FieldID idFor(final AppCode appCode,final String... ids) {
 		Collection<String> theIds = ids != null ? Lists.<String>newArrayListWithExpectedSize(ids.length + 1)
 												: Lists.<String>newArrayListWithExpectedSize(1);
 		return FieldMetaDataIDs.idFor(theIds.toArray(new String[theIds.size()]));
@@ -50,11 +50,11 @@ public class FieldMetaDataIDs {
 	 * @param id the metadata id
 	 * @return
 	 */
-	public static IndexableFieldID idFor(final String... ids) {
+	public static FieldID idFor(final String... ids) {
 		// [1] join all the ids
 		String idsJoined = CollectionUtils.of(ids)
 										  .toStringSeparatedWith('.');
 		// [2] add the appCode
-		return IndexableFieldID.forId(idsJoined);
+		return FieldID.forId(idsJoined);
 	}
 }

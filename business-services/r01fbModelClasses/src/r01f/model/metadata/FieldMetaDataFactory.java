@@ -27,13 +27,13 @@ import r01f.types.summary.Summary;
 @RequiredArgsConstructor(access=AccessLevel.PRIVATE)
 public class FieldMetaDataFactory {
 
-	private final IndexableFieldID _fieldId;
+	private final FieldID _fieldId;
 	private final LanguageTexts _name;
 	private final Field _field;
 	private final LanguageTexts _description;
 	private final MetaDataForField _metaData;
 
-	public static FieldMetaData getInstance(final IndexableFieldID fieldId,
+	public static FieldMetaData getInstance(final FieldID fieldId,
 											final LanguageTexts name,
 											final Field field,
 											final LanguageTexts description,

@@ -1,8 +1,8 @@
 package r01f.model.persistence;
 
-import r01f.guids.OID;
+import r01f.guids.PersistableObjectOID;
 
-public interface FindOIDsResult<O extends OID> 
+public interface FindOIDsResult<O extends PersistableObjectOID> 
        	 extends FindResult<O> {
 	/**
 	 * @return a {@link FindOIDsError}

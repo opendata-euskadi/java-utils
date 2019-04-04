@@ -1,8 +1,13 @@
 package r01f.events.crud;
 
+import org.slf4j.Logger;
+
+import com.google.common.eventbus.DeadEvent;
 import com.google.common.eventbus.EventBus;
+import com.google.common.eventbus.Subscribe;
 
 import lombok.experimental.Accessors;
+import lombok.extern.slf4j.Slf4j;
 import r01f.events.PersistenceOperationEventListeners.PersistenceOperationOKEventListener;
 import r01f.events.PersistenceOperationEvents.PersistenceOperationEvent;
 import r01f.events.PersistenceOperationEvents.PersistenceOperationOKEvent;
@@ -16,11 +21,13 @@ import r01f.persistence.callback.spec.PersistenceOperationBeanCallbackSpec;
 import r01f.persistence.callback.spec.PersistenceOperationCallbackSpec;
 import r01f.reflection.ReflectionUtils;
 import r01f.securitycontext.SecurityContext;
+import r01f.util.types.Strings;
 
 /**
  * Listener to {@link PersistenceOperationOKEvent}s thrown by the persistence layer through the {@link EventBus}
  * @param <M>
  */
+@Slf4j
 @Accessors(prefix="_")
 public abstract class CRUDOperationOKEventListenerBase 
            implements PersistenceOperationOKEventListener {
@@ -44,7 +51,7 @@ public abstract class CRUDOperationOKEventListenerBase
 	 */
 	protected final transient CRUDOperationOKEventFilter _crudOperationOKEventFilter;
 /////////////////////////////////////////////////////////////////////////////////////////
-//  
+//  CONSTRUCTOR
 /////////////////////////////////////////////////////////////////////////////////////////
 	public CRUDOperationOKEventListenerBase(final Class<? extends ModelObject> type) {
 		_type = type;
@@ -54,7 +61,8 @@ public abstract class CRUDOperationOKEventListenerBase
 													CRUDResult<? extends ModelObject> opResult = opEvent.getPersistenceOperationResult()
 																				    					.as(CRUDResult.class);
 													// the event refers to the same model object type THIS event handler handles;
-													return opResult.as(CRUDOK.class).getObjectType() == _type;
+													return ReflectionUtils.isSubClassOf(opResult.as(CRUDOK.class).getObjectType(),
+																						_type);
 												}
 									  };
 	}
@@ -62,6 +70,14 @@ public abstract class CRUDOperationOKEventListenerBase
 											final CRUDOperationOKEventFilter crudOperationOKEventFilter) {
 		_type = type;
 		_crudOperationOKEventFilter = crudOperationOKEventFilter;
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//	DEFAULT DEAD EVENT LISTENER
+/////////////////////////////////////////////////////////////////////////////////////////	
+	@Subscribe
+	public void handleDeadEvent(final DeadEvent deadEvent) {
+		log.warn("> Not handled event:  {}",
+				 deadEvent.getEvent());
 	}
 /////////////////////////////////////////////////////////////////////////////////////////
 //  
@@ -178,5 +194,27 @@ public abstract class CRUDOperationOKEventListenerBase
 			throw new UnsupportedOperationException();
 		}
 		return callback;
+	}
+/////////////////////////////////////////////////////////////////////////////////////////
+//  DEBUG
+/////////////////////////////////////////////////////////////////////////////////////////
+	protected void _debugEvent(final Logger log,
+						  	   final PersistenceOperationOKEvent opOKEvent,final boolean hasToBeHandled) {
+		if (log.isTraceEnabled()) {
+			log.trace(_debugEvent(opOKEvent,
+						  		  hasToBeHandled));
+		} else if (log.isDebugEnabled() && hasToBeHandled) {
+			log.debug(_debugEvent(opOKEvent,
+						  		  hasToBeHandled));
+		}
+	}
+	protected String _debugEvent(final PersistenceOperationOKEvent opOKEvent,
+							   	 final boolean hasToBeHandled) {
+		return Strings.customized("EventListener registered for events of [{}] entities\n" + 
+						  		  "{}\n" + 
+						  		  "Handle the event: {}",
+					  			  _type,
+							  	  opOKEvent.debugInfo(),
+							  	  hasToBeHandled);
 	}
 }

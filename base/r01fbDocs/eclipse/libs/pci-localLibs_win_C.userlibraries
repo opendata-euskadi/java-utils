@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<eclipse-userlibraries version="2">
+    <library name="LIB_MYSQL" systemlibrary="false">
+        <archive path="C:/pci-ejie/eclipse/local_libs/db_client/mysql-connector-java-5.1.46.jar"/>
+    </library>
+    <library name="LIB_ORACLE" systemlibrary="false">
+        <archive path="C:/pci-ejie/eclipse/local_libs/db_client/ojdbc6.jar"/>
+        <archive path="C:/pci-ejie/eclipse/local_libs/db_client/ojdbc6_g.jar"/>
+    </library>
+    <library name="LIB_WL" systemlibrary="false">
+        <archive path="C:/pci-ejie/eclipse/local_libs/weblogic/wlfullclient.jar"/>
+        <archive path="C:/pci-ejie/eclipse/local_libs/weblogic/webservices.jar"/>
+        <archive path="C:/pci-ejie/eclipse/local_libs/weblogic/wlthint3client.jar"/>
+    </library>
+</eclipse-userlibraries>
